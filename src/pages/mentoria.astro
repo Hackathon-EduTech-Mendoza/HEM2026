@@ -440,7 +440,9 @@ document.addEventListener('click', async (e) => {
 	btn.textContent = 'Procesando...';
 
 	const success = await handleUpdateTicket(ticketId, newStatus);
-	if (!success) {
+	if (success) {
+		btn.textContent = isFinish ? 'Finalizado ✓' : 'En camino ✓';
+	} else {
 		btn.disabled = false;
 		btn.textContent = originalText;
 	}
