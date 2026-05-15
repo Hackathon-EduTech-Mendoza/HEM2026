@@ -66,7 +66,9 @@ const historyTickets = tickets.filter(t => t.status === 'finalizado' || t.status
 
 <Layout title="Panel de Mentoría | HEM2026">
   <Navbar />
-  <main class="mentor-page">
+  <div id="mentor-config" data-mentor-id={user.id} data-session-duration={mentorSessionDuration} style="display:none;"></div>
+
+<main class="mentor-page">
     <div class="container mentor-container">
       <div class="mentor-header">
         <h1>Panel de Mentoría</h1>
@@ -379,165 +381,280 @@ const historyTickets = tickets.filter(t => t.status === 'finalizado' || t.status
     opacity: 1;
   }
   .toast.error { background: #dc2626; }
+
+@keyframes fadeInUp {
+	from { opacity: 0; transform: translateY(20px); }
+	to { opacity: 1; transform: translateY(0); }
+}
 </style>
 
-<script is:inline define:vars={{ mentorId: user.id, mentorSessionDuration }}>
-  // Nota: Usamos is:inline para simplificar el acceso a variables de Astro y evitar problemas de hidratación complejos.
-  // Pero importamos el cliente de Supabase dinámicamente o lo pasamos por window.
-  // Mejor: Usamos un script normal y obtenemos los datos de data-attributes.
-</script>
-
 <script>
-  import { createBrowserClient } from '@supabase/ssr';
+import { createBrowserClient } from '@supabase/ssr';
 
-  const supabase = createBrowserClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY
-  );
+const supabase = createBrowserClient(
+	import.meta.env.PUBLIC_SUPABASE_URL,
+	import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+);
 
-  const activeGrid = document.getElementById('active-tickets-grid');
-  const historyList = document.getElementById('history-tickets-list');
-  const activeCountBadge = document.getElementById('active-count');
-  const toast = document.getElementById('toast');
-  const toastMsg = document.getElementById('toast-msg');
+const configEl = document.getElementById('mentor-config');
+const mentorId = configEl?.getAttribute('data-mentor-id');
+const mentorSessionDuration = parseInt(configEl?.getAttribute('data-session-duration') || '15', 10);
 
-  // Obtener mentorId desde el cliente para Realtime (o pasar por prop)
-  // Como ya validamos sesión en el server, podemos usar auth.getUser() o confiar en que el middleware puso el profile.
-  const mentorId = (await supabase.auth.getUser()).data.user?.id;
-  const mentorSessionDuration = 15; // Valor fallback, idealmente obtenido de prop
+const activeGrid = document.getElementById('active-tickets-grid');
+const historyList = document.getElementById('history-tickets-list');
+const activeCountBadge = document.getElementById('active-count');
+const toast = document.getElementById('toast');
+const toastMsg = document.getElementById('toast-msg');
 
-  function showToast(message, isError = false) {
-    if (!toast || !toastMsg) return;
-    toastMsg.textContent = message;
-    toast.classList.toggle('error', isError);
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-  }
+function showToast(message, isError = false) {
+	if (!toast || !toastMsg) return;
+	toastMsg.textContent = message;
+	toast.classList.toggle('error', isError);
+	toast.classList.add('show');
+	setTimeout(() => toast.classList.remove('show'), 3000);
+}
 
-  // --- Lógica de Acciones (RPCs) ---
-  async function handleUpdateTicket(ticketId, newStatus) {
-    const { data, error } = await supabase.rpc('mentor_update_ticket', {
-      p_ticket_id: ticketId,
-      p_new_status: newStatus
-    });
+async function handleUpdateTicket(ticketId, newStatus) {
+	const { data, error } = await supabase.rpc('mentor_update_ticket', {
+		p_ticket_id: ticketId,
+		p_new_status: newStatus
+	});
 
-    if (error) {
-      showToast(error.message, true);
-      return false;
-    }
-    return true;
-  }
+	if (error || !data?.ok) {
+		showToast(data?.error || error?.message || 'Error al actualizar', true);
+		return false;
+	}
+	return true;
+}
 
-  // Event Delegation para botones
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.action-btn');
-    if (!btn) return;
+document.addEventListener('click', async (e) => {
+	const btn = e.target.closest('.action-btn');
+	if (!btn) return;
 
-    const ticketId = btn.getAttribute('data-id');
-    const isFinish = btn.classList.contains('btn-finish');
-    const newStatus = isFinish ? 'finalizado' : 'en_camino';
+	const ticketId = btn.getAttribute('data-id');
+	const isFinish = btn.classList.contains('btn-finish');
+	const newStatus = isFinish ? 'finalizado' : 'en_camino';
 
-    btn.disabled = true;
-    const originalText = btn.textContent;
-    btn.textContent = 'Procesando...';
+	btn.disabled = true;
+	const originalText = btn.textContent;
+	btn.textContent = 'Procesando...';
 
-    const success = await handleUpdateTicket(ticketId, newStatus);
-    
-    if (!success) {
-      btn.disabled = false;
-      btn.textContent = originalText;
-    }
-    // Realtime se encargará de actualizar la UI
-  });
+	const success = await handleUpdateTicket(ticketId, newStatus);
+	if (!success) {
+		btn.disabled = false;
+		btn.textContent = originalText;
+	}
+});
 
-  // --- Realtime Subscription ---
-  if (mentorId) {
-    supabase
-      .channel('mentor-help-requests')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'help_requests',
-          filter: `mentor_id=eq.${mentorId}`
-        },
-        (payload) => {
-          console.log('Realtime change:', payload);
-          // Recargar para simplificar (aunque lo ideal es manipular el DOM)
-          // Para esta versión, recargamos para asegurar que los joins y estados estén frescos
-          window.location.reload();
-        }
-      )
-      .subscribe();
-  }
+function moveTicketToHistory(ticketId) {
+	const card = document.getElementById(`ticket-${ticketId}`);
+	if (!card) return;
+	card.remove();
+	const count = activeGrid?.querySelectorAll('.ticket-card').length || 0;
+	if (activeCountBadge) activeCountBadge.textContent = count.toString();
+	if (count === 0 && activeGrid) {
+		const empty = activeGrid.querySelector('.empty-state');
+		if (!empty) {
+			activeGrid.innerHTML = '<div class="empty-state card"><p>No tenés pedidos de ayuda pendientes en este momento.</p><small>Los nuevos pedidos aparecerán aquí automáticamente.</small></div>';
+		}
+	}
+	sessionStorage.setItem('mentor_active_tickets', count.toString());
+}
 
-  // --- Cronómetros y Timers ---
-  function updateTimers() {
-    const timerValues = document.querySelectorAll('.timer-value');
-    timerValues.forEach(el => {
-      const startedAt = el.getAttribute('data-started');
-      if (!startedAt) return;
+function updateTicketCard(ticketId, newStatus, startedAt) {
+	const card = document.getElementById(`ticket-${ticketId}`);
+	if (!card) return;
 
-      const startTime = new Date(startedAt).getTime();
-      const endTime = startTime + (mentorSessionDuration * 60 * 1000);
-      const now = Date.now();
-      const diff = endTime - now;
+	const statusPill = card.querySelector('.status-pill');
+	const timerSection = card.querySelector('.timer-section');
+	const actionsDiv = card.querySelector('.ticket-actions');
 
-      if (diff <= 0) {
-        el.textContent = "¡Tiempo agotado!";
-        el.closest('.ticket-card').classList.add('timer-exceeded');
-      } else {
-        const mins = Math.floor(diff / 60000);
-        const secs = Math.floor((diff % 60000) / 1000);
-        el.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-      }
-    });
+	if (newStatus === 'en_camino') {
+		card.classList.remove('status-pendiente');
+		card.classList.add('status-en_camino');
+		if (statusPill) statusPill.textContent = '🔵 En camino';
 
-    // Actualizar también el "hace X min" de los pendientes
-    const timeElapsedEl = document.querySelectorAll('.time-elapsed');
-    timeElapsedEl.forEach(el => {
-      const start = el.getAttribute('data-start');
-      if (!start) return;
-      const elapsed = Math.floor((Date.now() - new Date(start).getTime()) / 60000);
-      el.textContent = `Hace ${elapsed} min`;
-    });
-  }
+		if (actionsDiv) {
+			actionsDiv.innerHTML = '<button class="btn btn-success action-btn btn-finish" data-id="' + ticketId + '">Finalizar Ayuda</button>';
+		}
 
-  setInterval(updateTimers, 1000);
-  updateTimers();
+		if (!timerSection) {
+			const body = card.querySelector('.ticket-body');
+			if (body) {
+				const timerDiv = document.createElement('div');
+				timerDiv.className = 'timer-section';
+				timerDiv.innerHTML = '<span class="timer-label">⏱️ Tiempo restante:</span><span class="timer-value" data-started="' + startedAt + '">--:--</span>';
+				const actions = body.querySelector('.ticket-actions');
+				if (actions) body.insertBefore(timerDiv, actions);
+			}
+		} else {
+			const timerVal = timerSection.querySelector('.timer-value');
+			if (timerVal) timerVal.setAttribute('data-started', startedAt);
+		}
+	} else if (newStatus === 'finalizado' || newStatus === 'expirado') {
+		moveTicketToHistory(ticketId);
+	}
+}
 
-  // --- Notificación (T4.5) ---
-  const initialCount = parseInt(activeCountBadge?.textContent || '0', 10);
-  
-  // Guardar en sessionStorage para detectar incrementos tras recarga por Realtime
-  const lastCount = parseInt(sessionStorage.getItem('mentor_active_tickets') || '0', 10);
-  
-  if (initialCount > lastCount) {
-    // Nuevo ticket detectado
-    document.title = `(¡NUEVO!) ${document.title}`;
-    
-    // Intentar sonido (oscilador simple para no depender de assets externos)
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.2);
-    } catch (e) { console.log('Audio blocked by browser'); }
+function createTicketCard(ticket) {
+	const emptyState = activeGrid?.querySelector('.empty-state');
+	if (emptyState) emptyState.remove();
 
-    showToast('¡Has recibido un nuevo pedido de ayuda!');
-  }
-  
-  sessionStorage.setItem('mentor_active_tickets', initialCount.toString());
+	const card = document.createElement('div');
+	card.className = `ticket-card card status-${ticket.status}`;
+	card.id = `ticket-${ticket.id}`;
 
-  // Limpiar el título al mover el mouse o hacer foco
-  window.addEventListener('focus', () => {
-    document.title = 'Panel de Mentoría | HEM2026';
-  }, { once: true });
+	const statusLabel = ticket.status === 'pendiente' ? '🟡 Pendiente' : '🔵 En camino';
+	const timerHtml = ticket.status === 'en_camino' && ticket.started_at
+		? `<div class="timer-section"><span class="timer-label">⏱️ Tiempo restante:</span><span class="timer-value" data-started="${ticket.started_at}">--:--</span></div>`
+		: '';
+
+	const btnHtml = ticket.status === 'pendiente'
+		? `<button class="btn btn-primary action-btn btn-go" data-id="${ticket.id}">¡Voy en Camino!</button>`
+		: ticket.status === 'en_camino'
+			? `<button class="btn btn-success action-btn btn-finish" data-id="${ticket.id}">Finalizar Ayuda</button>`
+			: '';
+
+	card.innerHTML = `
+		<div class="ticket-status-strip"></div>
+		<div class="ticket-body">
+			<div class="ticket-main">
+				<div class="team-info">
+					<h3>${ticket.teams?.name || 'Equipo'}</h3>
+					<span class="project-title">${ticket.teams?.projects?.[0]?.title || 'Sin proyecto'}</span>
+				</div>
+				<div class="ticket-meta">
+					<span class="status-pill">${statusLabel}</span>
+					<span class="time-elapsed" data-start="${ticket.created_at}">Hace 0 min</span>
+				</div>
+			</div>
+			${timerHtml}
+			<div class="ticket-actions">${btnHtml}</div>
+		</div>
+	`;
+
+	if (activeGrid) {
+		activeGrid.prepend(card);
+		card.style.animation = 'fadeInUp 0.3s ease-out';
+	}
+
+	const currentCount = activeGrid?.querySelectorAll('.ticket-card').length || 0;
+	if (activeCountBadge) activeCountBadge.textContent = currentCount.toString();
+	sessionStorage.setItem('mentor_active_tickets', currentCount.toString());
+}
+
+// --- Realtime Subscription ---
+if (mentorId) {
+	supabase
+		.channel('mentor-help-requests')
+		.on(
+			'postgres_changes',
+			{
+				event: '*',
+				schema: 'public',
+				table: 'help_requests',
+				filter: `mentor_id=eq.${mentorId}`
+			},
+			(payload) => {
+				const { eventType, new: record, old: oldRecord } = payload;
+
+				if (eventType === 'INSERT' && record) {
+					supabase
+						.from('help_requests')
+						.select('*, teams ( name, projects (title) )')
+						.eq('id', record.id)
+						.single()
+						.then(({ data }) => {
+							if (data) {
+								createTicketCard(data);
+								document.title = `(¡NUEVO!) Panel de Mentoría | HEM2026`;
+								try {
+									const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+									const osc = audioCtx.createOscillator();
+									const gain = audioCtx.createGain();
+									osc.connect(gain);
+									gain.connect(audioCtx.destination);
+									osc.type = 'sine';
+									osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+									gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+									osc.start();
+									osc.stop(audioCtx.currentTime + 0.2);
+								} catch (e) { /* Audio blocked by browser */ }
+								showToast('¡Has recibido un nuevo pedido de ayuda!');
+							}
+						});
+				} else if (eventType === 'UPDATE' && record) {
+					updateTicketCard(record.id, record.status, record.started_at);
+
+					if (record.status === 'finalizado') {
+						showToast('Ticket finalizado correctamente.');
+					}
+				} else if (eventType === 'DELETE' && oldRecord) {
+					moveTicketToHistory(oldRecord.id);
+				}
+			}
+		)
+		.subscribe();
+}
+
+// --- Cronómetros y Timers ---
+function updateTimers() {
+	const timerValues = document.querySelectorAll('.timer-value');
+	timerValues.forEach(el => {
+		const startedAt = el.getAttribute('data-started');
+		if (!startedAt) return;
+
+		const startTime = new Date(startedAt).getTime();
+		const endTime = startTime + (mentorSessionDuration * 60 * 1000);
+		const now = Date.now();
+		const diff = endTime - now;
+
+		if (diff <= 0) {
+			el.textContent = "¡Tiempo agotado!";
+			el.closest('.ticket-card')?.classList.add('timer-exceeded');
+		} else {
+			const mins = Math.floor(diff / 60000);
+			const secs = Math.floor((diff % 60000) / 1000);
+			el.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+		}
+	});
+
+	const timeElapsedEl = document.querySelectorAll('.time-elapsed');
+	timeElapsedEl.forEach(el => {
+		const start = el.getAttribute('data-start');
+		if (!start) return;
+		const elapsed = Math.floor((Date.now() - new Date(start).getTime()) / 60000);
+		el.textContent = `Hace ${elapsed} min`;
+	});
+}
+
+setInterval(updateTimers, 1000);
+updateTimers();
+
+// --- Notificación inicial (si ya había tickets nuevos vs última visita) ---
+const initialCount = parseInt(activeCountBadge?.textContent || '0', 10);
+const lastCount = parseInt(sessionStorage.getItem('mentor_active_tickets') || '0', 10);
+
+if (initialCount > lastCount) {
+	document.title = `(¡NUEVO!) ${document.title}`;
+	try {
+		const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+		const osc = audioCtx.createOscillator();
+		const gain = audioCtx.createGain();
+		osc.connect(gain);
+		gain.connect(audioCtx.destination);
+		osc.type = 'sine';
+		osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+		gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+		osc.start();
+		osc.stop(audioCtx.currentTime + 0.2);
+	} catch (e) { /* Audio blocked by browser */ }
+	showToast('¡Has recibido un nuevo pedido de ayuda!');
+}
+
+sessionStorage.setItem('mentor_active_tickets', initialCount.toString());
+
+window.addEventListener('focus', () => {
+	document.title = 'Panel de Mentoría | HEM2026';
+}, { once: true });
 </script>
