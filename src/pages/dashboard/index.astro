@@ -266,23 +266,28 @@ if (profile.team_id && helpEnabled) {
 
           {/* Sección SOS (T5.3) */}
           {helpEnabled && profile.team_id && mentor && (
-            <div class="sos-section" id="sos-container" data-team-id={profile.team_id} data-initial-status={activeHelpRequest?.status || ''} data-started-at={activeHelpRequest?.started_at || ''}>
+            <div class="sos-section" id="sos-container" data-team-id={profile.team_id} data-initial-status={activeHelpRequest?.status || ''} data-started-at={activeHelpRequest?.started_at || ''} data-session-duration={mentorSessionDuration}>
               <h3 class="section-label">Sistema de Ayuda SOS</h3>
               <div class="sos-card">
-                <div class="sos-info">
-                  <p id="sos-status-text">
-                    {!activeHelpRequest 
-                      ? '¿Necesitan ayuda técnica o de negocio? Pidan un SOS y su mentor vendrá a su mesa.' 
-                      : activeHelpRequest.status === 'pendiente' 
-                        ? '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.' 
-                        : '🏃‍♂️ ¡Tu mentor está en camino! Prepará tus dudas.'}
-                  </p>
-                  {activeHelpRequest?.status === 'en_camino' && (
-                    <div class="sos-timer">
-                      ⏱️ Sesión en curso: <span id="sos-timer-val">--:--</span>
-                    </div>
-                  )}
-                </div>
+        <div class="sos-info">
+          <p id="sos-status-text">
+            {!activeHelpRequest
+              ? '¿Necesitan ayuda técnica o de negocio? Pidan un SOS y su mentor vendrá a su mesa.'
+              : activeHelpRequest.status === 'pendiente'
+              ? '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.'
+              : '🏃‍♂️ ¡Tu mentor está en camino! Prepará tus dudas.'}
+          </p>
+          {activeHelpRequest?.status === 'pendiente' && (
+            <div class="sos-waiting">
+              <span class="sos-waiting-dot"></span> Esperando mentor…
+            </div>
+          )}
+          {activeHelpRequest?.status === 'en_camino' && (
+            <div class="sos-timer">
+              ⏱️ Tiempo restante: <span id="sos-timer-val">--:--</span>
+            </div>
+          )}
+        </div>
                 <button 
                   id="sos-btn" 
                   class={`btn ${activeHelpRequest ? 'btn-disabled' : 'btn-danger'}`} 
@@ -447,14 +452,14 @@ if (profile.team_id && helpEnabled) {
     margin-bottom: 2px;
   }
 
-  .form-error {
-    background: rgba(220, 38, 38, 0.1);
-    border: 1px solid rgba(220, 38, 38, 0.3);
-    color: #dc2626;
-    padding: 0.75rem 1rem;
-    border-radius: var(--r-md);
-    font-size: 0.9rem;
-  }
+.form-error {
+  background: rgba(var(--danger-r, 220, 38, 38), 0.1);
+  border: 1px solid rgba(var(--danger-r, 220, 38, 38), 0.3);
+  color: var(--danger, #dc2626);
+  padding: 0.75rem 1rem;
+  border-radius: var(--r-md);
+  font-size: 0.9rem;
+}
 
   .form-actions {
     margin-top: 1rem;
@@ -521,23 +526,24 @@ if (profile.team_id && helpEnabled) {
     border: 1px solid transparent;
   }
 
-  .status-pendiente {
-    background: rgba(255, 193, 7, 0.1);
-    color: #ffc107;
-    border-color: rgba(255, 193, 7, 0.2);
-  }
+.status-pendiente {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+  border-color: rgba(255, 193, 7, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
 
-  .status-aprobado {
-    background: rgba(var(--c2r), 0.1);
-    color: var(--c2);
-    border-color: rgba(var(--c2r), 0.2);
-  }
+.status-aprobado {
+  background: rgba(var(--c2r), 0.1);
+  color: var(--c2);
+  border-color: rgba(var(--c2r), 0.2);
+}
 
-  .status-rechazado {
-    background: rgba(220, 38, 38, 0.1);
-    color: #dc2626;
-    border-color: rgba(220, 38, 38, 0.2);
-  }
+.status-rechazado {
+  background: rgba(var(--danger-r, 220, 38, 38), 0.1);
+  color: var(--danger, #dc2626);
+  border-color: rgba(var(--danger-r, 220, 38, 38), 0.2);
+}
 
   .success-text {
     color: var(--txt-2);
@@ -643,15 +649,44 @@ if (profile.team_id && helpEnabled) {
 
   .sos-info { flex: 1; }
   .sos-info p { margin: 0; font-size: 0.95rem; color: var(--txt-1); line-height: 1.5; }
-  .sos-timer { margin-top: 0.5rem; font-family: monospace; color: var(--c1); font-weight: 700; font-size: 1rem; }
+.sos-timer { margin-top: 0.5rem; font-family: monospace; color: var(--c1); font-weight: 700; font-size: 1rem; }
 
-  .btn-danger {
-    background: #dc2626; color: white; border: none; font-weight: 700;
-    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
-    transition: all var(--t-fast);
-  }
-  .btn-danger:hover:not(:disabled) { background: #b91c1c; transform: translateY(-2px); }
-  .btn-danger:active { transform: translateY(0); }
+.sos-waiting {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--txt-2);
+  font-size: 0.9rem;
+}
+
+.sos-waiting-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--c1);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sos-status-fade {
+  animation: fadeInUp 0.35s var(--ease) forwards;
+}
+
+.btn-danger {
+  background: var(--danger, #dc2626);
+  color: white;
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(var(--danger-r, 220, 38, 38), 0.4);
+  transition: all var(--t-fast);
+}
+.btn-danger:hover:not(:disabled) { background: var(--danger-h, #b91c1c); transform: translateY(-2px); }
+.btn-danger:active { transform: translateY(0); }
   
   .btn-disabled {
     background: var(--brd); color: var(--txt-m); cursor: not-allowed;
@@ -774,78 +809,177 @@ if (profile.team_id && helpEnabled) {
     }, 3000);
   });
 
-  // --- SOS Logic (T5.3) ---
-  const sosContainer = document.getElementById('sos-container');
-  const sosBtn = document.getElementById('sos-btn') as HTMLButtonElement;
-  const sosStatusText = document.getElementById('sos-status-text');
-  const sosTimerVal = document.getElementById('sos-timer-val');
+// --- SOS Logic (T5.3) ---
+const sosContainer = document.getElementById('sos-container');
+const sosBtn = document.getElementById('sos-btn') as HTMLButtonElement;
+const sosStatusText = document.getElementById('sos-status-text');
+const sosTimerVal = document.getElementById('sos-timer-val');
 
-  if (sosContainer && sosBtn) {
-    const teamId = sosContainer.dataset.teamId;
-    let currentStatus = sosContainer.dataset.initialStatus;
-    let startedAt = sosContainer.dataset.startedAt;
+if (sosContainer && sosBtn) {
+  const teamId = sosContainer.dataset.teamId;
+  const sessionDuration = parseInt(sosContainer.dataset.sessionDuration || '15', 10);
+  let currentStatus = sosContainer.dataset.initialStatus || '';
+  let startedAt = sosContainer.dataset.startedAt || '';
+  let timerInterval: ReturnType<typeof setInterval> | null = null;
 
-    async function requestHelp() {
-      sosBtn.disabled = true;
-      sosBtn.textContent = 'Enviando...';
+  function resetSosUI() {
+    currentStatus = '';
+    startedAt = '';
+    sosBtn.disabled = false;
+    sosBtn.textContent = 'Pedir Ayuda (SOS)';
+    sosBtn.classList.remove('btn-disabled');
+    sosBtn.classList.add('btn-danger');
+    if (sosStatusText) {
+      sosStatusText.textContent = '¿Necesitan ayuda técnica o de negocio? Pidan un SOS y su mentor vendrá a su mesa.';
+      sosStatusText.classList.add('sos-status-fade');
+      setTimeout(() => sosStatusText?.classList.remove('sos-status-fade'), 400);
+    }
+    removeTimerDisplay();
+  }
 
-      const { data, error } = await supabase.rpc('request_help');
+  function showTimerDisplay() {
+    let timerEl = sosContainer.querySelector('.sos-timer') as HTMLDivElement | null;
+    if (!timerEl) {
+      timerEl = document.createElement('div');
+      timerEl.className = 'sos-timer';
+      timerEl.innerHTML = '⏱️ Tiempo restante: <span id="sos-timer-val">--:--</span>';
+      const sosInfo = sosContainer.querySelector('.sos-info');
+      sosInfo?.appendChild(timerEl);
+    }
+  }
 
-      if (error || !data?.ok) {
-        alert(data?.error || error?.message || 'Error al pedir ayuda.');
-        sosBtn.disabled = false;
-        sosBtn.textContent = 'Pedir Ayuda (SOS)';
-        return;
-      }
+  function removeTimerDisplay() {
+    const timerEl = sosContainer.querySelector('.sos-timer');
+    if (timerEl) timerEl.remove();
+  }
 
-      // El realtime actualizará la UI
+  function showWaitingDisplay() {
+    let waitEl = sosContainer.querySelector('.sos-waiting') as HTMLDivElement | null;
+    if (!waitEl) {
+      waitEl = document.createElement('div');
+      waitEl.className = 'sos-waiting';
+      waitEl.innerHTML = '<span class="sos-waiting-dot"></span> Esperando mentor…';
+      const sosInfo = sosContainer.querySelector('.sos-info');
+      sosInfo?.appendChild(waitEl);
+    }
+  }
+
+  function removeWaitingDisplay() {
+    const waitEl = sosContainer.querySelector('.sos-waiting');
+    if (waitEl) waitEl.remove();
+  }
+
+  async function requestHelp() {
+    sosBtn.disabled = true;
+    sosBtn.textContent = 'Enviando...';
+
+    const { data, error } = await supabase.rpc('request_help');
+
+    if (error || !data?.ok) {
+      alert(data?.error || error?.message || 'Error al pedir ayuda.');
+      sosBtn.disabled = false;
+      sosBtn.textContent = 'Pedir Ayuda (SOS)';
+      return;
     }
 
-    sosBtn.addEventListener('click', requestHelp);
+    currentStatus = 'pendiente';
+    sosBtn.textContent = 'Pedido Enviado ✓';
+    sosBtn.classList.remove('btn-danger');
+    sosBtn.classList.add('btn-disabled');
+    if (sosStatusText) {
+      sosStatusText.textContent = '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.';
+      sosStatusText.classList.add('sos-status-fade');
+      setTimeout(() => sosStatusText?.classList.remove('sos-status-fade'), 400);
+    }
+    showWaitingDisplay();
+  }
 
-    // Realtime subscription for ticket status
-    if (teamId) {
-      supabase
-        .channel(`sos-${teamId}`)
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'help_requests',
-          filter: `team_id=eq.${teamId}`
-        }, (payload: any) => {
-          const ticket = payload.new;
-          if (!ticket || ticket.status === 'finalizado' || ticket.status === 'expirado') {
-            window.location.reload(); // Recargar para limpiar estado
-            return;
-          }
-          
-          currentStatus = ticket.status;
-          startedAt = ticket.started_at;
-          
+  sosBtn.addEventListener('click', requestHelp);
+
+  // Realtime subscription for ticket status
+  if (teamId) {
+    supabase
+      .channel(`sos-${teamId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'help_requests',
+        filter: `team_id=eq.${teamId}`
+      }, (payload: any) => {
+        const ticket = payload.new;
+        if (!ticket) return;
+
+        if (ticket.status === 'finalizado') {
+          removeWaitingDisplay();
+          removeTimerDisplay();
           if (sosStatusText) {
-            sosStatusText.textContent = ticket.status === 'pendiente' 
-              ? '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.' 
-              : '🏃‍♂️ ¡Tu mentor está en camino! Prepará tus dudas.';
+            sosStatusText.textContent = '✅ Sesión finalizada. Podés pedir ayuda nuevamente si lo necesitás.';
+            sosStatusText.classList.add('sos-status-fade');
+            setTimeout(() => sosStatusText?.classList.remove('sos-status-fade'), 400);
           }
-          
+          resetSosUI();
+          return;
+        }
+
+        if (ticket.status === 'expirado') {
+          removeWaitingDisplay();
+          removeTimerDisplay();
+          if (sosStatusText) {
+            sosStatusText.textContent = '⏰ Tiempo agotado. Podés volver a pedir ayuda si lo necesitás.';
+            sosStatusText.classList.add('sos-status-fade');
+            setTimeout(() => sosStatusText?.classList.remove('sos-status-fade'), 400);
+          }
+          resetSosUI();
+          return;
+        }
+
+        currentStatus = ticket.status;
+        startedAt = ticket.started_at;
+
+        if (ticket.status === 'pendiente') {
+          removeTimerDisplay();
+          showWaitingDisplay();
+          if (sosStatusText) {
+            sosStatusText.textContent = '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.';
+            sosStatusText.classList.add('sos-status-fade');
+            setTimeout(() => sosStatusText?.classList.remove('sos-status-fade'), 400);
+          }
           sosBtn.disabled = true;
           sosBtn.textContent = 'Pedido Activo';
           sosBtn.classList.remove('btn-danger');
           sosBtn.classList.add('btn-disabled');
-        })
-        .subscribe();
-    }
+        }
 
-    // Timer logic
-    setInterval(() => {
-      if (currentStatus === 'en_camino' && startedAt && sosTimerVal) {
-        const startTime = new Date(startedAt).getTime();
-        const now = Date.now();
-        const elapsedSecs = Math.floor((now - startTime) / 1000);
-        const mins = Math.floor(elapsedSecs / 60);
-        const secs = elapsedSecs % 60;
-        sosTimerVal.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-      }
-    }, 1000);
+        if (ticket.status === 'en_camino') {
+          removeWaitingDisplay();
+          showTimerDisplay();
+          if (sosStatusText) {
+            sosStatusText.textContent = '🏃‍♂️ ¡Tu mentor está en camino! Prepará tus dudas.';
+            sosStatusText.classList.add('sos-status-fade');
+            setTimeout(() => sosStatusText?.classList.remove('sos-status-fade'), 400);
+          }
+          sosBtn.disabled = true;
+          sosBtn.textContent = 'Pedido Activo';
+          sosBtn.classList.remove('btn-danger');
+          sosBtn.classList.add('btn-disabled');
+        }
+      })
+      .subscribe();
   }
+
+  // Countdown timer
+  timerInterval = setInterval(() => {
+    const timerSpan = document.getElementById('sos-timer-val');
+    if (currentStatus === 'en_camino' && startedAt && timerSpan) {
+      const startTime = new Date(startedAt).getTime();
+      const now = Date.now();
+      const elapsedSecs = Math.floor((now - startTime) / 1000);
+      const totalSecs = sessionDuration * 60;
+      const remainingSecs = Math.max(0, totalSecs - elapsedSecs);
+      const mins = Math.floor(remainingSecs / 60);
+      const secs = remainingSecs % 60;
+      timerSpan.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+  }, 1000);
+}
 </script>
