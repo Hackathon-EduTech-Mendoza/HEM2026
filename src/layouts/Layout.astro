@@ -21,6 +21,7 @@ import '../styles/global.css';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import GooeyBackground from '../components/GooeyBackground.astro';
 import Analytics from '@vercel/analytics/astro';
 ---
 
@@ -69,6 +70,7 @@ import Analytics from '@vercel/analytics/astro';
 		</script>
 	</head>
 	<body>
+		<GooeyBackground />
 		<Navbar />
 		<slot />
 		<Footer />

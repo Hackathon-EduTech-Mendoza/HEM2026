@@ -22,11 +22,11 @@
 
 [data-theme="brand-light"] {
     --bg-1: #ffffff; --bg-2: #eae7ea; --bg-3: #f5f3f5;
-    --bg-card: #ffffff; --bg-card-h: #fdfcfd; --bg-input: #ffffff;
+    --bg-card: rgba(255, 255, 255, 0.75); --bg-card-h: rgba(253, 252, 253, 0.85); --bg-input: #ffffff;
     --txt-1: #222220; --txt-2: #555555; --txt-m: #777777;
     --c1: #88007b; --c2: #9fc637; --c3: #222220;
     --c1r: 136,0,123; --c2r: 159,198,55; --c3r: 34,34,32;
-    --brd: #d0cdd0; --brd-s: #e2dfe2;
+    --brd: #d0cdd0; --brd-s: #e2dee2;
     --danger: #dc2626; --danger-r: 220,38,38;
     --sh-sm: 0 2px 8px rgba(0,0,0,.05);
     --sh-md: 0 8px 24px rgba(0,0,0,.07);
@@ -37,7 +37,7 @@
 
 [data-theme="brand-dark"] {
     --bg-1: #1a1a1a; --bg-2: #222220; --bg-3: #2a2a28;
-    --bg-card: #222220; --bg-card-h: #2a2a28; --bg-input: #1a1a1a;
+    --bg-card: rgba(34, 34, 32, 0.75); --bg-card-h: rgba(42, 42, 40, 0.85); --bg-input: #1a1a1a;
     --txt-1: #eae7ea; --txt-2: #9a9a9a; --txt-m: #777777;
     --c1: #88007b; --c2: #9fc637; --c3: #eae7ea;
     --c1r: 136,0,123; --c2r: 159,198,55; --c3r: 234,231,234;
@@ -83,16 +83,6 @@ body::before {
     opacity: var(--grain);
     pointer-events: none;
     z-index: 10000;
-}
-
-body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: linear-gradient(var(--grid-c) 1px, transparent 1px), linear-gradient(90deg, var(--grid-c) 1px, transparent 1px);
-    background-size: 80px 80px;
-    pointer-events: none;
-    z-index: 0;
 }
 
 a {
@@ -144,6 +134,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .card {
     background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--brd);
     border-radius: var(--r-lg);
     box-shadow: var(--sh-md);
