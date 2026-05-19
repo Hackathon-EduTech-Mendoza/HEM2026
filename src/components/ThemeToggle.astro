@@ -3,156 +3,290 @@
 ---
 
 <div class="theme-sw" id="themeSw">
-    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar configuración visual" aria-haspopup="true" aria-expanded="false">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  </button>
+  <div class="theme-opts" id="themeOpts" role="menu">
+    <button class="theme-opt active" data-theme="brand-light" role="menuitem">
+      <span class="theme-prev light-prev"></span>
+      <span class="theme-name">Modo Claro</span>
     </button>
-    <div class="theme-opts" id="themeOpts">
-        <button class="theme-opt active" data-theme="brand-light">
-            <span class="theme-prev" style="background:linear-gradient(135deg,#eae7ea,#9fc637)"></span>
-            <span class="theme-name">Modo Claro</span>
-        </button>
-        <button class="theme-opt" data-theme="brand-dark">
-            <span class="theme-prev" style="background:linear-gradient(135deg,#222220,#88007b)"></span>
-            <span class="theme-name">Modo Oscuro</span>
-        </button>
+    <button class="theme-opt" data-theme="brand-dark" role="menuitem">
+      <span class="theme-prev dark-prev"></span>
+      <span class="theme-name">Modo Oscuro</span>
+    </button>
+    <div class="theme-opt-separator"></div>
+    <div class="theme-config-row" role="menuitem">
+      <span class="theme-name">Fondo Animado</span>
+      <label class="switch" aria-label="Activar o desactivar fondo animado">
+        <input type="checkbox" id="animToggle" checked />
+        <span class="slider"></span>
+      </label>
     </div>
+  </div>
 </div>
 
 <style>
-    .theme-sw {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        z-index: 999;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.75rem;
-    }
+  .theme-sw {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
 
-    .theme-toggle {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: var(--bg-card);
-        border: 1px solid var(--brd);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--txt-1);
-        box-shadow: var(--sh-md);
-        transition: all var(--t-base);
-    }
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--txt-1);
+    box-shadow: var(--sh-sm);
+    transition: all var(--t-base);
+  }
 
-    .theme-toggle:hover {
-        border-color: var(--c1);
-        transform: scale(1.05);
-    }
+  .theme-toggle:hover,
+  .theme-toggle:focus-visible {
+    border-color: var(--c1);
+    transform: scale(1.05);
+    outline: none;
+  }
 
-    .theme-toggle svg {
-        width: 20px;
-        height: 20px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 2;
-    }
+  .theme-toggle svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    transition: transform var(--t-slow);
+  }
 
-    .theme-opts {
-        display: none;
-        flex-direction: column;
-        gap: 0.5rem;
-        background: var(--bg-card);
-        border: 1px solid var(--brd);
-        border-radius: var(--r-md);
-        padding: 0.75rem;
-        box-shadow: var(--sh-lg);
-        min-width: 180px;
-        transition: all var(--t-theme);
-    }
+  .theme-toggle:hover svg {
+    transform: rotate(45deg);
+  }
 
-    .theme-opts.vis {
-        display: flex;
-    }
+  .theme-opts {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    padding: 0.75rem;
+    box-shadow: var(--sh-lg);
+    min-width: 210px;
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    z-index: 1001;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: slideDown 0.25s var(--ease);
+  }
 
-    .theme-opt {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 0.75rem;
-        background: none;
-        border: 1px solid transparent;
-        border-radius: var(--r-sm);
-        cursor: pointer;
-        transition: all var(--t-fast);
-        color: var(--txt-1);
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
     }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-    .theme-opt:hover {
-        background: var(--bg-3);
-    }
+  .theme-opts.vis {
+    display: flex;
+  }
 
-    .theme-opt.active {
-        border-color: var(--c1);
-        background: rgba(var(--c1r), 0.05);
-    }
+  .theme-opt {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: all var(--t-fast);
+    color: var(--txt-1);
+    width: 100%;
+    text-align: left;
+  }
 
-    .theme-prev {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
+  .theme-opt:hover,
+  .theme-opt:focus-visible {
+    background: var(--bg-3);
+    outline: none;
+  }
 
-    .theme-name {
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        color: var(--txt-2);
-        letter-spacing: 0.05em;
-    }
+  .theme-opt.active {
+    border-color: var(--c1);
+    background: rgba(var(--c1r), 0.05);
+  }
+
+  .theme-prev {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid var(--brd);
+  }
+
+  .light-prev {
+    background: linear-gradient(135deg, #eae7ea, #9fc637);
+  }
+
+  .dark-prev {
+    background: linear-gradient(135deg, #222220, #88007b);
+  }
+
+  .theme-name {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--txt-2);
+    letter-spacing: 0.05em;
+    user-select: none;
+  }
+
+  .theme-opt-separator {
+    height: 1px;
+    background: var(--brd-s);
+    margin: 0.25rem 0;
+  }
+
+  .theme-config-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.75rem;
+  }
+
+  /* Switch Toggle CSS */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 20px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: var(--brd);
+    transition: 0.3s var(--ease);
+    border-radius: 20px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--bg-1);
+    transition: 0.3s var(--ease);
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: var(--c2); /* verde */
+  }
+
+  input:focus-visible + .slider {
+    box-shadow: 0 0 0 2px var(--c1);
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(18px);
+    background-color: var(--bg-card);
+  }
 </style>
 
 <script>
-    // Se ejecuta del lado del cliente
-    const themeSw = document.getElementById('themeSw');
-    if (themeSw) {
-        const themeToggle = document.getElementById('themeToggle');
-        const themeOpts = document.getElementById('themeOpts');
-        const themeBtns = document.querySelectorAll('.theme-opt');
+  const themeSw = document.getElementById('themeSw');
+  if (themeSw) {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeOpts = document.getElementById('themeOpts');
+    const themeBtns = document.querySelectorAll('.theme-opt');
+    const animToggle = document.getElementById('animToggle') as HTMLInputElement | null;
 
-        function setTheme(name) {
-            document.documentElement.setAttribute('data-theme', name);
-            localStorage.setItem('edutech-theme', name);
-            themeBtns.forEach(b => {
-                b.classList.toggle('active', b.getAttribute('data-theme') === name);
-            });
-        }
+    // Toggle del Menú
+    themeToggle?.addEventListener('click', () => {
+      const isVisible = themeOpts?.classList.toggle('vis');
+      themeToggle.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
+    });
 
-        // Configurar botones y recuperar tema si existe
-        const savedTheme = localStorage.getItem('edutech-theme');
-        if (savedTheme) {
-            themeBtns.forEach(b => {
-                b.classList.toggle('active', b.getAttribute('data-theme') === savedTheme);
-            });
-        }
-
-        themeToggle?.addEventListener('click', () => {
-            themeOpts?.classList.toggle('vis');
-        });
-
-        themeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const themeName = btn.getAttribute('data-theme');
-                if (themeName) setTheme(themeName);
-                themeOpts?.classList.remove('vis');
-            });
-        });
-
-        // Click outside para cerrar
-        document.addEventListener('click', (e) => {
-            if (e.target instanceof Node && !themeSw.contains(e.target)) {
-                themeOpts?.classList.remove('vis');
-            }
-        });
+    // Cambiar de tema
+    function setTheme(name: string) {
+      document.documentElement.setAttribute('data-theme', name);
+      localStorage.setItem('edutech-theme', name);
+      themeBtns.forEach(b => {
+        const isMatched = b.getAttribute('data-theme') === name;
+        b.classList.toggle('active', isMatched);
+      });
     }
+
+    // Inicializar Tema Activo
+    const savedTheme = localStorage.getItem('edutech-theme') || 'brand-light';
+    themeBtns.forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-theme') === savedTheme);
+    });
+
+    themeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const themeName = btn.getAttribute('data-theme');
+        if (themeName) setTheme(themeName);
+        themeOpts?.classList.remove('vis');
+        themeToggle?.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Control de Animaciones
+    if (animToggle) {
+      const animationsEnabled = localStorage.getItem('edutech-animations') !== 'false';
+      animToggle.checked = animationsEnabled;
+
+      animToggle.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        const enabled = target.checked;
+        localStorage.setItem('edutech-animations', enabled ? 'true' : 'false');
+        
+        // Despachar el evento personalizado para el fondo dinámico
+        window.dispatchEvent(
+          new CustomEvent('edutech-animations-changed', {
+            detail: { enabled }
+          })
+        );
+      });
+    }
+
+    // Cerrar al hacer click afuera
+    document.addEventListener('click', (e) => {
+      if (e.target instanceof Node && !themeSw.contains(e.target)) {
+        themeOpts?.classList.remove('vis');
+        themeToggle?.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Cerrar al presionar Escape para accesibilidad
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && themeOpts?.classList.contains('vis')) {
+        themeOpts.classList.remove('vis');
+        themeToggle?.setAttribute('aria-expanded', 'false');
+        (themeToggle as HTMLElement | null)?.focus();
+      }
+    });
+  }
 </script>

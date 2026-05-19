@@ -151,6 +151,7 @@
     let mouseY = 0;
     let isMouseActive = false;
     let animationFrameId: number;
+    let animationsEnabled = localStorage.getItem("edutech-animations") !== "false";
 
     // Obtener los colores dinámicos de las variables CSS de HEM2026
     let colorFucsia = "";
@@ -187,6 +188,9 @@
     // Escuchar el cambio de temas para actualizar colores de las partículas al instante
     const observer = new MutationObserver(() => {
       fetchBrandColors();
+      if (!animationsEnabled) {
+        drawStaticFrame();
+      }
     });
     observer.observe(document.documentElement, {
       attributes: true,
@@ -197,8 +201,9 @@
     fetchBrandColors();
     setupMetaballs();
 
-    // Eventos de mouse
+    // Eventos de mouse (sólo activos si la animación está encendida)
     window.addEventListener("mousemove", (e) => {
+      if (!animationsEnabled) return;
       mouseX = e.clientX;
       mouseY = e.clientY;
       isMouseActive = true;
@@ -216,37 +221,72 @@
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
         setupMetaballs();
+        if (!animationsEnabled) {
+          drawStaticFrame();
+        }
       }, 200);
     });
 
+    // Dibujar un frame de partículas estático (sin simular físicas)
+    function drawStaticFrame() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, width, height);
+      metaballs.forEach((ball) => {
+        ball.draw(ctx);
+      });
+    }
+
     // Bucle de animación principal
     function animate() {
-      ctx!.clearRect(0, 0, width, height);
+      if (!ctx) return;
+      ctx.clearRect(0, 0, width, height);
 
       // 1. Dibujar metaball interactiva en el cursor (hace que las flotantes se adhieran a la mano)
-      if (isMouseActive) {
-        ctx!.beginPath();
-        ctx!.arc(mouseX, mouseY, 45, 0, Math.PI * 2);
-        ctx!.fillStyle = colorFucsia; // Color base para la metaball del puntero
-        ctx!.fill();
+      if (isMouseActive && animationsEnabled) {
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, 45, 0, Math.PI * 2);
+        ctx.fillStyle = colorFucsia; // Color base para la metaball del puntero
+        ctx.fill();
       }
 
       // 2. Actualizar y dibujar las metaballs flotantes
       metaballs.forEach((ball) => {
-        ball.update(width, height, mouseX, mouseY, isMouseActive);
-        ball.draw(ctx!);
+        if (animationsEnabled) {
+          ball.update(width, height, mouseX, mouseY, isMouseActive);
+        }
+        ball.draw(ctx);
       });
 
-      animationFrameId = requestAnimationFrame(animate);
+      if (animationsEnabled) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
     }
 
-    animate();
+    // Escuchar el evento de activación/desactivación de animación en caliente
+    window.addEventListener("edutech-animations-changed", (e: any) => {
+      animationsEnabled = e.detail.enabled;
+      if (animationsEnabled) {
+        cancelAnimationFrame(animationFrameId);
+        animate();
+      } else {
+        cancelAnimationFrame(animationFrameId);
+        isMouseActive = false;
+        drawStaticFrame();
+      }
+    });
+
+    // Iniciar con la preferencia guardada
+    if (animationsEnabled) {
+      animate();
+    } else {
+      drawStaticFrame();
+    }
 
     // Detener la animación cuando la pestaña está en segundo plano para optimizar rendimiento
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         cancelAnimationFrame(animationFrameId);
-      } else {
+      } else if (animationsEnabled) {
         animate();
       }
     });

@@ -1,5 +1,6 @@
 ---
 // src/components/Navbar.astro
+import ThemeToggle from './ThemeToggle.astro';
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
 ---
@@ -9,9 +10,7 @@ const profile = Astro.locals.profile;
         <a href="/#inicio" class="nav-logo">
             <img src="/img/brand/MARCA_SIMPLE_NEGRO_SIN_FONDO.png" alt="Hackathon EduTech" class="brand-logo" />
         </a>
-        <button class="nav-toggle" id="navToggle" aria-label="Menú">
-            <span></span><span></span><span></span>
-        </button>
+        
         <div class="nav-menu" id="navMenu">
             <ul class="nav-links">
                 <li><a href="/#inicio">Inicio</a></li>
@@ -35,6 +34,13 @@ const profile = Astro.locals.profile;
                     </>
                 )}
             </div>
+        </div>
+
+        <div class="nav-actions-container">
+            <ThemeToggle />
+            <button class="nav-toggle" id="navToggle" aria-label="Menú">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </div>
 </nav>
@@ -120,6 +126,13 @@ const profile = Astro.locals.profile;
         display: flex;
         align-items: center;
         gap: 2.5rem;
+    }
+
+    .nav-actions-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        z-index: 10;
     }
 
     .nav-links {
