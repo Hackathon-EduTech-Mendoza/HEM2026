@@ -153,6 +153,26 @@
     let animationFrameId: number;
     let animationsEnabled = localStorage.getItem("edutech-animations") !== "false";
 
+    // Respetar preferencia del sistema operativo para movimiento reducido
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion && localStorage.getItem('edutech-animations') === null) {
+      animationsEnabled = false;
+      localStorage.setItem('edutech-animations', 'false');
+      // Sincronizar el botón de AnimToggle
+      window.dispatchEvent(new CustomEvent('edutech-animations-changed', { detail: { enabled: false } }));
+    }
+
+    // Configuración responsiva según viewport
+    function getResponsiveConfig() {
+      if (width >= 1200) {
+        return { minCount: 10, maxCount: 14, minRadius: 75, maxRadius: 155, speed: 0.4, cursorRadius: 45 };
+      } else if (width >= 768) {
+        return { minCount: 6, maxCount: 8, minRadius: 50, maxRadius: 100, speed: 0.3, cursorRadius: 35 };
+      } else {
+        return { minCount: 4, maxCount: 5, minRadius: 35, maxRadius: 70, speed: 0.2, cursorRadius: 25 };
+      }
+    }
+
     // Obtener los colores dinámicos de las variables CSS de HEM2026
     let colorFucsia = "";
     let colorVerde = "";
@@ -168,20 +188,36 @@
       });
     }
 
-    // Inicializar metaballs
+    // Inicializar metaballs con parámetros responsivos
     function setupMetaballs() {
       metaballs = [];
-      // Rango de metaballs grandes (entre 10 y 14) para un efecto óptimo y sutil
-      const count = Math.min(14, Math.max(8, Math.floor((width * height) / 120000)));
+      const config = getResponsiveConfig();
+      const area = width * height;
+      const count = Math.min(config.maxCount, Math.max(config.minCount, Math.floor(area / 120000)));
+      const radiusRange = config.maxRadius - config.minRadius;
       
       for (let i = 0; i < count; i++) {
-        // Posiciones aleatorias en el canvas
-        const radius = Math.random() * 80 + 75; // Radios grandes para facilitar la fusión
+        const radius = Math.random() * radiusRange + config.minRadius;
         const x = Math.random() * (width - radius * 2) + radius;
         const y = Math.random() * (height - radius * 2) + radius;
         const color = i % 2 === 0 ? colorFucsia : colorVerde;
         
         metaballs.push(new Metaball(x, y, radius, color));
+      }
+
+      // Ajustar velocidad base de cada metaball según viewport
+      metaballs.forEach(ball => {
+        const speedFactor = config.speed / 0.4; // Relativo a la velocidad de PC
+        ball.baseVx *= speedFactor;
+        ball.baseVy *= speedFactor;
+        ball.vx = ball.baseVx;
+        ball.vy = ball.baseVy;
+      });
+
+      // Reducir intensidad del blur SVG en pantallas pequeñas para mejor rendimiento
+      const blurElement = document.querySelector('#gooey-effect feGaussianBlur');
+      if (blurElement) {
+        blurElement.setAttribute('stdDeviation', width < 768 ? '10' : '15');
       }
     }
 
@@ -243,9 +279,10 @@
 
       // 1. Dibujar metaball interactiva en el cursor (hace que las flotantes se adhieran a la mano)
       if (isMouseActive && animationsEnabled) {
+        const config = getResponsiveConfig();
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 45, 0, Math.PI * 2);
-        ctx.fillStyle = colorFucsia; // Color base para la metaball del puntero
+        ctx.arc(mouseX, mouseY, config.cursorRadius, 0, Math.PI * 2);
+        ctx.fillStyle = colorFucsia;
         ctx.fill();
       }
 
