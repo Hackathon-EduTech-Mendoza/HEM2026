@@ -9,7 +9,7 @@ const { data } = await supabase
   .eq('key', 'event_start_datetime')
   .single();
 
-const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
+const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
 ---
 
 <section class="hero" id="inicio">
@@ -24,7 +24,7 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
     </div>
     <p class="hero-desc">
       Un espacio intensivo de trabajo colaborativo donde equipos
-      interdisciplinarios diseñan soluciones tecnológicas innovadoras para los
+      interdisciplinarios del Nivel Superior diseñan soluciones tecnológicas innovadoras para los
       desafíos actuales de la educación.
     </p>
 
@@ -52,14 +52,14 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
     </div>
 
     <div class="hero-dates">
-      <div class="date-chip"><strong>3 Jun</strong> &mdash; Virtual</div>
+      <div class="date-chip"><strong>19 Ago</strong> &mdash; Virtual</div>
       <div class="date-chip">
-        <strong>5-6 Jun</strong> &mdash; Presencial
+        <strong>21-22 Ago</strong> &mdash; Presencial
       </div>
     </div>
 
     <div class="hero-act">
-      <a href="#registro" class="btn btn-primary btn-lg glow-btn"
+      <a href="/registro" class="btn btn-primary btn-lg glow-btn"
         >Inscribirse ahora &rarr;</a
       >
       <a href="#acerca" class="btn btn-outline btn-lg">Conocer más</a>
@@ -317,7 +317,7 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
 
   function updateCD() {
     const countdownEl = document.getElementById("countdown");
-    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-06-03T21:30:00-03:00";
+    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-08-19T21:30:00-03:00";
     const target = new Date(targetDateStr).getTime();
     const now = new Date().getTime();
     const diff = target - now;
