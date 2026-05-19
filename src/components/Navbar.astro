@@ -70,31 +70,33 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         </div>
 
         <div class="nav-actions-container">
-            <div class="desktop-only">
-                <AnimToggle />
-            </div>
             <ThemeToggle />
 
             <!-- Mini-dropdown de usuario en escritorio -->
-            {user && (
-                <div class="user-dropdown" id="userDropdown">
-                    <button class="user-dropdown-trigger" id="userDropdownTrigger" aria-label="Menú de usuario" title="Cuenta">
-                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    </button>
-                    <div class="user-dropdown-menu" id="userDropdownMenu">
-                        {panelInfo?.secondary && (
-                            <a href={panelInfo.secondary.href} class="dropdown-item">
-                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                                {panelInfo.secondary.label}
-                            </a>
-                        )}
-                        <button class="dropdown-item dropdown-logout btn-logout">
-                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                            Cerrar Sesión
-                        </button>
+            <div class="user-dropdown" id="userDropdown" style={user ? "display: block;" : "display: none;"}>
+                <button class="user-dropdown-trigger" id="userDropdownTrigger" aria-label="Menú de usuario" title="Cuenta">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+                <div class="user-dropdown-menu" id="userDropdownMenu">
+                    <a href={panelInfo?.primary?.href || "#"} id="dropdown-primary-link" class="dropdown-item" style={panelInfo?.primary ? "display: flex;" : "display: none;"}>
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2-2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span id="dropdown-primary-label">{panelInfo?.primary?.label || "Panel"}</span>
+                    </a>
+                    <a href={panelInfo?.secondary?.href || "#"} id="dropdown-secondary-link" class="dropdown-item" style={panelInfo?.secondary ? "display: flex;" : "display: none;"}>
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        <span id="dropdown-secondary-label">{panelInfo?.secondary?.label || "Dashboard"}</span>
+                    </a>
+                    <div class="dropdown-item dropdown-anim-item">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        <span style="flex-grow: 1; margin-right: 0.5rem;">Fondo Animado</span>
+                        <AnimToggle />
                     </div>
+                    <button class="dropdown-item dropdown-logout btn-logout">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Cerrar Sesión
+                    </button>
                 </div>
-            )}
+            </div>
 
             <button class="nav-toggle" id="navToggle" aria-label="Menú">
                 <span></span><span></span><span></span>
@@ -328,6 +330,25 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         color: var(--c1);
     }
 
+    .dropdown-anim-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0.25rem 0.75rem;
+        color: var(--txt-1);
+        font-family: var(--font-body);
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: var(--r-sm);
+        transition: background var(--t-fast), color var(--t-fast);
+    }
+
+    .dropdown-anim-item:hover {
+        background: rgba(136, 0, 123, 0.08);
+        color: var(--c1);
+    }
+
     .dropdown-logout {
         color: var(--txt-m);
         border-top: 1px solid var(--brd);
@@ -366,6 +387,10 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
             flex-direction: row;
         }
         .mobile-menu-footer {
+            display: none !important;
+        }
+        /* Ocultar botones de Auth en PC si está logueado */
+        .navbar.logged-in #nav-auth-buttons {
             display: none !important;
         }
     }
@@ -588,9 +613,14 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
     async function checkAuth() {
         try {
             const { data: { session } } = await supabase.auth.getSession();
+            const navbarEl = document.getElementById('navbar');
             const authContainer = document.getElementById('nav-auth-buttons');
+            const userDropdown = document.getElementById('userDropdown');
             
-            if (authContainer && session) {
+            if (session) {
+                // Agregar clase de estado de sesión activa al navbar
+                navbarEl?.classList.add('logged-in');
+
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('role')
@@ -599,12 +629,53 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
 
                 const info = getClientPanelInfo(profile?.role);
                 
-                authContainer.innerHTML = `
-                    <div class="nav-act-logged">
-                        <a href="${info.primary.href}" class="btn btn-primary">${info.primary.label}</a>
-                        ${info.secondary ? `<a href="${info.secondary.href}" class="btn btn-outline">${info.secondary.label}</a>` : ''}
-                    </div>
-                `;
+                // Móvil: Inyectar links verticales en el menú
+                if (authContainer) {
+                    authContainer.innerHTML = `
+                        <div class="nav-act-logged">
+                            <a href="${info.primary.href}" class="btn btn-primary">${info.primary.label}</a>
+                            ${info.secondary ? `<a href="${info.secondary.href}" class="btn btn-outline">${info.secondary.label}</a>` : ''}
+                        </div>
+                    `;
+                }
+
+                // Desktop: Mostrar y sincronizar dropdown
+                if (userDropdown) {
+                    userDropdown.style.display = 'block';
+
+                    const primaryLink = document.getElementById('dropdown-primary-link') as HTMLAnchorElement | null;
+                    const primaryLabel = document.getElementById('dropdown-primary-label');
+                    if (primaryLink && primaryLabel) {
+                        primaryLink.style.display = 'flex';
+                        primaryLink.href = info.primary.href;
+                        primaryLabel.textContent = info.primary.label;
+                    }
+
+                    const secondaryLink = document.getElementById('dropdown-secondary-link') as HTMLAnchorElement | null;
+                    const secondaryLabel = document.getElementById('dropdown-secondary-label');
+                    if (secondaryLink) {
+                        if (info.secondary) {
+                            secondaryLink.style.display = 'flex';
+                            secondaryLink.href = info.secondary.href;
+                            if (secondaryLabel) secondaryLabel.textContent = info.secondary.label;
+                        } else {
+                            secondaryLink.style.display = 'none';
+                        }
+                    }
+                }
+            } else {
+                // Limpiar clase de estado y ocultar dropdown
+                navbarEl?.classList.remove('logged-in');
+                if (userDropdown) {
+                    userDropdown.style.display = 'none';
+                }
+                // Restaurar botones de auth públicos
+                if (authContainer) {
+                    authContainer.innerHTML = `
+                        <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
+                        <a href="/registro" class="btn btn-primary">Registro</a>
+                    `;
+                }
             }
         } catch (e) {
             console.error("Auth check failed", e);
