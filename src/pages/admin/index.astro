@@ -123,6 +123,7 @@ const { count: mentorsCount } = await supabase
       <div class="tab-content active" id="tab-usuarios">
         <div class="admin-actions">
           <div class="filters">
+            <input type="search" id="search-users" class="search-input" placeholder="Buscar por nombre o DNI..." autocomplete="off" />
             <select id="filter-role" class="filter-select">
               <option value="all">Todos los roles</option>
               <option value="usuario">Usuario</option>
@@ -413,7 +414,7 @@ const { count: mentorsCount } = await supabase
     <div class="admin-actions">
       <h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Gestión de Mentores</h2>
       <div style="display: flex; gap: 0.5rem;">
-        <button id="assign-mentors-simple" class="btn btn-outline">
+        <button id="assign-mentors-simple" class="btn btn-outline" style="display: none;">
           Asignar Nuevos (Equitativo)
         </button>
         <button id="assign-mentors-reset" class="btn btn-danger">
@@ -738,6 +739,29 @@ const { count: mentorsCount } = await supabase
   .filters {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    padding: 0.5rem 1rem;
+    border-radius: var(--r-md);
+    background-color: var(--bg-card);
+    border: 1px solid var(--brd);
+    color: var(--txt-1);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    min-width: 220px;
+    outline: none;
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  }
+
+  .search-input:focus {
+    border-color: var(--c1);
+    box-shadow: 0 0 0 2px rgba(var(--c1r), 0.1);
+  }
+
+  .search-input::placeholder {
+    color: var(--txt-m);
   }
 
   .filter-select {
@@ -1185,18 +1209,22 @@ const { count: mentorsCount } = await supabase
       });
     });
 
-  // Lógica de Filtros
+  // Lógica de Filtros + Buscador
   const filterRole = document.getElementById(
     "filter-role",
   ) as HTMLSelectElement;
   const filterStatus = document.getElementById(
     "filter-status",
   ) as HTMLSelectElement;
+  const searchInput = document.getElementById(
+    "search-users",
+  ) as HTMLInputElement;
   const rows = document.querySelectorAll(".user-row");
 
   function applyFilters() {
     const roleVal = filterRole.value;
     const statusVal = filterStatus.value;
+    const searchQuery = (searchInput?.value || "").toLowerCase().trim();
 
     rows.forEach((row) => {
       const rRole = row.getAttribute("data-role");
@@ -1205,11 +1233,20 @@ const { count: mentorsCount } = await supabase
       const matchRole = roleVal === "all" || rRole === roleVal;
       const matchStatus = statusVal === "all" || rStatus === statusVal;
 
-      (row as HTMLElement).style.display =
-        matchRole && matchStatus ? "" : "none";
+      // Buscar en nombre y DNI
+      let matchSearch = true;
+      if (searchQuery) {
+        const cells = row.querySelectorAll("td");
+        const nameText = (cells[1]?.textContent || "").toLowerCase();
+        const dniText = (cells[2]?.textContent || "").toLowerCase();
+        matchSearch = nameText.includes(searchQuery) || dniText.includes(searchQuery);
+      }
+
+      const isVisible = matchRole && matchStatus && matchSearch;
+      (row as HTMLElement).style.display = isVisible ? "" : "none";
 
       // Uncheck if hidden
-      if (!(matchRole && matchStatus)) {
+      if (!isVisible) {
         const cb = row.querySelector(".row-checkbox") as HTMLInputElement;
         if (cb) cb.checked = false;
       }
@@ -1219,6 +1256,7 @@ const { count: mentorsCount } = await supabase
 
   filterRole?.addEventListener("change", applyFilters);
   filterStatus?.addEventListener("change", applyFilters);
+  searchInput?.addEventListener("input", applyFilters);
 
   // Lógica de Acciones Masivas
   const selectAll = document.getElementById("select-all") as HTMLInputElement;
