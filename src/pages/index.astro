@@ -1,17 +1,70 @@
 ---
-export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 import InfoCards from '../components/InfoCards.astro';
 import Schedule from '../components/Schedule.astro';
 import FAQ from '../components/FAQ.astro';
+import Prizes from '../components/Prizes.astro';
+import Organizers from '../components/Organizers.astro';
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": "Hackathon EduTech Mendoza 2026",
+  "description": "Un espacio intensivo de trabajo colaborativo donde equipos interdisciplinarios del Nivel Superior diseñan soluciones tecnológicas innovadoras para los desafíos actuales de la educación.",
+  "startDate": "2026-08-19T21:30:00-03:00",
+  "endDate": "2026-08-22T18:00:00-03:00",
+  "eventAttendanceMode": "https://schema.org/MixedEventAttendanceMode",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "location": [
+    {
+      "@type": "Place",
+      "name": "Espacio Cultural Julio Le Parc",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. Mitre y Godoy Cruz",
+        "addressLocality": "Guaymallén",
+        "addressRegion": "Mendoza",
+        "addressCountry": "AR"
+      }
+    },
+    {
+      "@type": "Place",
+      "name": "IES Tomás Alva Edison",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "25 de Mayo 1873",
+        "addressLocality": "Guaymallén",
+        "addressRegion": "Mendoza",
+        "addressCountry": "AR"
+      }
+    }
+  ],
+  "organizer": [
+    {
+      "@type": "EducationalOrganization",
+      "name": "IES N°9-023 de Maipú",
+      "url": "https://ies9023-infd.mendoza.edu.ar/sitio/"
+    },
+    {
+      "@type": "EducationalOrganization",
+      "name": "IES Tomás Alva Edison",
+      "url": "https://superior.fundacionedison.org.ar/"
+    }
+  ],
+  "isAccessibleForFree": true,
+  "inLanguage": "es"
+};
 ---
 
 <Layout title="HEM2026 | Hackathon EduTech Mendoza">
 	<main>
 		<Hero />
 		<InfoCards />
+		<Prizes />
 		<Schedule />
+		<Organizers />
 		<FAQ />
 	</main>
+	<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Layout>
