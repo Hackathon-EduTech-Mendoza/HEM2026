@@ -2,157 +2,90 @@
 // src/components/ThemeToggle.astro
 ---
 
-<div class="theme-sw" id="themeSw">
-    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-    </button>
-    <div class="theme-opts" id="themeOpts">
-        <button class="theme-opt active" data-theme="brand-light">
-            <span class="theme-prev" style="background:linear-gradient(135deg,#eae7ea,#9fc637)"></span>
-            <span class="theme-name">Modo Claro</span>
-        </button>
-        <button class="theme-opt" data-theme="brand-dark">
-            <span class="theme-prev" style="background:linear-gradient(135deg,#222220,#88007b)"></span>
-            <span class="theme-name">Modo Oscuro</span>
-        </button>
-    </div>
-</div>
+<button class="visual-btn theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar tema visual" title="Cambiar tema (Claro / Oscuro)">
+  <!-- Icono Sol (se muestra en modo oscuro para cambiar a claro) -->
+  <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  <!-- Icono Luna (se muestra en modo claro para cambiar a oscuro) -->
+  <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
 
 <style>
-    .theme-sw {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        z-index: 999;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.75rem;
-    }
+  .visual-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--txt-1);
+    box-shadow: var(--sh-sm);
+    transition: all var(--t-base);
+    position: relative;
+  }
 
-    .theme-toggle {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: var(--bg-card);
-        border: 1px solid var(--brd);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--txt-1);
-        box-shadow: var(--sh-md);
-        transition: all var(--t-base);
-    }
+  .visual-btn:hover,
+  .visual-btn:focus-visible {
+    border-color: var(--c1);
+    color: var(--c1);
+    transform: scale(1.05);
+    outline: none;
+  }
 
-    .theme-toggle:hover {
-        border-color: var(--c1);
-        transform: scale(1.05);
-    }
+  .visual-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    transition: transform var(--t-base), opacity var(--t-fast), scale var(--t-base);
+    position: absolute;
+  }
 
-    .theme-toggle svg {
-        width: 20px;
-        height: 20px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 2;
-    }
+  /* Animación del giro del icono del sol al pasar el mouse */
+  .theme-toggle-btn:hover .icon-sun {
+    transform: rotate(45deg);
+  }
 
-    .theme-opts {
-        display: none;
-        flex-direction: column;
-        gap: 0.5rem;
-        background: var(--bg-card);
-        border: 1px solid var(--brd);
-        border-radius: var(--r-md);
-        padding: 0.75rem;
-        box-shadow: var(--sh-lg);
-        min-width: 180px;
-        transition: all var(--t-theme);
-    }
+  /* Control de Visibilidad de Iconos de Tema */
+  .icon-sun,
+  .icon-moon {
+    opacity: 0;
+    scale: 0.5;
+  }
 
-    .theme-opts.vis {
-        display: flex;
-    }
+  :global([data-theme="brand-light"]) .icon-moon {
+    opacity: 1;
+    scale: 1;
+  }
 
-    .theme-opt {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 0.75rem;
-        background: none;
-        border: 1px solid transparent;
-        border-radius: var(--r-sm);
-        cursor: pointer;
-        transition: all var(--t-fast);
-        color: var(--txt-1);
-    }
-
-    .theme-opt:hover {
-        background: var(--bg-3);
-    }
-
-    .theme-opt.active {
-        border-color: var(--c1);
-        background: rgba(var(--c1r), 0.05);
-    }
-
-    .theme-prev {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-
-    .theme-name {
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        color: var(--txt-2);
-        letter-spacing: 0.05em;
-    }
+  :global([data-theme="brand-dark"]) .icon-sun {
+    opacity: 1;
+    scale: 1;
+  }
 </style>
 
 <script>
-    // Se ejecuta del lado del cliente
-    const themeSw = document.getElementById('themeSw');
-    if (themeSw) {
-        const themeToggle = document.getElementById('themeToggle');
-        const themeOpts = document.getElementById('themeOpts');
-        const themeBtns = document.querySelectorAll('.theme-opt');
-
-        function setTheme(name) {
-            document.documentElement.setAttribute('data-theme', name);
-            localStorage.setItem('edutech-theme', name);
-            themeBtns.forEach(b => {
-                b.classList.toggle('active', b.getAttribute('data-theme') === name);
-            });
-        }
-
-        // Configurar botones y recuperar tema si existe
-        const savedTheme = localStorage.getItem('edutech-theme');
-        if (savedTheme) {
-            themeBtns.forEach(b => {
-                b.classList.toggle('active', b.getAttribute('data-theme') === savedTheme);
-            });
-        }
-
-        themeToggle?.addEventListener('click', () => {
-            themeOpts?.classList.toggle('vis');
-        });
-
-        themeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const themeName = btn.getAttribute('data-theme');
-                if (themeName) setTheme(themeName);
-                themeOpts?.classList.remove('vis');
-            });
-        });
-
-        // Click outside para cerrar
-        document.addEventListener('click', (e) => {
-            if (e.target instanceof Node && !themeSw.contains(e.target)) {
-                themeOpts?.classList.remove('vis');
-            }
-        });
+  // Lógica del Toggle de Tema (Directo, un solo click)
+  function initThemeToggle() {
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'brand-light';
+        const nextTheme = currentTheme === 'brand-light' ? 'brand-dark' : 'brand-light';
+        
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('edutech-theme', nextTheme);
+      });
     }
+  }
+
+  // Ejecución segura del inicializador
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initThemeToggle);
+  } else {
+    initThemeToggle();
+  }
 </script>
