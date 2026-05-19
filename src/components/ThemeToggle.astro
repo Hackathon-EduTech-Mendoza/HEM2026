@@ -3,37 +3,31 @@
 ---
 
 <div class="theme-sw" id="themeSw">
-  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar configuración visual" aria-haspopup="true" aria-expanded="false">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  <!-- Botón 1: Toggle de Animaciones (Play / Pause) -->
+  <button class="visual-btn anim-toggle-btn" id="animToggleBtn" aria-label="Activar o desactivar animaciones de fondo" title="Activar/Desactivar animaciones de fondo">
+    <!-- Icono Play (se muestra cuando está pausado para volver a activar) -->
+    <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    <!-- Icono Pause (se muestra cuando está activo para poder pausar) -->
+    <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
   </button>
-  <div class="theme-opts" id="themeOpts" role="menu">
-    <button class="theme-opt active" data-theme="brand-light" role="menuitem">
-      <span class="theme-prev light-prev"></span>
-      <span class="theme-name">Modo Claro</span>
-    </button>
-    <button class="theme-opt" data-theme="brand-dark" role="menuitem">
-      <span class="theme-prev dark-prev"></span>
-      <span class="theme-name">Modo Oscuro</span>
-    </button>
-    <div class="theme-opt-separator"></div>
-    <div class="theme-config-row" role="menuitem">
-      <span class="theme-name">Fondo Animado</span>
-      <label class="switch" aria-label="Activar o desactivar fondo animado">
-        <input type="checkbox" id="animToggle" checked />
-        <span class="slider"></span>
-      </label>
-    </div>
-  </div>
+
+  <!-- Botón 2: Toggle de Tema (Sol / Luna) -->
+  <button class="visual-btn theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar tema visual" title="Cambiar tema (Claro / Oscuro)">
+    <!-- Icono Sol (se muestra en modo oscuro para cambiar a claro) -->
+    <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <!-- Icono Luna (se muestra en modo claro para cambiar a oscuro) -->
+    <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
 </div>
 
 <style>
   .theme-sw {
-    position: relative;
     display: inline-flex;
     align-items: center;
+    gap: 0.5rem;
   }
 
-  .theme-toggle {
+  .visual-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -46,247 +40,107 @@
     color: var(--txt-1);
     box-shadow: var(--sh-sm);
     transition: all var(--t-base);
+    position: relative;
   }
 
-  .theme-toggle:hover,
-  .theme-toggle:focus-visible {
+  .visual-btn:hover,
+  .visual-btn:focus-visible {
     border-color: var(--c1);
+    color: var(--c1);
     transform: scale(1.05);
     outline: none;
   }
 
-  .theme-toggle svg {
+  .visual-btn svg {
     width: 18px;
     height: 18px;
     stroke: currentColor;
     fill: none;
     stroke-width: 2;
-    transition: transform var(--t-slow);
+    transition: transform var(--t-base), opacity var(--t-fast), scale var(--t-base);
+    position: absolute;
   }
 
-  .theme-toggle:hover svg {
+  /* Animación del giro del icono del sol al pasar el mouse */
+  .theme-toggle-btn:hover .icon-sun {
     transform: rotate(45deg);
   }
 
-  .theme-opts {
-    display: none;
-    flex-direction: column;
-    gap: 0.5rem;
-    background: var(--bg-card);
-    border: 1px solid var(--brd);
-    border-radius: var(--r-md);
-    padding: 0.75rem;
-    box-shadow: var(--sh-lg);
-    min-width: 210px;
-    position: absolute;
-    top: calc(100% + 0.75rem);
-    right: 0;
-    z-index: 1001;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    animation: slideDown 0.25s var(--ease);
-  }
-
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .theme-opts.vis {
-    display: flex;
-  }
-
-  .theme-opt {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    background: none;
-    border: 1px solid transparent;
-    border-radius: var(--r-sm);
-    cursor: pointer;
-    transition: all var(--t-fast);
-    color: var(--txt-1);
-    width: 100%;
-    text-align: left;
-  }
-
-  .theme-opt:hover,
-  .theme-opt:focus-visible {
-    background: var(--bg-3);
-    outline: none;
-  }
-
-  .theme-opt.active {
-    border-color: var(--c1);
-    background: rgba(var(--c1r), 0.05);
-  }
-
-  .theme-prev {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    border: 1px solid var(--brd);
-  }
-
-  .light-prev {
-    background: linear-gradient(135deg, #eae7ea, #9fc637);
-  }
-
-  .dark-prev {
-    background: linear-gradient(135deg, #222220, #88007b);
-  }
-
-  .theme-name {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--txt-2);
-    letter-spacing: 0.05em;
-    user-select: none;
-  }
-
-  .theme-opt-separator {
-    height: 1px;
-    background: var(--brd-s);
-    margin: 0.25rem 0;
-  }
-
-  .theme-config-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.4rem 0.75rem;
-  }
-
-  /* Switch Toggle CSS */
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 38px;
-    height: 20px;
-  }
-
-  .switch input {
+  /* Control de Visibilidad de Iconos de Tema */
+  .icon-sun,
+  .icon-moon {
     opacity: 0;
-    width: 0;
-    height: 0;
+    scale: 0.5;
   }
 
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background-color: var(--brd);
-    transition: 0.3s var(--ease);
-    border-radius: 20px;
+  :global([data-theme="brand-light"]) .icon-moon {
+    opacity: 1;
+    scale: 1;
   }
 
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    bottom: 3px;
-    background-color: var(--bg-1);
-    transition: 0.3s var(--ease);
-    border-radius: 50%;
+  :global([data-theme="brand-dark"]) .icon-sun {
+    opacity: 1;
+    scale: 1;
   }
 
-  input:checked + .slider {
-    background-color: var(--c2); /* verde */
+  /* Control de Visibilidad de Iconos de Animaciones */
+  .icon-play,
+  .icon-pause {
+    opacity: 0;
+    scale: 0.5;
   }
 
-  input:focus-visible + .slider {
-    box-shadow: 0 0 0 2px var(--c1);
+  .anim-toggle-btn.playing .icon-pause {
+    opacity: 1;
+    scale: 1;
   }
 
-  input:checked + .slider:before {
-    transform: translateX(18px);
-    background-color: var(--bg-card);
+  .anim-toggle-btn.paused .icon-play {
+    opacity: 1;
+    scale: 1;
   }
 </style>
 
 <script>
-  const themeSw = document.getElementById('themeSw');
-  if (themeSw) {
-    const themeToggle = document.getElementById('themeToggle');
-    const themeOpts = document.getElementById('themeOpts');
-    const themeBtns = document.querySelectorAll('.theme-opt');
-    const animToggle = document.getElementById('animToggle') as HTMLInputElement | null;
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const animToggleBtn = document.getElementById('animToggleBtn');
 
-    // Toggle del Menú
-    themeToggle?.addEventListener('click', () => {
-      const isVisible = themeOpts?.classList.toggle('vis');
-      themeToggle.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
+  // 1. Lógica del Toggle de Tema (Directo, un solo click)
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'brand-light';
+      const nextTheme = currentTheme === 'brand-light' ? 'brand-dark' : 'brand-light';
+      
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      localStorage.setItem('edutech-theme', nextTheme);
     });
+  }
 
-    // Cambiar de tema
-    function setTheme(name: string) {
-      document.documentElement.setAttribute('data-theme', name);
-      localStorage.setItem('edutech-theme', name);
-      themeBtns.forEach(b => {
-        const isMatched = b.getAttribute('data-theme') === name;
-        b.classList.toggle('active', isMatched);
-      });
+  // 2. Lógica del Toggle de Animaciones (Directo, un solo click)
+  if (animToggleBtn) {
+    let animsEnabled = localStorage.getItem('edutech-animations') !== 'false';
+
+    function updateAnimButtonState() {
+      if (animToggleBtn) {
+        animToggleBtn.classList.toggle('playing', animsEnabled);
+        animToggleBtn.classList.toggle('paused', !animsEnabled);
+      }
     }
 
-    // Inicializar Tema Activo
-    const savedTheme = localStorage.getItem('edutech-theme') || 'brand-light';
-    themeBtns.forEach(b => {
-      b.classList.toggle('active', b.getAttribute('data-theme') === savedTheme);
-    });
+    // Inicializar visualización del botón
+    updateAnimButtonState();
 
-    themeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const themeName = btn.getAttribute('data-theme');
-        if (themeName) setTheme(themeName);
-        themeOpts?.classList.remove('vis');
-        themeToggle?.setAttribute('aria-expanded', 'false');
-      });
-    });
+    animToggleBtn.addEventListener('click', () => {
+      animsEnabled = !animsEnabled;
+      localStorage.setItem('edutech-animations', animsEnabled ? 'true' : 'false');
+      updateAnimButtonState();
 
-    // Control de Animaciones
-    if (animToggle) {
-      const animationsEnabled = localStorage.getItem('edutech-animations') !== 'false';
-      animToggle.checked = animationsEnabled;
-
-      animToggle.addEventListener('change', (e) => {
-        const target = e.target as HTMLInputElement;
-        const enabled = target.checked;
-        localStorage.setItem('edutech-animations', enabled ? 'true' : 'false');
-        
-        // Despachar el evento personalizado para el fondo dinámico
-        window.dispatchEvent(
-          new CustomEvent('edutech-animations-changed', {
-            detail: { enabled }
-          })
-        );
-      });
-    }
-
-    // Cerrar al hacer click afuera
-    document.addEventListener('click', (e) => {
-      if (e.target instanceof Node && !themeSw.contains(e.target)) {
-        themeOpts?.classList.remove('vis');
-        themeToggle?.setAttribute('aria-expanded', 'false');
-      }
-    });
-
-    // Cerrar al presionar Escape para accesibilidad
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && themeOpts?.classList.contains('vis')) {
-        themeOpts.classList.remove('vis');
-        themeToggle?.setAttribute('aria-expanded', 'false');
-        (themeToggle as HTMLElement | null)?.focus();
-      }
+      // Emitir evento para el fondo interactivo
+      window.dispatchEvent(
+        new CustomEvent('edutech-animations-changed', {
+          detail: { enabled: animsEnabled }
+        })
+      );
     });
   }
 </script>
