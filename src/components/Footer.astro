@@ -7,7 +7,7 @@
         <div class="ftr-top">
             <div class="ftr-brand">
                 <a href="/#inicio" class="nav-logo" style="margin-bottom: 0.5rem;">
-                    <img src="/img/brand/MARCA_SIMPLE_NEGRO_SIN_FONDO.png" alt="Hackathon EduTech" class="brand-logo" />
+                    <img src="/img/brand/MARCA_SIMPLE_NEGRO_SIN_FONDO.png" alt="" class="brand-logo" />
                 </a>
                 <p>HACKATHON EDUTECH 2026 - Segunda Edición. Organizada por el IES 9-023 de Maipú y el IES Tomás Alva Edison.</p>
             </div>
@@ -149,6 +149,12 @@
 
     @media (max-width: 767px) {
         .ftr-top {
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .ftr-links {
+            width: 100%;
+            gap: 2.5rem;
             flex-direction: column;
         }
         .ftr-bot {

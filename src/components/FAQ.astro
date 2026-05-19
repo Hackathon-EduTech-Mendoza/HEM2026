@@ -196,7 +196,7 @@
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    const initFaq = () => {
         document.querySelectorAll('.faq-q').forEach(btn => {
             btn.addEventListener('click', () => {
                 const item = btn.closest('.faq-item');
@@ -213,5 +213,11 @@
                 }
             });
         });
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFaq);
+    } else {
+        initFaq();
+    }
 </script>

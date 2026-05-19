@@ -175,7 +175,18 @@ const profile = Astro.locals.profile;
         gap: 0.5rem;
     }
 
-    @media (min-width: 768px) {
+    /* Accessibility focus-visible */
+    .nav-links a:focus-visible,
+    .nav-logo:focus-visible,
+    .nav-toggle:focus-visible,
+    .nav-act .btn:focus-visible,
+    .nav-act-logged .btn:focus-visible {
+        outline: 2px solid var(--c1);
+        outline-offset: 4px;
+        border-radius: var(--r-sm);
+    }
+
+    @media (min-width: 860px) {
         .nav-toggle {
             display: none !important;
         }
@@ -188,7 +199,7 @@ const profile = Astro.locals.profile;
         }
     }
 
-    @media (max-width: 767px) {
+    @media (max-width: 859px) {
         .nav-toggle {
             display: flex;
         }

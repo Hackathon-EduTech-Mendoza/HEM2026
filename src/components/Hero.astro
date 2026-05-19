@@ -191,6 +191,7 @@ const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
     justify-content: center;
     gap: 24px;
     margin-bottom: 2.5rem;
+    flex-wrap: wrap;
 
     opacity: 0;
     animation: fadeUp 0.7s var(--ease) forwards;
@@ -318,11 +319,22 @@ const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
     }
   }
   @media (max-width: 360px) {
+    .countdown {
+      gap: 8px;
+    }
     .countdown-val {
-      font-size: 2rem;
+      font-size: 1.75rem;
     }
     .countdown-label {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+    }
+    .hero-dates {
+      gap: 8px;
+    }
+    .date-chip {
+      padding: 8px 14px;
+      font-size: 0.8rem;
     }
   }
 </style>
