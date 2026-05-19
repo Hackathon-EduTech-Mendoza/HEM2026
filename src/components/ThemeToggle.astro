@@ -2,31 +2,14 @@
 // src/components/ThemeToggle.astro
 ---
 
-<div class="theme-sw" id="themeSw">
-  <!-- Botón 1: Toggle de Animaciones (Play / Pause) -->
-  <button class="visual-btn anim-toggle-btn" id="animToggleBtn" aria-label="Activar o desactivar animaciones de fondo" title="Activar/Desactivar animaciones de fondo">
-    <!-- Icono Play (se muestra cuando está pausado para volver a activar) -->
-    <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-    <!-- Icono Pause (se muestra cuando está activo para poder pausar) -->
-    <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-  </button>
-
-  <!-- Botón 2: Toggle de Tema (Sol / Luna) -->
-  <button class="visual-btn theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar tema visual" title="Cambiar tema (Claro / Oscuro)">
-    <!-- Icono Sol (se muestra en modo oscuro para cambiar a claro) -->
-    <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-    <!-- Icono Luna (se muestra en modo claro para cambiar a oscuro) -->
-    <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-  </button>
-</div>
+<button class="visual-btn theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar tema visual" title="Cambiar tema (Claro / Oscuro)">
+  <!-- Icono Sol (se muestra en modo oscuro para cambiar a claro) -->
+  <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  <!-- Icono Luna (se muestra en modo claro para cambiar a oscuro) -->
+  <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
 
 <style>
-  .theme-sw {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
   .visual-btn {
     width: 40px;
     height: 40px;
@@ -82,65 +65,27 @@
     opacity: 1;
     scale: 1;
   }
-
-  /* Control de Visibilidad de Iconos de Animaciones */
-  .icon-play,
-  .icon-pause {
-    opacity: 0;
-    scale: 0.5;
-  }
-
-  .anim-toggle-btn.playing .icon-pause {
-    opacity: 1;
-    scale: 1;
-  }
-
-  .anim-toggle-btn.paused .icon-play {
-    opacity: 1;
-    scale: 1;
-  }
 </style>
 
 <script>
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
-  const animToggleBtn = document.getElementById('animToggleBtn');
-
-  // 1. Lógica del Toggle de Tema (Directo, un solo click)
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'brand-light';
-      const nextTheme = currentTheme === 'brand-light' ? 'brand-dark' : 'brand-light';
-      
-      document.documentElement.setAttribute('data-theme', nextTheme);
-      localStorage.setItem('edutech-theme', nextTheme);
-    });
+  // Lógica del Toggle de Tema (Directo, un solo click)
+  function initThemeToggle() {
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'brand-light';
+        const nextTheme = currentTheme === 'brand-light' ? 'brand-dark' : 'brand-light';
+        
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('edutech-theme', nextTheme);
+      });
+    }
   }
 
-  // 2. Lógica del Toggle de Animaciones (Directo, un solo click)
-  if (animToggleBtn) {
-    let animsEnabled = localStorage.getItem('edutech-animations') !== 'false';
-
-    function updateAnimButtonState() {
-      if (animToggleBtn) {
-        animToggleBtn.classList.toggle('playing', animsEnabled);
-        animToggleBtn.classList.toggle('paused', !animsEnabled);
-      }
-    }
-
-    // Inicializar visualización del botón
-    updateAnimButtonState();
-
-    animToggleBtn.addEventListener('click', () => {
-      animsEnabled = !animsEnabled;
-      localStorage.setItem('edutech-animations', animsEnabled ? 'true' : 'false');
-      updateAnimButtonState();
-
-      // Emitir evento para el fondo interactivo
-      window.dispatchEvent(
-        new CustomEvent('edutech-animations-changed', {
-          detail: { enabled: animsEnabled }
-        })
-      );
-    });
+  // Ejecución segura del inicializador
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initThemeToggle);
+  } else {
+    initThemeToggle();
   }
 </script>

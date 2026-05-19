@@ -1,0 +1,106 @@
+---
+// src/components/AnimToggle.astro
+---
+
+<button class="visual-btn anim-toggle-btn" id="animToggleBtn" aria-label="Activar o desactivar animaciones de fondo" title="Activar/Desactivar animaciones de fondo">
+  <!-- Icono Play (se muestra cuando está pausado para volver a activar) -->
+  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  <!-- Icono Pause (se muestra cuando está activo para poder pausar) -->
+  <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+</button>
+
+<style>
+  .visual-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--txt-1);
+    box-shadow: var(--sh-sm);
+    transition: all var(--t-base);
+    position: relative;
+  }
+
+  .visual-btn:hover,
+  .visual-btn:focus-visible {
+    border-color: var(--c1);
+    color: var(--c1);
+    transform: scale(1.05);
+    outline: none;
+  }
+
+  .visual-btn svg {
+    width: 18px;
+    height: 18px;
+    transition: transform var(--t-base), opacity var(--t-fast), scale var(--t-base);
+    position: absolute;
+  }
+
+  /* Control de Visibilidad de Iconos de Animaciones */
+  .icon-play,
+  .icon-pause {
+    opacity: 0;
+    scale: 0.5;
+  }
+
+  .anim-toggle-btn.playing .icon-pause {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .anim-toggle-btn.paused .icon-play {
+    opacity: 1;
+    scale: 1;
+  }
+</style>
+
+<script>
+  // Lógica del Toggle de Animaciones (Directo, un solo click)
+  function initAnimToggle() {
+    const animToggleBtns = document.querySelectorAll('.anim-toggle-btn');
+    let animsEnabled = localStorage.getItem('edutech-animations') !== 'false';
+
+    function updateAnimButtonsState() {
+      animToggleBtns.forEach(btn => {
+        btn.classList.toggle('playing', animsEnabled);
+        btn.classList.toggle('paused', !animsEnabled);
+      });
+    }
+
+    // Inicializar visualización de todos los botones de animación activos en el DOM
+    updateAnimButtonsState();
+
+    animToggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        animsEnabled = !animsEnabled;
+        localStorage.setItem('edutech-animations', animsEnabled ? 'true' : 'false');
+        updateAnimButtonsState();
+
+        // Emitir evento para el fondo interactivo
+        window.dispatchEvent(
+          new CustomEvent('edutech-animations-changed', {
+            detail: { enabled: animsEnabled }
+          })
+        );
+      });
+    });
+
+    // Escuchar si otra instancia del botón cambió el estado para sincronizar todos
+    window.addEventListener('edutech-animations-changed', (e: any) => {
+      animsEnabled = e.detail.enabled;
+      updateAnimButtonsState();
+    });
+  }
+
+  // Ejecución segura del inicializador
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAnimToggle);
+  } else {
+    initAnimToggle();
+  }
+</script>

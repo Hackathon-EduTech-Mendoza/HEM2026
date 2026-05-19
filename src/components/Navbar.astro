@@ -1,6 +1,7 @@
 ---
 // src/components/Navbar.astro
 import ThemeToggle from './ThemeToggle.astro';
+import AnimToggle from './AnimToggle.astro';
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
 ---
@@ -26,6 +27,7 @@ const profile = Astro.locals.profile;
                             <a href="/admin" class="btn btn-outline">Admin</a>
                         )}
                         <a href="/dashboard" class="btn btn-primary">Mi Panel</a>
+                        <button class="btn btn-outline btn-logout">Cerrar Sesión</button>
                     </div>
                 ) : (
                     <>
@@ -34,9 +36,18 @@ const profile = Astro.locals.profile;
                     </>
                 )}
             </div>
+            
+            <!-- Toggle de Animaciones visible solo en móvil dentro del menú lateral -->
+            <div class="mobile-only-anim-toggle">
+                <span class="mobile-anim-label">Fondo Animado</span>
+                <AnimToggle />
+            </div>
         </div>
 
         <div class="nav-actions-container">
+            <div class="desktop-only">
+                <AnimToggle />
+            </div>
             <ThemeToggle />
             <button class="nav-toggle" id="navToggle" aria-label="Menú">
                 <span></span><span></span><span></span>
@@ -133,6 +144,14 @@ const profile = Astro.locals.profile;
         align-items: center;
         gap: 1rem;
         z-index: 10;
+    }
+
+    .desktop-only {
+        display: block;
+    }
+
+    .mobile-only-anim-toggle {
+        display: none;
     }
 
     .nav-links {
@@ -246,6 +265,26 @@ const profile = Astro.locals.profile;
             flex-direction: column;
             align-items: center;
         }
+        .desktop-only {
+            display: none !important;
+        }
+        .mobile-only-anim-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem;
+            border-top: 1px solid var(--brd);
+            width: 80%;
+            max-width: 260px;
+            margin-top: 0.5rem;
+        }
+        .mobile-anim-label {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--txt-2);
+            font-weight: 500;
+        }
     }
 </style>
 
@@ -308,6 +347,7 @@ const profile = Astro.locals.profile;
                     <div class="nav-act-logged">
                         ${isAdmin ? '<a href="/admin" class="btn btn-outline">Admin</a>' : ''}
                         <a href="/dashboard" class="btn btn-primary">Mi Panel</a>
+                        <button class="btn btn-outline btn-logout">Cerrar Sesión</button>
                     </div>
                 `;
             }
@@ -317,4 +357,18 @@ const profile = Astro.locals.profile;
     }
     
     checkAuth();
+
+    // Event listener global para capturar clicks de cerrar sesión (para SSR y renderizado por cliente)
+    document.addEventListener('click', async (e) => {
+        const target = e.target as HTMLElement | null;
+        if (target && (target.classList.contains('btn-logout') || target.id === 'btnLogout')) {
+            e.preventDefault();
+            try {
+                await supabase.auth.signOut();
+                window.location.href = '/';
+            } catch (err) {
+                console.error("Error signing out", err);
+            }
+        }
+    });
 </script>
