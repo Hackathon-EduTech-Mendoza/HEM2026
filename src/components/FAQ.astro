@@ -37,7 +37,7 @@
                     <span class="faq-ico">+</span>
                 </button>
                 <div class="faq-a">
-                    <p>No, la participación en la Hackathon EduTech es totalmente gratuita, gracias al esfuerzo conjunto del IES 9-023 y la Escuela Tomás Alva Edison.</p>
+                    <p>No, la participación en la Hackathon EduTech es totalmente gratuita, gracias al esfuerzo conjunto del IES 9-023 de Maipú y el IES Tomás Alva Edison.</p>
                 </div>
             </div>
 
@@ -68,6 +68,46 @@
                 </button>
                 <div class="faq-a">
                     <p>De todos los proyectos desarrollados, el jurado seleccionará a los 10 mejores equipos finalistas, quienes tendrán la oportunidad de presentar su Pitch Final ante el jurado y el público.</p>
+                </div>
+            </div>
+
+            <div class="faq-item reveal rd1">
+                <button class="faq-q" aria-expanded="false">
+                    <span>¿Qué necesito llevar a las jornadas presenciales?</span>
+                    <span class="faq-ico">+</span>
+                </button>
+                <div class="faq-a">
+                    <p>Es importante que traigas tu computadora portátil (notebook/netbook), cargadores, alargadores, zapatillas de enchufes y materiales para tomar notas. Si vas a trabajar con hardware, trae tus propios componentes.</p>
+                </div>
+            </div>
+
+            <div class="faq-item reveal rd2">
+                <button class="faq-q" aria-expanded="false">
+                    <span>¿Se entregan certificados de participación?</span>
+                    <span class="faq-ico">+</span>
+                </button>
+                <div class="faq-a">
+                    <p>Sí, todos los participantes que asistan a las jornadas del evento y completen la entrega de sus proyectos recibirán una certificación oficial emitida por el IES 9-023 y el IES Tomás Alva Edison.</p>
+                </div>
+            </div>
+
+            <div class="faq-item reveal rd3">
+                <button class="faq-q" aria-expanded="false">
+                    <span>¿Puedo participar si soy de otra provincia o jurisdicción?</span>
+                    <span class="faq-ico">+</span>
+                </button>
+                <div class="faq-a">
+                    <p>Sí, la inscripción está abierta a estudiantes y egresados de Nivel Superior de cualquier parte de la provincia de Mendoza y regiones vecinas, siempre que puedas asistir de manera presencial a las jornadas del 21 y 22 de agosto.</p>
+                </div>
+            </div>
+
+            <div class="faq-item reveal rd1">
+                <button class="faq-q" aria-expanded="false">
+                    <span>¿Qué pasa si no tengo equipo conformado al inscribirme?</span>
+                    <span class="faq-ico">+</span>
+                </button>
+                <div class="faq-a">
+                    <p>No te preocupes. La inscripción es individual. Al inicio de la primera jornada presencial tendremos una dinámica de conformación de equipos para que te integres con otros participantes que tengan perfiles complementarios.</p>
                 </div>
             </div>
         </div>
@@ -156,7 +196,7 @@
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    const initFaq = () => {
         document.querySelectorAll('.faq-q').forEach(btn => {
             btn.addEventListener('click', () => {
                 const item = btn.closest('.faq-item');
@@ -173,5 +213,11 @@
                 }
             });
         });
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFaq);
+    } else {
+        initFaq();
+    }
 </script>

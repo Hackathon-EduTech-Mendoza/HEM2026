@@ -1,0 +1,72 @@
+---
+// src/pages/404.astro
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Página No Encontrada | HEM2026">
+  <main class="error-page">
+    <div class="container">
+      <div class="error-card card text-center">
+        <div class="error-code">404</div>
+        <h1>Página no encontrada</h1>
+        <p class="error-desc">Lo sentimos, la página que estás buscando no existe o ha sido movida.</p>
+        <div class="error-actions">
+          <a href="/" class="btn btn-primary btn-lg glow-btn">Volver al Inicio</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .error-page {
+    min-height: calc(100vh - var(--nav-h));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(var(--nav-h) + 2rem) 0 4rem;
+  }
+
+  .error-card {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 3.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .error-code {
+    font-family: var(--font-display);
+    font-size: 6rem;
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--c1), var(--c2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 2px 8px rgba(var(--c1r), 0.2));
+  }
+
+  .error-card h1 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--txt-1);
+    margin-bottom: 1rem;
+  }
+
+  .error-desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--txt-2);
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+
+  .error-actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+</style>

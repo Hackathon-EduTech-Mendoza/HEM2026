@@ -68,7 +68,7 @@ const helpEnabled =
 const mentorSessionDuration =
   configData?.find((c) => c.key === "mentor_session_duration")?.value || "15";
 const helpCooldownMinutes =
-  configData?.find((c) => c.key === "help_cooldown_minutes")?.value || "10";
+	configData?.find((c) => c.key === "help_cooldown_minutes")?.value || "5";
 
 // Obtener datos del Leaderboard
 const { data: leaderboardData, error: leaderboardError } = await supabase
@@ -123,6 +123,7 @@ const { count: mentorsCount } = await supabase
       <div class="tab-content active" id="tab-usuarios">
         <div class="admin-actions">
           <div class="filters">
+            <input type="search" id="search-users" class="search-input" placeholder="Buscar por nombre o DNI..." autocomplete="off" />
             <select id="filter-role" class="filter-select">
               <option value="all">Todos los roles</option>
               <option value="usuario">Usuario</option>
@@ -374,15 +375,16 @@ const { count: mentorsCount } = await supabase
           <p>Tiempo estimado de atención por cada ticket SOS.</p>
         </div>
         <div class="config-action">
-          <input 
-            type="number" 
-            id="mentor-duration-input" 
-            class="filter-select" 
-            style="width: 80px; text-align: center;" 
-            value={mentorSessionDuration}
-            min="1"
-            max="120"
-          />
+		<input
+			type="number"
+			id="mentor-duration-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={mentorSessionDuration}
+			min="5"
+			max="60"
+			step="5"
+		/>
         </div>
       </div>
 
@@ -392,15 +394,16 @@ const { count: mentorsCount } = await supabase
           <p>Tiempo de espera entre pedidos de ayuda de un mismo equipo.</p>
         </div>
         <div class="config-action">
-          <input 
-            type="number" 
-            id="help-cooldown-input" 
-            class="filter-select" 
-            style="width: 80px; text-align: center;" 
-            value={helpCooldownMinutes}
-            min="0"
-            max="60"
-          />
+		<input
+			type="number"
+			id="help-cooldown-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={helpCooldownMinutes}
+			min="0"
+			max="30"
+			step="1"
+		/>
         </div>
       </div>
     </div>
@@ -411,7 +414,7 @@ const { count: mentorsCount } = await supabase
     <div class="admin-actions">
       <h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Gestión de Mentores</h2>
       <div style="display: flex; gap: 0.5rem;">
-        <button id="assign-mentors-simple" class="btn btn-outline">
+        <button id="assign-mentors-simple" class="btn btn-outline" style="display: none;">
           Asignar Nuevos (Equitativo)
         </button>
         <button id="assign-mentors-reset" class="btn btn-danger">
@@ -436,45 +439,54 @@ const { count: mentorsCount } = await supabase
       </div>
     </div>
 
-    <div class="admin-card card">
-      <div class="table-responsive">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Mentor</th>
-              <th>Institución</th>
-              <th>Equipos</th>
-              <th>Tickets</th>
-              <th>Finalizados</th>
-              <th>Rta. Promedio</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              !mentorStats || mentorStats.length === 0 ? (
-                <tr>
-                  <td colspan="6" class="empty-state">No hay actividad de mentoría registrada aún.</td>
-                </tr>
-              ) : (
-                mentorStats.map((s) => (
-                  <tr>
-                    <td data-label="Mentor"><strong>{s.mentor_name}</strong></td>
-                    <td data-label="Institución">{s.institution}</td>
-                    <td data-label="Equipos" title={s.assigned_teams_list}>
-                       {s.assigned_teams_count} {s.assigned_teams_count === 1 ? 'equipo' : 'equipos'}
-                    </td>
-                    <td data-label="Tickets">{s.total_tickets}</td>
-                    <td data-label="Finalizados">{s.finished_count}</td>
-                    <td data-label="Rta. Promedio">
-                      {s.avg_response_minutes > 0 ? s.avg_response_minutes + " min" : "-"}
-                    </td>
-                  </tr>
-                ))
-              )
-            }
-          </tbody>
-        </table>
-      </div>
+	<div class="admin-actions" style="justify-content: space-between;">
+		<h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Métricas de Mentoría</h2>
+		<button id="refresh-mentor-stats" class="btn btn-outline" style="display: flex; align-items: center; gap: 0.5rem;">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+			Actualizar Métricas
+		</button>
+	</div>
+
+	<div class="admin-card card">
+	<div class="table-responsive">
+		<table class="admin-table">
+		<thead>
+			<tr>
+			<th>Mentor</th>
+			<th>Equipos</th>
+			<th>Tickets</th>
+			<th>Pend.</th>
+			<th>En Camino</th>
+			<th>Final.</th>
+			<th>Expir.</th>
+			<th>Prom. Rta. (min)</th>
+			<th>Prom. Sesión (min)</th>
+			</tr>
+		</thead>
+		<tbody>
+			{
+			!mentorStats || mentorStats.length === 0 ? (
+				<tr><td colspan="9" class="empty-state">No hay actividad de mentoría registrada aún.</td></tr>
+			) : (
+				mentorStats.map((s: any) => (
+				<tr>
+					<td data-label="Mentor"><strong>{s.mentor_name}</strong></td>
+					<td data-label="Equipos">{s.assigned_teams}</td>
+					<td data-label="Tickets">{s.total_tickets}</td>
+					<td data-label="Pendientes">{s.pending_count}</td>
+					<td data-label="En Camino">{s.in_progress_count}</td>
+					<td data-label="Finalizados">{s.finished_count}</td>
+					<td data-label="Expirados">{s.expired_count}</td>
+					<td data-label="Prom. Rta.">{s.avg_response_minutes > 0 ? s.avg_response_minutes + " min" : "-"}</td>
+					<td data-label="Prom. Sesión">{s.avg_session_minutes > 0 ? s.avg_session_minutes + " min" : "-"}</td>
+				</tr>
+				))
+			)
+			}
+		</tbody>
+		</table>
+	</div>
+	</div>
     </div>
   </div>
   <!-- End tab-mentoria -->
@@ -727,6 +739,29 @@ const { count: mentorsCount } = await supabase
   .filters {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    padding: 0.5rem 1rem;
+    border-radius: var(--r-md);
+    background-color: var(--bg-card);
+    border: 1px solid var(--brd);
+    color: var(--txt-1);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    min-width: 220px;
+    outline: none;
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  }
+
+  .search-input:focus {
+    border-color: var(--c1);
+    box-shadow: 0 0 0 2px rgba(var(--c1r), 0.1);
+  }
+
+  .search-input::placeholder {
+    color: var(--txt-m);
   }
 
   .filter-select {
@@ -1174,18 +1209,22 @@ const { count: mentorsCount } = await supabase
       });
     });
 
-  // Lógica de Filtros
+  // Lógica de Filtros + Buscador
   const filterRole = document.getElementById(
     "filter-role",
   ) as HTMLSelectElement;
   const filterStatus = document.getElementById(
     "filter-status",
   ) as HTMLSelectElement;
+  const searchInput = document.getElementById(
+    "search-users",
+  ) as HTMLInputElement;
   const rows = document.querySelectorAll(".user-row");
 
   function applyFilters() {
     const roleVal = filterRole.value;
     const statusVal = filterStatus.value;
+    const searchQuery = (searchInput?.value || "").toLowerCase().trim();
 
     rows.forEach((row) => {
       const rRole = row.getAttribute("data-role");
@@ -1194,11 +1233,20 @@ const { count: mentorsCount } = await supabase
       const matchRole = roleVal === "all" || rRole === roleVal;
       const matchStatus = statusVal === "all" || rStatus === statusVal;
 
-      (row as HTMLElement).style.display =
-        matchRole && matchStatus ? "" : "none";
+      // Buscar en nombre y DNI
+      let matchSearch = true;
+      if (searchQuery) {
+        const cells = row.querySelectorAll("td");
+        const nameText = (cells[1]?.textContent || "").toLowerCase();
+        const dniText = (cells[2]?.textContent || "").toLowerCase();
+        matchSearch = nameText.includes(searchQuery) || dniText.includes(searchQuery);
+      }
+
+      const isVisible = matchRole && matchStatus && matchSearch;
+      (row as HTMLElement).style.display = isVisible ? "" : "none";
 
       // Uncheck if hidden
-      if (!(matchRole && matchStatus)) {
+      if (!isVisible) {
         const cb = row.querySelector(".row-checkbox") as HTMLInputElement;
         if (cb) cb.checked = false;
       }
@@ -1208,6 +1256,7 @@ const { count: mentorsCount } = await supabase
 
   filterRole?.addEventListener("change", applyFilters);
   filterStatus?.addEventListener("change", applyFilters);
+  searchInput?.addEventListener("input", applyFilters);
 
   // Lógica de Acciones Masivas
   const selectAll = document.getElementById("select-all") as HTMLInputElement;
@@ -1470,6 +1519,9 @@ const { count: mentorsCount } = await supabase
     (btn as HTMLButtonElement).disabled = false;
   };
 
-  assignSimpleBtn?.addEventListener("click", () => runAssignment(false));
-  assignResetBtn?.addEventListener("click", () => runAssignment(true));
+assignSimpleBtn?.addEventListener("click", () => runAssignment(false));
+assignResetBtn?.addEventListener("click", () => runAssignment(true));
+
+const refreshMentorStatsBtn = document.getElementById("refresh-mentor-stats");
+refreshMentorStatsBtn?.addEventListener("click", () => window.location.reload());
 </script>

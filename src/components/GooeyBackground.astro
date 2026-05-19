@@ -1,0 +1,261 @@
+---
+// src/components/GooeyBackground.astro
+---
+
+<div class="gooey-bg-container">
+  <canvas id="gooey-canvas"></canvas>
+
+  <!-- Filtro SVG Gooey oculto -->
+  <svg class="filter-gooey-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <defs>
+      <filter id="gooey-effect">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11" result="gooey" />
+        <feComposite in="SourceGraphic" in2="gooey" operator="atop" />
+      </filter>
+    </defs>
+  </svg>
+</div>
+
+<style>
+  .gooey-bg-container {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  #gooey-canvas {
+    width: 100%;
+    height: 100%;
+    filter: url("#gooey-effect");
+    /* Opacidad sumamente sutil para no interferir con la legibilidad del contenido */
+    opacity: 0.05;
+    transition: opacity 0.4s ease;
+  }
+
+  /* Modo claro: opacidad reducida para garantizar contraste de los textos oscuros */
+  :global([data-theme="brand-light"]) #gooey-canvas {
+    opacity: 0.03;
+  }
+
+  .filter-gooey-svg {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+</style>
+
+<script>
+  class Metaball {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    radius: number;
+    color: string;
+    baseVx: number;
+    baseVy: number;
+
+    constructor(x: number, y: number, radius: number, color: string) {
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.color = color;
+      
+      // Velocidad lenta y constante
+      this.vx = (Math.random() - 0.5) * 0.4;
+      this.vy = (Math.random() - 0.5) * 0.4;
+      // Guardar velocidades base
+      this.baseVx = this.vx;
+      this.baseVy = this.vy;
+    }
+
+    update(width: number, height: number, mouseX: number, mouseY: number, isMouseActive: boolean) {
+      // Movimiento autónomo base
+      this.x += this.vx;
+      this.y += this.vy;
+
+      // Atracción al cursor (efecto magnético cooperativo)
+      if (isMouseActive) {
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const attractionRadius = 380;
+
+        if (dist < attractionRadius) {
+          // Fuerza de atracción inversamente proporcional a la distancia
+          const force = (attractionRadius - dist) / attractionRadius;
+          const attractionStrength = 0.08;
+          
+          this.vx += (dx / dist) * force * attractionStrength;
+          this.vy += (dy / dist) * force * attractionStrength;
+        }
+      }
+
+      // Fricción suave para evitar que salgan disparadas por la fuerza magnética
+      this.vx *= 0.96;
+      this.vy *= 0.96;
+
+      // Añadir una pequeña fuerza de retorno a la velocidad base si no hay atracción fuerte
+      this.vx += (this.baseVx - this.vx) * 0.02;
+      this.vy += (this.baseVy - this.vy) * 0.02;
+
+      // Rebote en los bordes del lienzo respetando el radio
+      if (this.x - this.radius < 0) {
+        this.x = this.radius;
+        this.vx *= -1;
+        this.baseVx *= -1;
+      } else if (this.x + this.radius > width) {
+        this.x = width - this.radius;
+        this.vx *= -1;
+        this.baseVx *= -1;
+      }
+
+      if (this.y - this.radius < 0) {
+        this.y = this.radius;
+        this.vy *= -1;
+        this.baseVy *= -1;
+      } else if (this.y + this.radius > height) {
+        this.y = height - this.radius;
+        this.vy *= -1;
+        this.baseVy *= -1;
+      }
+    }
+
+    draw(ctx: CanvasRenderingContext2D) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    }
+  }
+
+  function initGooeyBackground() {
+    const canvas = document.getElementById("gooey-canvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    let metaballs: Metaball[] = [];
+    let mouseX = 0;
+    let mouseY = 0;
+    let isMouseActive = false;
+    let animationFrameId: number;
+
+    // Obtener los colores dinámicos de las variables CSS de HEM2026
+    let colorFucsia = "";
+    let colorVerde = "";
+
+    function fetchBrandColors() {
+      const styles = getComputedStyle(document.documentElement);
+      colorFucsia = styles.getPropertyValue("--c1").trim() || "#88007b";
+      colorVerde = styles.getPropertyValue("--c2").trim() || "#9fc637";
+
+      // Si cambian los colores (por cambio de tema), actualizamos el color de las metaballs existentes
+      metaballs.forEach((ball, index) => {
+        ball.color = index % 2 === 0 ? colorFucsia : colorVerde;
+      });
+    }
+
+    // Inicializar metaballs
+    function setupMetaballs() {
+      metaballs = [];
+      // Rango de metaballs grandes (entre 10 y 14) para un efecto óptimo y sutil
+      const count = Math.min(14, Math.max(8, Math.floor((width * height) / 120000)));
+      
+      for (let i = 0; i < count; i++) {
+        // Posiciones aleatorias en el canvas
+        const radius = Math.random() * 80 + 75; // Radios grandes para facilitar la fusión
+        const x = Math.random() * (width - radius * 2) + radius;
+        const y = Math.random() * (height - radius * 2) + radius;
+        const color = i % 2 === 0 ? colorFucsia : colorVerde;
+        
+        metaballs.push(new Metaball(x, y, radius, color));
+      }
+    }
+
+    // Escuchar el cambio de temas para actualizar colores de las partículas al instante
+    const observer = new MutationObserver(() => {
+      fetchBrandColors();
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    // Leer colores e inicializar metaballs por primera vez
+    fetchBrandColors();
+    setupMetaballs();
+
+    // Eventos de mouse
+    window.addEventListener("mousemove", (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      isMouseActive = true;
+    });
+
+    window.addEventListener("mouseleave", () => {
+      isMouseActive = false;
+    });
+
+    // Resize
+    let resizeTimeout: number;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(() => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        setupMetaballs();
+      }, 200);
+    });
+
+    // Bucle de animación principal
+    function animate() {
+      ctx!.clearRect(0, 0, width, height);
+
+      // 1. Dibujar metaball interactiva en el cursor (hace que las flotantes se adhieran a la mano)
+      if (isMouseActive) {
+        ctx!.beginPath();
+        ctx!.arc(mouseX, mouseY, 45, 0, Math.PI * 2);
+        ctx!.fillStyle = colorFucsia; // Color base para la metaball del puntero
+        ctx!.fill();
+      }
+
+      // 2. Actualizar y dibujar las metaballs flotantes
+      metaballs.forEach((ball) => {
+        ball.update(width, height, mouseX, mouseY, isMouseActive);
+        ball.draw(ctx!);
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // Detener la animación cuando la pestaña está en segundo plano para optimizar rendimiento
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationFrameId);
+      } else {
+        animate();
+      }
+    });
+  }
+
+  // Ejecución segura del inicializador
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGooeyBackground);
+  } else {
+    initGooeyBackground();
+  }
+</script>

@@ -1,21 +1,23 @@
 ---
 // src/components/Hero.astro
-// Fetch la fecha del evento desde Supabase en build-time
-import { supabase } from '../lib/supabase';
 
-const { data } = await supabase
-  .from('event_config')
-  .select('value')
-  .eq('key', 'event_start_datetime')
-  .single();
+/* ✨ CONFIGURACIÓN MANUAL DE LA FECHA DEL EVENTO ✨ */
+// Modifica esta variable para ajustar el cronómetro manualmente
+// Formato: AAAA-MM-DDTHH:MM:SS-03:00 (El -03:00 es la zona horaria de Argentina)
+const EVENT_START_DATE = '2026-08-19T21:30:00-03:00';
 
-const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
+// Opcional: Fetch de la fecha del evento desde Supabase (actualmente deshabilitado para priorizar la configuración manual)
+// import { supabase } from '../lib/supabase';
+// const { data } = await supabase.from('event_config').select('value').eq('key', 'event_start_datetime').single();
+// const eventDate = data?.value || EVENT_START_DATE;
+
+const eventDate = EVENT_START_DATE;
 ---
 
 <section class="hero" id="inicio">
   <div class="container hero-c">
     <h1 class="hero-title">
-      <span class="t-hackathon">HACKATHON</span><br />
+      <span class="t-hackathon">HACKATHON</span>
       <span class="t-edutech">EDUTECH</span>
     </h1>
     <div class="hero-badge">
@@ -24,12 +26,12 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
     </div>
     <p class="hero-desc">
       Un espacio intensivo de trabajo colaborativo donde equipos
-      interdisciplinarios diseñan soluciones tecnológicas innovadoras para los
+      interdisciplinarios del Nivel Superior diseñan soluciones tecnológicas innovadoras para los
       desafíos actuales de la educación.
     </p>
 
     <!-- Countdown -->
-    <div class="countdown" id="countdown" data-target-date={eventDate}>
+    <div class="countdown" id="countdown" data-target-date={eventDate} aria-live="polite">
       <div class="countdown-item">
         <span class="countdown-val" id="cdD">---</span><span
           class="countdown-label">Días</span>
@@ -52,14 +54,14 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
     </div>
 
     <div class="hero-dates">
-      <div class="date-chip"><strong>3 Jun</strong> &mdash; Virtual</div>
+      <div class="date-chip"><strong>19 Ago</strong> &mdash; Virtual</div>
       <div class="date-chip">
-        <strong>5-6 Jun</strong> &mdash; Presencial
+        <strong>21-22 Ago</strong> &mdash; Presencial
       </div>
     </div>
 
     <div class="hero-act">
-      <a href="#registro" class="btn btn-primary btn-lg glow-btn"
+      <a href="/registro" class="btn btn-primary btn-lg glow-btn"
         >Inscribirse ahora &rarr;</a
       >
       <a href="#acerca" class="btn btn-outline btn-lg">Conocer más</a>
@@ -109,7 +111,7 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--c1);
-    background: rgba(var(--c1r), 0.08);
+    background: linear-gradient(135deg, rgba(var(--c1r), 0.08) 0%, rgba(var(--c2r), 0.08) 100%);
     border: 1px solid rgba(var(--c1r), 0.2);
     padding: 0.5rem 1rem;
     border-radius: var(--r-full);
@@ -144,12 +146,19 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
   }
 
   .hero-title {
+    /* ✨ VARIABLES PARA AJUSTAR EL ESPACIADO ENTRE "HACKATHON" Y "EDUTECH" ✨ */
+    /* 1. Ajusta la separación general (usa px, rem, o negativos si quieres que se superpongan) */
+    --espaciado-palabras: 0px;
+    /* 2. Ajusta la altura de línea de cada palabra (menor valor = más juntas) */
+    --altura-linea: 0.9;
+
     font-size: clamp(3rem, 8vw, 6rem);
-    line-height: 0.9;
+    line-height: var(--altura-linea);
     letter-spacing: -0.02em;
     margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
+    gap: var(--espaciado-palabras);
 
     opacity: 0;
     animation: fadeUp 0.7s var(--ease) forwards;
@@ -159,7 +168,7 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
   .t-hackathon {
     font-family: var(--font-body);
     font-weight: 200;
-    color: var(--txt-1);
+    color: var(--c2);
     transition: color var(--t-theme);
   }
   
@@ -191,6 +200,7 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
     justify-content: center;
     gap: 24px;
     margin-bottom: 2.5rem;
+    flex-wrap: wrap;
 
     opacity: 0;
     animation: fadeUp 0.7s var(--ease) forwards;
@@ -205,7 +215,9 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 5vw, 3.5rem);
     font-weight: 900;
-    color: var(--c1);
+    background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     display: block;
     line-height: 1;
     margin-bottom: 0.25rem;
@@ -259,8 +271,15 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
   }
 
   .date-chip strong {
-    color: var(--c1);
     font-weight: 600;
+  }
+
+  .date-chip:nth-child(1) strong {
+    color: var(--c2);
+  }
+
+  .date-chip:nth-child(2) strong {
+    color: var(--c1);
   }
 
   .hero-act {
@@ -308,6 +327,25 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
       gap: 12px;
     }
   }
+  @media (max-width: 360px) {
+    .countdown {
+      gap: 8px;
+    }
+    .countdown-val {
+      font-size: 1.75rem;
+    }
+    .countdown-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+    }
+    .hero-dates {
+      gap: 8px;
+    }
+    .date-chip {
+      padding: 8px 14px;
+      font-size: 0.8rem;
+    }
+  }
 </style>
 
 <script>
@@ -317,7 +355,7 @@ const eventDate = data?.value || '2026-06-03T21:30:00-03:00';
 
   function updateCD() {
     const countdownEl = document.getElementById("countdown");
-    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-06-03T21:30:00-03:00";
+    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-08-19T21:30:00-03:00";
     const target = new Date(targetDateStr).getTime();
     const now = new Date().getTime();
     const diff = target - now;

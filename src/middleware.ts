@@ -109,13 +109,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  // Protección de rutas exclusivas de mentor
-  const isMentorRoute = MENTOR_ROUTES.some(r => pathname.startsWith(r));
-  if (isMentorRoute && user) {
-    if (locals.profile?.role !== 'mentor' && locals.profile?.role !== 'admin' && locals.profile?.role !== 'superadmin') {
-      return redirect('/dashboard');
-    }
-  }
+// Protección de rutas exclusivas de mentor
+const isMentorRoute = MENTOR_ROUTES.some(r => pathname.startsWith(r));
+if (isMentorRoute && user) {
+	const role = locals.profile?.role;
+	if (role === 'juez') {
+		return redirect('/evaluacion');
+	}
+	if (role !== 'mentor' && role !== 'admin' && role !== 'superadmin') {
+		return redirect('/dashboard');
+	}
+}
 
   // Rutas de auth (/login, /registro): si ya hay sesión, redirigir
   if (isAuthRoute && user) {

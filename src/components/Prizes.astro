@@ -1,0 +1,205 @@
+---
+// src/components/Prizes.astro
+---
+
+<section class="prizes" id="premios">
+    <div class="container">
+        <div class="prizes-hdr reveal">
+            <span class="section-label">Reconocimientos</span>
+            <h2 class="section-title">Premios</h2>
+            <p class="section-desc">Los tres mejores proyectos recibirán reconocimiento especial por su innovación y compromiso con la educación.</p>
+        </div>
+
+        <div class="prizes-grid">
+            <div class="card prize-card reveal rd1">
+                <div class="prize-rank rank-2">2°</div>
+                <h3>Segundo Lugar</h3>
+                <p>Reconocimiento institucional y certificado especial para todo el equipo.</p>
+            </div>
+
+            <div class="card prize-card prize-first reveal rd2">
+                <div class="prize-rank rank-1">1°</div>
+                <h3>Primer Lugar</h3>
+                <p>Premio principal, reconocimiento institucional y certificado especial para todo el equipo.</p>
+                <div class="prize-highlight">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Máximo reconocimiento
+                </div>
+            </div>
+
+            <div class="card prize-card reveal rd3">
+                <div class="prize-rank rank-3">3°</div>
+                <h3>Tercer Lugar</h3>
+                <p>Reconocimiento institucional y certificado especial para todo el equipo.</p>
+            </div>
+        </div>
+
+        <div class="mencion-container reveal rd4">
+            <div class="card prize-card mencion-card">
+                <div class="prize-rank rank-mencion">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <h3>Mención Especial: Beca Incubadora UNCUYO</h3>
+                <p>Acompañamiento, mentoreo y pre-incubación para el proyecto escolar o académico con mayor potencial de transferencia y desarrollo de negocio.</p>
+            </div>
+        </div>
+
+        <p class="prizes-note reveal">Los premios serán anunciados por la organización antes del inicio del evento. Todos los participantes recibirán certificación de participación.</p>
+    </div>
+</section>
+
+<style>
+    .prizes {
+        padding: 8rem 0;
+        background: var(--bg-2);
+        transition: background var(--t-theme);
+    }
+
+    .prizes-hdr {
+        margin-bottom: 6rem;
+    }
+
+    .prizes-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        align-items: end;
+    }
+
+    .prize-card {
+        padding: 2.5rem;
+        text-align: center;
+        transition: transform var(--ease) 0.3s, box-shadow var(--ease) 0.3s, border-color var(--ease) 0.3s;
+    }
+
+    .prize-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .prize-first {
+        border-color: rgba(255, 215, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .prize-first::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.06), transparent 70%);
+        pointer-events: none;
+    }
+
+    .prize-first:hover {
+        border-color: rgba(255, 215, 0, 0.5);
+    }
+
+    .prize-rank {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .rank-1 {
+        background: rgba(255, 215, 0, 0.15);
+        color: #b8860b;
+        border: 2px solid rgba(255, 215, 0, 0.4);
+    }
+    .rank-2 {
+        background: rgba(192, 192, 192, 0.15);
+        color: #808080;
+        border: 2px solid rgba(192, 192, 192, 0.4);
+    }
+    .rank-3 {
+        background: rgba(205, 127, 50, 0.15);
+        color: #cd7f32;
+        border: 2px solid rgba(205, 127, 50, 0.4);
+    }
+    .rank-mencion {
+        background: rgba(124, 58, 237, 0.15);
+        color: #7c3aed;
+        border: 2px solid rgba(124, 58, 237, 0.4);
+    }
+
+    :global([data-theme="brand-dark"]) .rank-mencion { color: #a78bfa; }
+
+    :global([data-theme="brand-dark"]) .rank-1 { color: #ffd700; }
+    :global([data-theme="brand-dark"]) .rank-2 { color: #e0e0e0; }
+    :global([data-theme="brand-dark"]) .rank-3 { color: #ffa07a; }
+
+    .prize-card h3 {
+        font-family: var(--font-heading);
+        font-size: 1.3rem;
+        margin-bottom: 0.75rem;
+        color: var(--txt-1);
+    }
+
+    .prize-card p {
+        font-size: 0.95rem;
+        line-height: 1.75;
+        color: var(--txt-2);
+        margin: 0;
+    }
+
+    .prize-highlight {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: #b8860b;
+        background: rgba(255, 215, 0, 0.1);
+        padding: 0.4rem 1rem;
+        border-radius: var(--r-full);
+        letter-spacing: 0.05em;
+    }
+
+    :global([data-theme="brand-dark"]) .prize-highlight {
+        color: #ffd700;
+    }
+
+    .prizes-note {
+        text-align: center;
+        max-width: 600px;
+        margin: 3rem auto 0;
+        font-size: 0.9rem;
+        color: var(--txt-m);
+        line-height: 1.6;
+    }
+
+    .mencion-container {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .mencion-card {
+        max-width: 550px;
+        width: 100%;
+        border-color: rgba(124, 58, 237, 0.2);
+    }
+
+    .mencion-card:hover {
+        border-color: rgba(124, 58, 237, 0.5);
+    }
+
+    @media (min-width: 768px) {
+        .prizes-grid {
+            grid-template-columns: 1fr 1.15fr 1fr;
+            gap: 2rem;
+        }
+        .prize-first {
+            padding: 3rem 2.5rem;
+        }
+    }
+</style>
