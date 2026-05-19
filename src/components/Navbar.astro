@@ -27,7 +27,8 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
 <nav class="navbar" id="navbar">
     <div class="container nav-c">
         <a href="/#inicio" class="nav-logo">
-            <img src="/img/brand/MARCA_SIMPLE_NEGRO_SIN_FONDO.png" alt="Hackathon EduTech" class="brand-logo" />
+            <img src="/img/brand/Logo_Tema_Claro.png" alt="Hackathon EduTech" class="brand-logo logo-light" />
+            <img src="/img/brand/Logo_Tema_Oscuro.png" alt="Hackathon EduTech" class="brand-logo logo-dark" />
         </a>
         
         <div class="nav-menu" id="navMenu">
@@ -153,6 +154,18 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
     .brand-logo {
         height: 32px;
         width: auto;
+    }
+
+    .logo-dark {
+        display: none;
+    }
+
+    :global([data-theme="brand-dark"]) .logo-light {
+        display: none;
+    }
+
+    :global([data-theme="brand-dark"]) .logo-dark {
+        display: block;
     }
 
     .nav-toggle {
