@@ -153,11 +153,6 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
     .brand-logo {
         height: 32px;
         width: auto;
-        transition: filter var(--t-theme);
-    }
-
-    :global([data-theme="brand-dark"]) .brand-logo {
-        filter: invert(1) brightness(2);
     }
 
     .nav-toggle {
