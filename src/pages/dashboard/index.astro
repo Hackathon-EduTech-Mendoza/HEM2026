@@ -174,152 +174,202 @@ if (profile.team_id && helpEnabled) {
           </form>
         </div>
       ) : (
-        <!-- Vista Perfil Completo -->
-        <div class="success-layout">
-          <div class="success-info">
-            <div class="success-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            </div>
-            <h1>¡Inscripción confirmada!</h1>
-            <div class={`status-badge status-${profile.registration_status}`}>
-              Estado actual: <strong>{profile.registration_status.toUpperCase()}</strong>
-            </div>
-            <p class="success-text">
-              Próximamente te notificaremos sobre la conformación de los equipos. El formulario para la entrega del proyecto se habilitará aquí mismo el día del evento.
-            </p>
-          </div>
+        <!-- Vista Perfil Completo con Pestañas -->
+        <div class="tabs-container">
+          <nav class="tabs-nav" role="tablist">
+            <button class="tab-btn active" data-tab="perfil" role="tab" aria-selected="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Mi Perfil</span>
+            </button>
+            <button class="tab-btn" data-tab="equipo" role="tab" aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span>Mi Equipo</span>
+            </button>
+            <button class="tab-btn" data-tab="mentoria" role="tab" aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+              <span>Mentoría</span>
+            </button>
+            <button class="tab-btn" data-tab="sos" role="tab" aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>SOS</span>
+            </button>
+          </nav>
 
-          <div class="dashboard-card card profile-card">
-            <form id="update-contact-form" class="dash-form">
-            <h3 class="section-label">Tus Datos Fijos</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="display_dni">DNI</label>
-                <input type="text" id="display_dni" value={profile.dni} disabled />
+          <!-- Tab 1: Perfil -->
+          <div class="tab-content active" id="tab-perfil" role="tabpanel">
+            <div class="tab-profile-layout">
+              <div class="success-info">
+                <div class="success-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <h1>¡Inscripción confirmada!</h1>
+                <div class={`status-badge status-${profile.registration_status}`}>
+                  Estado actual: <strong>{profile.registration_status.toUpperCase()}</strong>
+                </div>
+                <p class="success-text">
+                  Próximamente te notificaremos sobre la conformación de los equipos. El formulario para la entrega del proyecto se habilitará aquí mismo el día del evento.
+                </p>
               </div>
-              <div class="form-group">
-                <label for="display_inst">Institución</label>
-                <input type="text" id="display_inst" value={profile.institution === 'ies_9023_maipu' ? 'IES 9-023 Maipú' : profile.institution === 'ies_edison' ? 'IES Tomás Alva Edison' : 'Otra'} disabled />
-              </div>
-            </div>
-            <div class="form-group checkbox-group">
-              <label class="checkbox-label" style="opacity: 0.7; cursor: default;">
-                <input type="checkbox" checked={profile.is_egresado} disabled />
-                <span class="custom-checkbox"></span>
-                Egresado/a
-              </label>
-            </div>
-            
-            <h3 class="section-label" style="margin-top: 1rem;">Datos de Contacto (Editables)</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="phone_whatsapp">Teléfono (WhatsApp)</label>
-                <input type="text" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: 2611234567" value={profile.phone_whatsapp || ''} />
-              </div>
-              <div class="form-group">
-                <label for="instagram_handle">Instagram</label>
-                <input type="text" id="instagram_handle" name="instagram_handle" placeholder="Ej: @usuario" value={profile.instagram_handle || ''} />
-              </div>
-            </div>
 
-            <div id="update-error" class="form-error" style="display: none;"></div>
-            
-            <div class="form-actions" style="margin-top: 0.5rem; justify-content: flex-start;">
-              <button type="submit" class="btn btn-outline" id="update-btn">
-                Actualizar Contacto
-              </button>
-            </div>
-          </form>
-
-          {/* Sección Tu Mentor (T5.2) */}
-          {profile.team_id && (
-            <div class="mentor-info-section">
-              <h3 class="section-label">Tu Mentor Asignado</h3>
-              {mentor ? (
-                <div class="mentor-card">
-                  <div class="mentor-avatar-sm">
-                    {mentor.full_name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
-                  </div>
-                  <div class="mentor-details">
-                    <span class="mentor-name">{mentor.full_name}</span>
-                    <div class="mentor-socials">
-                      {mentor.phone_whatsapp && (
-                        <a href={`https://wa.me/${mentor.phone_whatsapp}`} target="_blank" class="social-link" title="WhatsApp">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                        </a>
-                      )}
-                      {mentor.instagram_handle && (
-                        <a href={`https://instagram.com/${mentor.instagram_handle.replace('@','')}`} target="_blank" class="social-link" title="Instagram">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                        </a>
-                      )}
+              <div class="dashboard-card card profile-card" style="margin-top: 2rem;">
+                <form id="update-contact-form" class="dash-form">
+                  <h3 class="section-label">Tus Datos Fijos</h3>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="display_dni">DNI</label>
+                      <input type="text" id="display_dni" value={profile.dni} disabled />
+                    </div>
+                    <div class="form-group">
+                      <label for="display_inst">Institución</label>
+                      <input type="text" id="display_inst" value={profile.institution === 'ies_9023_maipu' ? 'IES 9-023 Maipú' : profile.institution === 'ies_edison' ? 'IES Tomás Alva Edison' : 'Otra'} disabled />
                     </div>
                   </div>
-                </div>
+                  <div class="form-group checkbox-group">
+                    <label class="checkbox-label" style="opacity: 0.7; cursor: default;">
+                      <input type="checkbox" checked={profile.is_egresado} disabled />
+                      <span class="custom-checkbox"></span>
+                      Egresado/a
+                    </label>
+                  </div>
+                  
+                  <h3 class="section-label" style="margin-top: 1rem;">Datos de Contacto (Editables)</h3>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="phone_whatsapp">Teléfono (WhatsApp)</label>
+                      <input type="text" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: 2611234567" value={profile.phone_whatsapp || ''} />
+                    </div>
+                    <div class="form-group">
+                      <label for="instagram_handle">Instagram</label>
+                      <input type="text" id="instagram_handle" name="instagram_handle" placeholder="Ej: @usuario" value={profile.instagram_handle || ''} />
+                    </div>
+                  </div>
+
+                  <div id="update-error" class="form-error" style="display: none;"></div>
+                  
+                  <div class="form-actions" style="margin-top: 0.5rem; justify-content: flex-start;">
+                    <button type="submit" class="btn btn-outline" id="update-btn">
+                      Actualizar Contacto
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Equipo -->
+          <div class="tab-content" id="tab-equipo" role="tabpanel">
+            {teamsEnabled && profile.registration_status === 'aprobado' ? (
+              <TeamManager
+                userId={user.id}
+                teamId={profile.team_id}
+                isEgresado={profile.is_egresado}
+                fullName={profile.full_name}
+                maxTeamSize={maxTeamSize}
+                minTeamSize={minTeamSize}
+                projectsEnabled={projectsEnabled}
+              />
+            ) : !teamsEnabled && profile.registration_status === 'aprobado' ? (
+              <div class="team-locked-msg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>La formación de equipos se habilitará próximamente.</span>
+              </div>
+            ) : (
+              <div class="team-locked-msg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span>Tu inscripción debe estar aprobada para participar de un equipo.</span>
+              </div>
+            )}
+          </div>
+
+          <!-- Tab 3: Mentoría -->
+          <div class="tab-content" id="tab-mentoria" role="tabpanel">
+            <div class="card profile-card">
+              <h3 class="section-label">Tu Mentor Asignado</h3>
+              {profile.team_id ? (
+                mentor ? (
+                  <div class="mentor-card" style="margin-top: 1rem;">
+                    <div class="mentor-avatar-sm">
+                      {mentor.full_name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
+                    </div>
+                    <div class="mentor-details">
+                      <span class="mentor-name">{mentor.full_name}</span>
+                      <div class="mentor-socials">
+                        {mentor.phone_whatsapp && (
+                          <a href={`https://wa.me/${mentor.phone_whatsapp}`} target="_blank" class="social-link" title="WhatsApp">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                          </a>
+                        )}
+                        {mentor.instagram_handle && (
+                          <a href={`https://instagram.com/${mentor.instagram_handle.replace('@','')}`} target="_blank" class="social-link" title="Instagram">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div class="mentor-empty" style="margin-top: 1rem;">
+                    <p>Aún no se ha asignado un mentor a tu equipo. Los mentores se asignarán al comienzo del evento.</p>
+                  </div>
+                )
               ) : (
-                <div class="mentor-empty">
-                  <p>Aún no se ha asignado un mentor a tu equipo.</p>
+                <div class="mentor-empty" style="margin-top: 1rem;">
+                  <p>Para tener un mentor asignado, primero debés conformar o unirte a un equipo en la pestaña <strong>Mi Equipo</strong>.</p>
                 </div>
               )}
             </div>
-          )}
-
-          {/* Sección SOS (T5.3) */}
-          {helpEnabled && profile.team_id && mentor && (
-            <div class="sos-section" id="sos-container" data-team-id={profile.team_id} data-initial-status={activeHelpRequest?.status || ''} data-started-at={activeHelpRequest?.started_at || ''} data-session-duration={mentorSessionDuration}>
-              <h3 class="section-label">Sistema de Ayuda SOS</h3>
-              <div class="sos-card">
-        <div class="sos-info">
-          <p id="sos-status-text">
-            {!activeHelpRequest
-              ? '¿Necesitan ayuda técnica o de negocio? Pidan un SOS y su mentor vendrá a su mesa.'
-              : activeHelpRequest.status === 'pendiente'
-              ? '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.'
-              : '🏃‍♂️ ¡Tu mentor está en camino! Prepará tus dudas.'}
-          </p>
-          {activeHelpRequest?.status === 'pendiente' && (
-            <div class="sos-waiting">
-              <span class="sos-waiting-dot"></span> Esperando mentor…
-            </div>
-          )}
-          {activeHelpRequest?.status === 'en_camino' && (
-            <div class="sos-timer">
-              ⏱️ Tiempo restante: <span id="sos-timer-val">--:--</span>
-            </div>
-          )}
-        </div>
-                <button 
-                  id="sos-btn" 
-                  class={`btn ${activeHelpRequest ? 'btn-disabled' : 'btn-danger'}`} 
-                  disabled={!!activeHelpRequest}
-                >
-                  {activeHelpRequest ? 'Pedido Activo' : 'Pedir Ayuda (SOS)'}
-                </button>
-              </div>
-            </div>
-          )}
           </div>
 
-          {/* Team Management Section - only for approved users when enabled */}
-          {teamsEnabled && profile.registration_status === 'aprobado' && (
-            <TeamManager
-              userId={user.id}
-              teamId={profile.team_id}
-              isEgresado={profile.is_egresado}
-              fullName={profile.full_name}
-              maxTeamSize={maxTeamSize}
-              minTeamSize={minTeamSize}
-              projectsEnabled={projectsEnabled}
-            />
-          )}
-
-          {!teamsEnabled && profile.registration_status === 'aprobado' && (
-            <div class="team-locked-msg">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              <span>La formación de equipos se habilitará próximamente.</span>
+          <!-- Tab 4: SOS -->
+          <div class="tab-content" id="tab-sos" role="tabpanel">
+            <div class="card profile-card">
+              <h3 class="section-label">Sistema de Ayuda SOS</h3>
+              {helpEnabled && profile.team_id && mentor ? (
+                <div class="sos-section-wrapper" id="sos-container" data-team-id={profile.team_id} data-initial-status={activeHelpRequest?.status || ''} data-started-at={activeHelpRequest?.started_at || ''} data-session-duration={mentorSessionDuration} style="margin-top: 1rem;">
+                  <div class="sos-card">
+                    <div class="sos-info">
+                      <p id="sos-status-text">
+                        {!activeHelpRequest
+                          ? '¿Necesitan ayuda técnica o de negocio? Pidan un SOS y su mentor vendrá a su mesa.'
+                          : activeHelpRequest.status === 'pendiente'
+                          ? '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.'
+                          : '🏃‍♂️ ¡Tu mentor está en camino! Prepará tus dudas.'}
+                      </p>
+                      {activeHelpRequest?.status === 'pendiente' && (
+                        <div class="sos-waiting">
+                          <span class="sos-waiting-dot"></span> Esperando mentor…
+                        </div>
+                      )}
+                      {activeHelpRequest?.status === 'en_camino' && (
+                        <div class="sos-timer">
+                          ⏱️ Tiempo restante: <span id="sos-timer-val">--:--</span>
+                        </div>
+                      )}
+                    </div>
+                    <button 
+                      id="sos-btn" 
+                      class={`btn ${activeHelpRequest ? 'btn-disabled' : 'btn-danger'}`} 
+                      disabled={!!activeHelpRequest}
+                    >
+                      {activeHelpRequest ? 'Pedido Activo' : 'Pedir Ayuda (SOS)'}
+                    </button>
+                  </div>
+                </div>
+              ) : !helpEnabled ? (
+                <div class="mentor-empty" style="margin-top: 1rem;">
+                  <p>El sistema de ayuda SOS no está habilitado actualmente.</p>
+                </div>
+              ) : !profile.team_id ? (
+                <div class="mentor-empty" style="margin-top: 1rem;">
+                  <p>Para solicitar un SOS, primero debés conformar o unirte a un equipo en la pestaña <strong>Mi Equipo</strong>.</p>
+                </div>
+              ) : (
+                <div class="mentor-empty" style="margin-top: 1rem;">
+                  <p>El sistema de ayuda SOS se activará cuando tu equipo tenga un mentor asignado.</p>
+                </div>
+              )}
             </div>
-          )}
-
+          </div>
 
         </div>
       )}
@@ -462,19 +512,19 @@ if (profile.team_id && helpEnabled) {
     justify-content: flex-end;
   }
 
-  /* Success Layout Styles */
-  .success-layout {
+  /* Success Layout / Tab Styles */
+  .tab-profile-layout {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 3rem;
-    max-width: 1000px;
+    gap: 2rem;
+    max-width: 900px;
     margin: 0 auto;
   }
 
-  @media (min-width: 800px) {
-    .success-layout {
-      grid-template-columns: 4fr 6fr;
-      align-items: center;
+  @media (min-width: 768px) {
+    .tab-profile-layout {
+      grid-template-columns: 1fr 1.2fr;
+      align-items: start;
     }
   }
 
@@ -484,9 +534,13 @@ if (profile.team_id && helpEnabled) {
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    padding: 2.5rem;
   }
 
-  @media (min-width: 800px) {
+  @media (min-width: 768px) {
     .success-info {
       text-align: left;
       align-items: flex-start;
@@ -494,10 +548,10 @@ if (profile.team_id && helpEnabled) {
   }
 
   .profile-card {
-    background: var(--bg-2);
+    background: var(--bg-card);
     padding: 2.5rem;
     border-radius: var(--r-md);
-    border: 1px solid var(--brd-s);
+    border: 1px solid var(--brd);
     margin: 0;
     max-width: none;
   }
@@ -520,8 +574,6 @@ if (profile.team_id && helpEnabled) {
     letter-spacing: 0.05em;
     border: 1px solid transparent;
   }
-
-
 
 .status-aprobado {
   background: rgba(var(--c2r), 0.1);
@@ -569,13 +621,14 @@ if (profile.team_id && helpEnabled) {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 1rem 1.5rem;
+    padding: 1.5rem 2rem;
     background: rgba(var(--c1r), 0.08);
     border: 1px solid rgba(var(--c1r), 0.2);
     border-radius: var(--r-md);
     color: var(--txt-1);
     font-size: 0.95rem;
-    margin-top: 1.5rem;
+    max-width: 700px;
+    margin: 0 auto;
   }
   .team-locked-msg svg {
     color: var(--c1);
@@ -593,29 +646,32 @@ if (profile.team_id && helpEnabled) {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem;
-    background: var(--bg-3);
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
     border-radius: var(--r-md);
   }
 
   .mentor-avatar-sm {
-    width: 40px; height: 40px;
+    width: 44px; height: 44px;
     background: var(--c1); color: white;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 0.85rem;
+    font-weight: 700; font-size: 0.95rem;
   }
 
   .mentor-details { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .mentor-name { font-weight: 600; color: var(--txt-1); }
-  .mentor-socials { display: flex; gap: 0.5rem; }
+  .mentor-name { font-weight: 600; color: var(--txt-1); font-size: 1.1rem; }
+  .mentor-socials { display: flex; gap: 0.75rem; }
   .social-link {
-    color: var(--txt-2); padding: 0.4rem; border-radius: var(--r-sm);
+    color: var(--txt-2); padding: 0.5rem; border-radius: var(--r-sm);
     transition: all var(--t-fast);
+    display: inline-flex;
+    align-items: center;
   }
   .social-link:hover { color: var(--c1); background: rgba(var(--c1r), 0.1); }
 
-  .mentor-empty { color: var(--txt-m); font-style: italic; font-size: 0.9rem; }
+  .mentor-empty { color: var(--txt-m); font-style: italic; font-size: 0.95rem; }
 
   .sos-section {
     margin-top: 2rem;
@@ -680,6 +736,88 @@ if (profile.team_id && helpEnabled) {
   
   .btn-disabled {
     background: var(--brd); color: var(--txt-m); cursor: not-allowed;
+  }
+
+  /* Tabs CSS */
+  .tabs-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .tabs-nav {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--brd);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .tabs-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .tabs-nav {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--txt-2);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--t-fast);
+  }
+
+  .tab-btn svg {
+    stroke: currentColor;
+    transition: transform var(--t-fast);
+  }
+
+  .tab-btn:hover {
+    color: var(--c1);
+  }
+
+  .tab-btn:hover svg {
+    transform: translateY(-1px);
+  }
+
+  .tab-btn.active {
+    color: var(--c1);
+    border-bottom-color: var(--c1);
+  }
+
+  .tab-content {
+    display: none;
+    animation: tabFadeIn var(--t-fast) ease-out;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  @keyframes tabFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>
 
@@ -973,4 +1111,27 @@ if (sosContainer && sosBtn) {
     }
   }, 1000);
 }
+
+// --- Tabs Logic ---
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetTab = btn.getAttribute('data-tab');
+    
+    tabButtons.forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    tabContents.forEach(c => c.classList.remove('active'));
+
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    const targetContent = document.getElementById(`tab-${targetTab}`);
+    if (targetContent) {
+      targetContent.classList.add('active');
+    }
+  });
+});
 </script>
