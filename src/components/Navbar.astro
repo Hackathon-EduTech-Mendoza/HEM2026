@@ -408,18 +408,43 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         .nav-act {
             flex-direction: column;
             align-items: center;
-            width: 80%;
-            max-width: 260px;
+            gap: 0;
         }
         .nav-act-logged {
             flex-direction: column;
-            width: 100%;
-            gap: 0.75rem;
+            align-items: center;
+            gap: 1.75rem;
         }
         .nav-act-logged .btn {
-            width: 100%;
+            /* Resetear estilo de botón para que parezca un link de navegación */
+            all: unset;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--c1);
             text-align: center;
-            justify-content: center;
+            padding: 0.25rem 0;
+            position: relative;
+            transition: color var(--t-fast), opacity var(--t-fast);
+        }
+        .nav-act-logged .btn:hover {
+            opacity: 0.75;
+        }
+        /* Subrayado animado igual que los nav-links */
+        .nav-act-logged .btn::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--c1);
+            transition: width var(--t-base);
+        }
+        .nav-act-logged .btn:hover::after {
+            width: 100%;
         }
         .desktop-only {
             display: none !important;
