@@ -38,7 +38,7 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
                 <li><a href="/ediciones">Ediciones</a></li>
                 <li><a href="/#faq">FAQ</a></li>
             </ul>
-            <div class="nav-act" id="nav-auth-buttons">
+            <div class="nav-act mobile-only" id="nav-auth-buttons-mobile">
                 {user && panelInfo ? (
                     <div class="nav-act-logged">
                         <a href={panelInfo.primary.href} class="btn btn-primary">{panelInfo.primary.label}</a>
@@ -71,6 +71,16 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
 
         <div class="nav-actions-container">
             <ThemeToggle />
+
+            <!-- En PC, los botones de auth se muestran aquí -->
+            <div class="nav-act desktop-only" id="nav-auth-buttons-desktop" style={user ? "display: none;" : "display: flex;"}>
+                {!user && (
+                    <>
+                        <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
+                        <a href="/registro" class="btn btn-primary">Registro</a>
+                    </>
+                )}
+            </div>
 
             <!-- Mini-dropdown de usuario en escritorio -->
             <div class="user-dropdown" id="userDropdown" style={user ? "display: block;" : "display: none;"}>
@@ -196,7 +206,13 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
     }
 
     .desktop-only {
-        display: block;
+        display: flex !important;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .mobile-only {
+        display: none !important;
     }
 
     .mobile-menu-footer {
@@ -474,6 +490,9 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         .desktop-only {
             display: none !important;
         }
+        .mobile-only {
+            display: flex !important;
+        }
 
         /* Sección inferior del menú móvil */
         .mobile-menu-footer {
@@ -614,7 +633,8 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const navbarEl = document.getElementById('navbar');
-            const authContainer = document.getElementById('nav-auth-buttons');
+            const authMobile = document.getElementById('nav-auth-buttons-mobile');
+            const authDesktop = document.getElementById('nav-auth-buttons-desktop');
             const userDropdown = document.getElementById('userDropdown');
             
             if (session) {
@@ -629,14 +649,19 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
 
                 const info = getClientPanelInfo(profile?.role);
                 
-                // Móvil: Inyectar links verticales en el menú
-                if (authContainer) {
-                    authContainer.innerHTML = `
+                // Móvil: Inyectar links verticales en el menú lateral
+                if (authMobile) {
+                    authMobile.innerHTML = `
                         <div class="nav-act-logged">
                             <a href="${info.primary.href}" class="btn btn-primary">${info.primary.label}</a>
                             ${info.secondary ? `<a href="${info.secondary.href}" class="btn btn-outline">${info.secondary.label}</a>` : ''}
                         </div>
                     `;
+                }
+
+                // Desktop: Ocultar los botones estáticos de auth públicos
+                if (authDesktop) {
+                    authDesktop.style.display = 'none';
                 }
 
                 // Desktop: Mostrar y sincronizar dropdown
@@ -669,9 +694,16 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
                 if (userDropdown) {
                     userDropdown.style.display = 'none';
                 }
-                // Restaurar botones de auth públicos
-                if (authContainer) {
-                    authContainer.innerHTML = `
+                // Restaurar botones de auth públicos en móvil y PC
+                if (authMobile) {
+                    authMobile.innerHTML = `
+                        <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
+                        <a href="/registro" class="btn btn-primary">Registro</a>
+                    `;
+                }
+                if (authDesktop) {
+                    authDesktop.style.display = 'flex';
+                    authDesktop.innerHTML = `
                         <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
                         <a href="/registro" class="btn btn-primary">Registro</a>
                     `;
