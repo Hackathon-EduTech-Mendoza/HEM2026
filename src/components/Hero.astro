@@ -29,7 +29,7 @@ const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
     </p>
 
     <!-- Countdown -->
-    <div class="countdown" id="countdown" data-target-date={eventDate}>
+    <div class="countdown" id="countdown" data-target-date={eventDate} aria-live="polite">
       <div class="countdown-item">
         <span class="countdown-val" id="cdD">---</span><span
           class="countdown-label">Días</span>
@@ -109,7 +109,7 @@ const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--c1);
-    background: rgba(var(--c1r), 0.08);
+    background: linear-gradient(135deg, rgba(var(--c1r), 0.08) 0%, rgba(var(--c2r), 0.08) 100%);
     border: 1px solid rgba(var(--c1r), 0.2);
     padding: 0.5rem 1rem;
     border-radius: var(--r-full);
@@ -159,7 +159,7 @@ const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
   .t-hackathon {
     font-family: var(--font-body);
     font-weight: 200;
-    color: var(--txt-1);
+    color: var(--c2);
     transition: color var(--t-theme);
   }
   
@@ -205,7 +205,9 @@ const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 5vw, 3.5rem);
     font-weight: 900;
-    color: var(--c1);
+    background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     display: block;
     line-height: 1;
     margin-bottom: 0.25rem;
@@ -259,8 +261,15 @@ const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
   }
 
   .date-chip strong {
-    color: var(--c1);
     font-weight: 600;
+  }
+
+  .date-chip:nth-child(1) strong {
+    color: var(--c2);
+  }
+
+  .date-chip:nth-child(2) strong {
+    color: var(--c1);
   }
 
   .hero-act {
@@ -306,6 +315,14 @@ const eventDate = data?.value || '2026-08-19T21:30:00-03:00';
   @media (max-width: 640px) {
     .countdown {
       gap: 12px;
+    }
+  }
+  @media (max-width: 360px) {
+    .countdown-val {
+      font-size: 2rem;
+    }
+    .countdown-label {
+      font-size: 0.65rem;
     }
   }
 </style>

@@ -174,14 +174,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-    background: var(--c1);
-    color: var(--bg-1);
+    background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+    color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(var(--c1r), 0.2);
 }
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(var(--c1r), 0.3);
-    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(var(--c1r), 0.3), 0 0 10px rgba(var(--c2r), 0.15);
+    filter: brightness(1.08);
 }
 
 .btn-outline {
@@ -193,6 +193,29 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--c1);
     color: var(--c1);
     background: rgba(var(--c1r), 0.05);
+}
+
+.btn-outline-c2 {
+    background: transparent;
+    border: 1px solid var(--brd);
+    color: var(--txt-1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: all var(--t-fast);
+    text-align: center;
+}
+.btn-outline-c2:hover {
+    border-color: var(--c2);
+    color: var(--c2);
+    background: rgba(var(--c2r), 0.05);
 }
 
 .btn-lg {
