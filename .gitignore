@@ -183,3 +183,6 @@ skills-lock.json
 # Carpetas personales (no del proyecto)
 # ================================
 ayudas_y_recursos/
+
+# Carpetas creadas por OpenCode
+.opencode/
