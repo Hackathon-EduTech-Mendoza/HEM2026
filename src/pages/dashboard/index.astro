@@ -181,8 +181,8 @@ if (profile.team_id && helpEnabled) {
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             </div>
             <h1>¡Inscripción confirmada!</h1>
-            <div class={`status-badge status-${profile.registration_status || 'pendiente'}`}>
-              Estado actual: <strong>{(profile.registration_status || 'pendiente').toUpperCase()}</strong>
+            <div class={`status-badge status-${profile.registration_status}`}>
+              Estado actual: <strong>{profile.registration_status.toUpperCase()}</strong>
             </div>
             <p class="success-text">
               Próximamente te notificaremos sobre la conformación de los equipos. El formulario para la entrega del proyecto se habilitará aquí mismo el día del evento.
@@ -320,12 +320,7 @@ if (profile.team_id && helpEnabled) {
             </div>
           )}
 
-          {profile.registration_status === 'pendiente' && isProfileComplete && (
-            <div class="team-locked-msg">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              <span>Esperá a que la administración apruebe tu perfil para formar equipo.</span>
-            </div>
-          )}
+
         </div>
       )}
       
@@ -526,12 +521,7 @@ if (profile.team_id && helpEnabled) {
     border: 1px solid transparent;
   }
 
-.status-pendiente {
-  background: rgba(255, 193, 7, 0.1);
-  color: #ffc107;
-  border-color: rgba(255, 193, 7, 0.2);
-  animation: pulse 2s ease-in-out infinite;
-}
+
 
 .status-aprobado {
   background: rgba(var(--c2r), 0.1);
@@ -746,7 +736,8 @@ if (profile.team_id && helpEnabled) {
         institution,
         year_of_study,
         disciplinary_profile,
-        is_egresado
+        is_egresado,
+        registration_status: 'aprobado'
       })
       .eq('id', userId);
 
