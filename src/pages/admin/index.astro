@@ -266,7 +266,7 @@ const { count: mentorsCount } = await supabase
                             <option value="juez" selected={p.role === "juez"}>
                               Juez
                             </option>
-                            {profile.role === "superadmin" && (
+                            {(profile.role === "admin" || profile.role === "superadmin") && (
                               <option
                                 value="admin"
                                 selected={p.role === "admin"}
