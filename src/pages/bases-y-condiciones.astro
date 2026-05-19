@@ -1,0 +1,180 @@
+---
+// src/pages/bases-y-condiciones.astro
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Bases y Condiciones | HEM2026">
+  <main class="legal-page">
+    <div class="container">
+      <div class="legal-card card">
+        <a href="/" class="legal-back">&larr; Volver al inicio</a>
+        <h1>Bases y Condiciones</h1>
+        <p class="legal-subtitle">Hackathon EduTech Mendoza 2026 — Segunda Edición</p>
+
+        <article class="legal-content">
+          <section>
+            <h2>1. Organizadores</h2>
+            <p>La <strong>Hackathon EduTech Mendoza 2026</strong> (en adelante, "el Evento") es organizada de manera conjunta por el <strong>IES N°9-023 de Maipú</strong> y el <strong>IES Tomás Alva Edison</strong>, con el apoyo de diversas instituciones educativas y gubernamentales de la provincia de Mendoza.</p>
+          </section>
+
+          <section>
+            <h2>2. Objetivo del Evento</h2>
+            <p>El Evento tiene como finalidad promover el trabajo colaborativo e interdisciplinario entre estudiantes y egresados de Nivel Superior, con el propósito de diseñar soluciones tecnológicas innovadoras que aborden problemáticas reales del ámbito educativo.</p>
+          </section>
+
+          <section>
+            <h2>3. Participantes</h2>
+            <ul>
+              <li>Podrán inscribirse <strong>estudiantes y egresados de instituciones de Nivel Superior</strong> de la provincia de Mendoza.</li>
+              <li>La inscripción es <strong>individual y gratuita</strong>.</li>
+              <li>Los equipos estarán formados por un mínimo de <strong>3</strong> y un máximo de <strong>5</strong> integrantes.</li>
+              <li>La conformación final de los equipos se realizará durante la primera jornada presencial del evento.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>4. Fechas y Modalidad</h2>
+            <ul>
+              <li><strong>Martes 19 de agosto:</strong> Jornada virtual sincrónica — Presentación de bases y condiciones.</li>
+              <li><strong>Jueves 21 de agosto:</strong> Jornada presencial — Espacio Cultural Julio Le Parc.</li>
+              <li><strong>Viernes 22 de agosto:</strong> Jornada presencial — Escuela Edison (mañana) y Le Parc (tarde, pitch final y premiación).</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>5. Temática</h2>
+            <p>Cada equipo deberá identificar una problemática del campo educativo y proponer una solución con base tecnológica. Los proyectos serán evaluados en función de su pertinencia pedagógica, innovación, viabilidad y calidad de presentación.</p>
+          </section>
+
+          <section>
+            <h2>6. Evaluación y Criterios</h2>
+            <p>Un jurado designado por la organización evaluará los proyectos en base a los siguientes criterios:</p>
+            <ul>
+              <li><strong>Pertinencia pedagógica:</strong> relevancia del problema identificado y de la solución propuesta.</li>
+              <li><strong>Innovación tecnológica:</strong> originalidad y creatividad en el uso de la tecnología.</li>
+              <li><strong>Viabilidad:</strong> posibilidad real de implementación de la propuesta.</li>
+              <li><strong>Calidad de presentación (Pitch):</strong> claridad, estructura y capacidad comunicativa del equipo.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>7. Premiación</h2>
+            <p>Se premiarán los <strong>tres primeros lugares</strong>. Los premios serán anunciados por la organización antes del inicio del evento. La decisión del jurado es inapelable.</p>
+          </section>
+
+          <section>
+            <h2>8. Propiedad Intelectual</h2>
+            <p>Cada equipo conserva la propiedad intelectual de su proyecto. Al participar, los equipos autorizan a la organización a difundir material audiovisual del evento y los nombres de los proyectos con fines comunicacionales e institucionales.</p>
+          </section>
+
+          <section>
+            <h2>9. Código de Conducta</h2>
+            <p>Se espera de todos los participantes un comportamiento respetuoso, colaborativo y responsable. La organización se reserva el derecho de excluir a cualquier participante que incumpla las normas de convivencia o ponga en riesgo el desarrollo del evento.</p>
+          </section>
+
+          <section>
+            <h2>10. Aceptación de las Bases</h2>
+            <p>La inscripción al Evento implica la aceptación total de las presentes bases y condiciones. La organización se reserva el derecho de modificarlas si circunstancias excepcionales lo requirieran, notificando a los inscriptos con anticipación razonable.</p>
+          </section>
+        </article>
+
+        <div class="legal-contact">
+          <p>¿Tenés alguna duda? Escribinos a <a href="mailto:hackathonedutech@gmail.com">hackathonedutech@gmail.com</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .legal-page {
+    min-height: calc(100vh - var(--nav-h));
+    padding: calc(var(--nav-h) + 2rem) 0 4rem;
+  }
+
+  .legal-card {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem;
+  }
+
+  .legal-back {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--txt-m);
+    margin-bottom: 1.5rem;
+    transition: color var(--t-fast);
+  }
+
+  .legal-back:hover {
+    color: var(--c1);
+  }
+
+  .legal-card h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .legal-subtitle {
+    color: var(--txt-2);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--brd);
+  }
+
+  .legal-content section {
+    margin-bottom: 2rem;
+  }
+
+  .legal-content h2 {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--txt-1);
+    margin-bottom: 0.75rem;
+  }
+
+  .legal-content p {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--txt-2);
+    margin: 0 0 0.5rem;
+  }
+
+  .legal-content ul {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  .legal-content li {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--txt-2);
+    margin-bottom: 0.25rem;
+  }
+
+  .legal-content strong {
+    color: var(--txt-1);
+  }
+
+  .legal-contact {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--brd);
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--txt-2);
+  }
+
+  .legal-contact a {
+    color: var(--c1);
+    font-weight: 600;
+  }
+
+  .legal-contact a:hover {
+    text-decoration: underline;
+  }
+</style>
