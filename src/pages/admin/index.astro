@@ -1329,17 +1329,42 @@ const unassignedTeamsCount = teams.filter(t => !t.mentor_id && !t.mentor_id_2).l
   const tabBtns = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
+  function activateTab(targetId: string) {
+    tabBtns.forEach((b) => {
+      if (b.getAttribute("data-target") === targetId) {
+        b.classList.add("active");
+      } else {
+        b.classList.remove("active");
+      }
+    });
+
+    tabContents.forEach((c) => {
+      if (c.getAttribute("id") === targetId) {
+        c.classList.add("active");
+      } else {
+        c.classList.remove("active");
+      }
+    });
+
+    localStorage.setItem("admin-active-tab", targetId);
+  }
+
   tabBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.getAttribute("data-target");
-
-      tabBtns.forEach((b) => b.classList.remove("active"));
-      tabContents.forEach((c) => c.classList.remove("active"));
-
-      btn.classList.add("active");
-      document.getElementById(targetId!)?.classList.add("active");
+      if (targetId) {
+        activateTab(targetId);
+      }
     });
   });
+
+  // Restaurar pestaña activa al cargar
+  const savedTab = localStorage.getItem("admin-active-tab");
+  if (savedTab && document.getElementById(savedTab)) {
+    activateTab(savedTab);
+  } else {
+    activateTab("tab-usuarios");
+  }
 
   const supabase = createBrowserClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
