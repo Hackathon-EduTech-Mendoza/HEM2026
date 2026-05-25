@@ -96,18 +96,37 @@ const { data: mentorStats } = await supabase
   .from("mentor_help_stats")
   .select("*");
 
-// Obtener equipos sin mentor
-const { data: orphanTeams } = await supabase
-  .from("teams")
-  .select("id, name")
-  .is("mentor_id", null);
-
-// Obtener mentores aprobados (para saber el ratio)
-const { count: mentorsCount } = await supabase
+// Obtener mentores aprobados
+const { data: allMentors } = await supabase
   .from("profiles")
-  .select("*", { count: "exact", head: true })
+  .select("id, full_name, first_name, last_name, disciplinary_profile")
   .eq("role", "mentor")
-  .eq("registration_status", "aprobado");
+  .eq("registration_status", "aprobado")
+  .order("full_name", { ascending: true });
+
+const mentors = allMentors || [];
+const mentorsCount = mentors.length;
+
+// Obtener todos los equipos con sus mentores y miembros
+const { data: allTeams } = await supabase
+  .from("teams")
+  .select(`
+    id,
+    name,
+    mentor_id,
+    mentor_id_2,
+    profiles (
+      id,
+      full_name,
+      first_name,
+      last_name,
+      disciplinary_profile
+    )
+  `)
+  .order("name", { ascending: true });
+
+const teams = allTeams || [];
+const unassignedTeamsCount = teams.filter(t => !t.mentor_id && !t.mentor_id_2).length;
 ---
 
 <Layout title="Administración | HEM2026">
@@ -478,13 +497,16 @@ const { count: mentorsCount } = await supabase
 
   <div class="tab-content" id="tab-mentoria">
     <div class="admin-actions">
-      <h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Gestión de Mentores</h2>
+      <h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Asignación de Mentores</h2>
       <div style="display: flex; gap: 0.5rem;">
+        <button id="save-all-mentors-btn" class="btn btn-primary">
+          Guardar Asignaciones
+        </button>
         <button id="assign-mentors-simple" class="btn btn-outline" style="display: none;">
           Asignar Nuevos (Equitativo)
         </button>
-        <button id="assign-mentors-reset" class="btn btn-danger">
-          Resetear y Reasignar Todo
+        <button id="assign-mentors-reset" class="btn btn-outline">
+          Asignación Aleatoria (1 Mentor)
         </button>
       </div>
     </div>
@@ -494,14 +516,80 @@ const { count: mentorsCount } = await supabase
         <div class="config-info">
           <h3>Estado de Cobertura</h3>
           <p>
-            {mentorsCount} mentores aprobados disponibles para {orphanTeams?.length + (profiles.length - orphanTeams?.length)} equipos.
+            {mentorsCount} mentores aprobados disponibles para {teams.length} equipos.
           </p>
-          {orphanTeams && orphanTeams.length > 0 && (
-            <p style="color: var(--err); font-weight: 600; margin-top: 0.5rem;">
-              ⚠️ {orphanTeams.length} equipos no tienen mentor asignado.
+          {unassignedTeamsCount > 0 && (
+            <p style="color: var(--danger); font-weight: 600; margin-top: 0.5rem;">
+              ⚠️ {unassignedTeamsCount} equipos no tienen ningún mentor asignado.
             </p>
           )}
         </div>
+      </div>
+    </div>
+
+    <div class="admin-card card" style="margin-bottom: 2.5rem;">
+      <div class="table-responsive">
+        <table class="admin-table mentor-assignment-table">
+          <thead>
+            <tr>
+              <th>Equipo</th>
+              <th>Mentor Técnico (Slot 1)</th>
+              <th>Mentor Pedagógico (Slot 2)</th>
+              <th>Miembros del Equipo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {teams.length === 0 ? (
+              <tr>
+                <td colspan="4" class="empty-state">No hay equipos creados aún.</td>
+              </tr>
+            ) : (
+              teams.map((t) => (
+                <tr data-team-id={t.id} class="team-mentor-row">
+                  <td data-label="Equipo">
+                    <strong>{t.name}</strong>
+                  </td>
+                  <td data-label="Mentor 1">
+                    <select class="mentor-select-1" data-original-val={t.mentor_id || ""}>
+                      <option value="">Sin mentor</option>
+                      {mentors.map((m) => (
+                        <option value={m.id} selected={t.mentor_id === m.id}>
+                          {m.first_name || m.full_name} ({m.disciplinary_profile === "tecnico" ? "Técnico" : m.disciplinary_profile === "docente" ? "Docente" : "Otro"})
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td data-label="Mentor 2">
+                    <select class="mentor-select-2" data-original-val={t.mentor_id_2 || ""}>
+                      <option value="">Sin mentor</option>
+                      {mentors.map((m) => (
+                        <option value={m.id} selected={t.mentor_id_2 === m.id}>
+                          {m.first_name || m.full_name} ({m.disciplinary_profile === "tecnico" ? "Técnico" : m.disciplinary_profile === "docente" ? "Docente" : "Otro"})
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td data-label="Miembros">
+                    <div class="team-members-list">
+                      {t.profiles && t.profiles.length > 0 ? (
+                        t.profiles.map((p) => (
+                          <div class="team-member-item">
+                            <span>{p.first_name || p.full_name}</span>
+                            <span class={`badge-profile badge-profile-${p.disciplinary_profile}`}>
+                              {p.disciplinary_profile === 'tecnico' ? 'Técnico' : p.disciplinary_profile === 'docente' ? 'Docente' : 'Otro'}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <span class="empty-members">Sin miembros</span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -553,7 +641,6 @@ const { count: mentorsCount } = await supabase
 		</table>
 	</div>
 	</div>
-    </div>
   </div>
   <!-- End tab-mentoria -->
 
@@ -1189,6 +1276,50 @@ const { count: mentorsCount } = await supabase
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  /* Mentor Assignment Grid & Badges */
+  .team-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.25rem 0;
+  }
+  .team-member-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+  .badge-profile {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: var(--r-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+  }
+  .badge-profile-tecnico {
+    background: rgba(var(--c1r), 0.08);
+    color: var(--c1);
+    border: 1px solid rgba(var(--c1r), 0.15);
+  }
+  .badge-profile-docente {
+    background: rgba(var(--c2r), 0.12);
+    color: var(--c2);
+    border: 1px solid rgba(var(--c2r), 0.2);
+  }
+  .badge-profile-otro {
+    background: rgba(119, 119, 119, 0.08);
+    color: var(--txt-m);
+    border: 1px solid rgba(119, 119, 119, 0.15);
+  }
+  .empty-members {
+    color: var(--txt-m);
+    font-style: italic;
+    font-size: 0.85rem;
+  }
 </style>
 
 <script>
@@ -1564,6 +1695,51 @@ const { count: mentorsCount } = await supabase
     });
   });
 
+  // Lógica de guardado de asignaciones manuales de mentores
+  const saveAllMentorsBtn = document.getElementById("save-all-mentors-btn") as HTMLButtonElement;
+  saveAllMentorsBtn?.addEventListener("click", async () => {
+    saveAllMentorsBtn.disabled = true;
+    saveAllMentorsBtn.textContent = "Guardando...";
+
+    const rows = document.querySelectorAll(".team-mentor-row");
+    const updates = Array.from(rows).map(async (row) => {
+      const teamId = row.getAttribute("data-team-id");
+      const mentorId = (row.querySelector(".mentor-select-1") as HTMLSelectElement).value || null;
+      const mentorId2 = (row.querySelector(".mentor-select-2") as HTMLSelectElement).value || null;
+
+      const originalMentorId = row.querySelector(".mentor-select-1")?.getAttribute("data-original-val") || null;
+      const originalMentorId2 = row.querySelector(".mentor-select-2")?.getAttribute("data-original-val") || null;
+
+      if (mentorId !== originalMentorId || mentorId2 !== originalMentorId2) {
+        const { error } = await supabase
+          .from("teams")
+          .update({
+            mentor_id: mentorId,
+            mentor_id_2: mentorId2
+          })
+          .eq("id", teamId);
+
+        if (error) {
+          console.error(`Error al actualizar equipo ${teamId}:`, error);
+          throw error;
+        }
+
+        row.querySelector(".mentor-select-1")?.setAttribute("data-original-val", mentorId || "");
+        row.querySelector(".mentor-select-2")?.setAttribute("data-original-val", mentorId2 || "");
+      }
+    });
+
+    try {
+      await Promise.all(updates);
+      showToast("Asignaciones de mentores guardadas correctamente");
+    } catch (e) {
+      showToast("Error al guardar algunas asignaciones", true);
+    } finally {
+      saveAllMentorsBtn.disabled = false;
+      saveAllMentorsBtn.textContent = "Guardar Asignaciones";
+    }
+  });
+
   // Lógica de Asignación de Mentores
   const assignSimpleBtn = document.getElementById("assign-mentors-simple");
   const assignResetBtn = document.getElementById("assign-mentors-reset");
@@ -1598,9 +1774,9 @@ const { count: mentorsCount } = await supabase
     (btn as HTMLButtonElement).disabled = false;
   };
 
-assignSimpleBtn?.addEventListener("click", () => runAssignment(false));
-assignResetBtn?.addEventListener("click", () => runAssignment(true));
+  assignSimpleBtn?.addEventListener("click", () => runAssignment(false));
+  assignResetBtn?.addEventListener("click", () => runAssignment(true));
 
-const refreshMentorStatsBtn = document.getElementById("refresh-mentor-stats");
-refreshMentorStatsBtn?.addEventListener("click", () => window.location.reload());
+  const refreshMentorStatsBtn = document.getElementById("refresh-mentor-stats");
+  refreshMentorStatsBtn?.addEventListener("click", () => window.location.reload());
 </script>
