@@ -144,11 +144,10 @@ const email = user.email || '';
               <label for="year_of_study">Año de cursado / Estado</label>
               <select id="year_of_study" name="year_of_study" data-req>
                 <option value="" disabled selected>Seleccioná tu año de cursado</option>
-                <option value="1">1° Año</option>
-                <option value="2">2° Año</option>
-                <option value="3">3° Año</option>
-                <option value="profesional">Profesional</option>
-                <option value="otro">Otro</option>
+                <option value="primero">1° Año</option>
+                <option value="segundo">2° Año</option>
+                <option value="tercero">3° Año (o superior)</option>
+                <option value="otro">Profesional / Egresado / Otro</option>
               </select>
             </div>
 
@@ -586,7 +585,7 @@ const email = user.email || '';
   }
 
   function handleYearOfStudyChange() {
-    if (selectedRole === 'usuario' && yearOfStudySelect && yearOfStudySelect.value === 'profesional') {
+    if (selectedRole === 'usuario' && yearOfStudySelect && yearOfStudySelect.value === 'otro') {
       professionalTitleGroup.style.display = 'flex';
       professionalTitleInput.disabled = false;
       professionalTitleInput.setAttribute('required', 'true');
@@ -686,7 +685,7 @@ const email = user.email || '';
 
     if (selectedRole === 'usuario') {
       updateData.year_of_study = yearOfStudySelect.value;
-      if (yearOfStudySelect.value === 'profesional') {
+      if (yearOfStudySelect.value === 'otro') {
         updateData.professional_title = professionalTitleInput.value.trim() || null;
       } else {
         updateData.professional_title = null;
