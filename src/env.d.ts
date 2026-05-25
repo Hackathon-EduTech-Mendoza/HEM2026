@@ -8,6 +8,9 @@ type UserRole = 'superadmin' | 'admin' | 'juez' | 'mentor' | 'usuario';
 interface UserProfile {
   id: string;
   full_name: string;
+  first_name: string | null;
+  last_name: string | null;
+  professional_title: string | null;
   email: string;
   role: UserRole;
   institution: string | null;
