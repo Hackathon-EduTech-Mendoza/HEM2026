@@ -54,6 +54,9 @@ const { data: configData } = await supabase
     "help_enabled",
     "mentor_session_duration",
     "help_cooldown_minutes",
+    "max_egresados_per_team",
+    "max_tecnicos_per_team",
+    "max_docentes_per_team",
   ]);
 
 const teamsEnabled =
@@ -69,6 +72,12 @@ const mentorSessionDuration =
   configData?.find((c) => c.key === "mentor_session_duration")?.value || "15";
 const helpCooldownMinutes =
 	configData?.find((c) => c.key === "help_cooldown_minutes")?.value || "5";
+const maxEgresadosPerTeam =
+  configData?.find((c) => c.key === "max_egresados_per_team")?.value || "1";
+const maxTecnicosPerTeam =
+  configData?.find((c) => c.key === "max_tecnicos_per_team")?.value || "2";
+const maxDocentesPerTeam =
+  configData?.find((c) => c.key === "max_docentes_per_team")?.value || "2";
 
 // Obtener datos del Leaderboard
 const { data: leaderboardData, error: leaderboardError } = await supabase
@@ -402,6 +411,63 @@ const { count: mentorsCount } = await supabase
 			value={helpCooldownMinutes}
 			min="0"
 			max="30"
+			step="1"
+		/>
+        </div>
+      </div>
+
+      <div class="config-card card">
+        <div class="config-info">
+          <h3>Máx. egresados por equipo</h3>
+          <p>Límite máximo de miembros egresados permitidos por equipo.</p>
+        </div>
+        <div class="config-action">
+		<input
+			type="number"
+			id="max-egresados-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={maxEgresadosPerTeam}
+			min="0"
+			max="5"
+			step="1"
+		/>
+        </div>
+      </div>
+
+      <div class="config-card card">
+        <div class="config-info">
+          <h3>Máx. técnicos por equipo</h3>
+          <p>Límite máximo de miembros con perfil técnico por equipo.</p>
+        </div>
+        <div class="config-action">
+		<input
+			type="number"
+			id="max-tecnicos-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={maxTecnicosPerTeam}
+			min="0"
+			max="5"
+			step="1"
+		/>
+        </div>
+      </div>
+
+      <div class="config-card card">
+        <div class="config-info">
+          <h3>Máx. docentes por equipo</h3>
+          <p>Límite máximo de miembros con perfil docente por equipo.</p>
+        </div>
+        <div class="config-action">
+		<input
+			type="number"
+			id="max-docentes-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={maxDocentesPerTeam}
+			min="0"
+			max="5"
 			step="1"
 		/>
         </div>
@@ -1461,13 +1527,26 @@ const { count: mentorsCount } = await supabase
     target.disabled = false;
   });
 
-  // Lógica de Inputs Numéricos (Duración y Cooldown)
+  // Lógica de Inputs Numéricos
   const durationInput = document.getElementById("mentor-duration-input") as HTMLInputElement;
   const cooldownInput = document.getElementById("help-cooldown-input") as HTMLInputElement;
+  const maxEgresadosInput = document.getElementById("max-egresados-input") as HTMLInputElement;
+  const maxTecnicosInput = document.getElementById("max-tecnicos-input") as HTMLInputElement;
+  const maxDocentesInput = document.getElementById("max-docentes-input") as HTMLInputElement;
 
-  [durationInput, cooldownInput].forEach(input => {
+  const keyMap: Record<string, string> = {
+    "mentor-duration-input": "mentor_session_duration",
+    "help-cooldown-input": "help_cooldown_minutes",
+    "max-egresados-input": "max_egresados_per_team",
+    "max-tecnicos-input": "max_tecnicos_per_team",
+    "max-docentes-input": "max_docentes_per_team"
+  };
+
+  [durationInput, cooldownInput, maxEgresadosInput, maxTecnicosInput, maxDocentesInput].forEach(input => {
     input?.addEventListener("change", async () => {
-      const key = input.id === "mentor-duration-input" ? "mentor_session_duration" : "help_cooldown_minutes";
+      const key = keyMap[input.id];
+      if (!key) return;
+
       const value = input.value;
       input.disabled = true;
 
