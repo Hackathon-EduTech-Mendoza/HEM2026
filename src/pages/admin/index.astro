@@ -108,14 +108,14 @@ const mentors = allMentors || [];
 const mentorsCount = mentors.length;
 
 // Obtener todos los equipos con sus mentores y miembros
-const { data: allTeams } = await supabase
+const { data: allTeams, error: teamsError } = await supabase
   .from("teams")
   .select(`
     id,
     name,
     mentor_id,
     mentor_id_2,
-    profiles (
+    profiles:profiles!team_id (
       id,
       full_name,
       first_name,
@@ -124,6 +124,10 @@ const { data: allTeams } = await supabase
     )
   `)
   .order("name", { ascending: true });
+
+if (teamsError) {
+  console.error("Error fetching teams in admin index:", teamsError);
+}
 
 const teams = allTeams || [];
 const unassignedTeamsCount = teams.filter(t => !t.mentor_id && !t.mentor_id_2).length;
