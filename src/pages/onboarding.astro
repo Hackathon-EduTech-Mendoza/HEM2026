@@ -3,6 +3,8 @@
 import Layout from '../layouts/Layout.astro';
 
 const user = Astro.locals.user;
+const profile = Astro.locals.profile;
+
 if (!user) {
   return Astro.redirect('/login');
 }
@@ -11,7 +13,7 @@ const email = user.email || '';
 ---
 
 <Layout title="Completar Perfil | HEM2026">
-  <main class="onboarding-page">
+  <main class="onboarding-page" id="onboarding-main" data-current-role={profile?.role || 'usuario'}>
     <div class="container">
       <div class="onboarding-card card">
         <!-- Steps Indicator -->
@@ -504,6 +506,9 @@ const email = user.email || '';
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY
   );
 
+  const mainEl = document.getElementById('onboarding-main') as HTMLElement;
+  const currentRole = mainEl?.dataset.currentRole || 'usuario';
+
   const roleCards = document.querySelectorAll('.role-card');
   const btnToStep2 = document.getElementById('btn-to-step-2') as HTMLButtonElement;
   const btnBackToStep1 = document.getElementById('btn-back-to-step-1') as HTMLButtonElement;
@@ -518,7 +523,7 @@ const email = user.email || '';
   const errorDiv = document.getElementById('form-error') as HTMLDivElement;
   const successDiv = document.getElementById('form-success') as HTMLDivElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
-  const yearOfStudySelect = document.getElementById('year-of-study') as HTMLSelectElement;
+  const yearOfStudySelect = document.getElementById('year_of_study') as HTMLSelectElement;
   const professionalTitleGroup = document.getElementById('professional-title-group') as HTMLDivElement;
   const professionalTitleInput = document.getElementById('professional_title') as HTMLInputElement;
 
@@ -541,7 +546,9 @@ const email = user.email || '';
     const roleNames: Record<string, string> = {
       usuario: 'Participante',
       mentor: 'Mentor',
-      juez: 'Juez'
+      juez: 'Juez',
+      admin: 'Administrador',
+      superadmin: 'Superadministrador'
     };
     step2Title.textContent = `Completá tu registro como ${roleNames[role] || ''}`;
 
@@ -553,7 +560,10 @@ const email = user.email || '';
       
       const inputs = htmlEl.querySelectorAll('input, select');
       
-      if (allowedRoles.includes(role)) {
+      const isAllowed = allowedRoles.includes(role) || 
+                        ((role === 'admin' || role === 'superadmin') && !allowedRoles.includes('usuario'));
+      
+      if (isAllowed) {
         htmlEl.style.display = 'flex';
         inputs.forEach(input => {
           const inputEl = input as HTMLInputElement | HTMLSelectElement;
@@ -576,19 +586,23 @@ const email = user.email || '';
   }
 
   function handleYearOfStudyChange() {
-    if (selectedRole === 'usuario' && yearOfStudySelect.value === 'profesional') {
+    if (selectedRole === 'usuario' && yearOfStudySelect && yearOfStudySelect.value === 'profesional') {
       professionalTitleGroup.style.display = 'flex';
       professionalTitleInput.disabled = false;
       professionalTitleInput.setAttribute('required', 'true');
     } else {
-      professionalTitleGroup.style.display = 'none';
-      professionalTitleInput.disabled = true;
-      professionalTitleInput.removeAttribute('required');
-      professionalTitleInput.value = '';
+      if (professionalTitleGroup) professionalTitleGroup.style.display = 'none';
+      if (professionalTitleInput) {
+        professionalTitleInput.disabled = true;
+        professionalTitleInput.removeAttribute('required');
+        professionalTitleInput.value = '';
+      }
     }
   }
 
-  yearOfStudySelect.addEventListener('change', handleYearOfStudyChange);
+  if (yearOfStudySelect) {
+    yearOfStudySelect.addEventListener('change', handleYearOfStudyChange);
+  }
 
   // Transición al Paso 2
   btnToStep2.addEventListener('click', () => {
@@ -719,4 +733,21 @@ const email = user.email || '';
       window.location.href = '/dashboard';
     }, 1000);
   });
+
+  // Si ya es admin o superadmin, saltear paso 1 de forma automática y configurar UI
+  const isAdminOrSuper = currentRole === 'admin' || currentRole === 'superadmin';
+  if (isAdminOrSuper) {
+    selectedRole = currentRole;
+    step1Content.classList.remove('active');
+    step2Content.classList.add('active');
+    dot2.classList.add('active');
+    stepConnector.classList.add('active');
+
+    // Ocultar elementos que no aplican para admin/superadmin
+    const indicator = document.querySelector('.steps-indicator') as HTMLElement;
+    if (indicator) indicator.style.display = 'none';
+    if (btnBackToStep1) btnBackToStep1.style.display = 'none';
+
+    updateFormFields(currentRole);
+  }
 </script>
