@@ -30,7 +30,7 @@ if (!user || !profile) {
 }
 
 // Lógica para determinar si el perfil está completo
-const isProfileComplete = !!(profile.dni && profile.institution);
+const isProfileComplete = !!(profile.first_name && profile.last_name);
 
 // Fetch teams_enabled and team config from event_config
 let teamsEnabled = false;
@@ -173,6 +173,28 @@ if (profile.team_id && helpEnabled) {
             </div>
           </form>
         </div>
+      ) : (profile.role === 'juez' || profile.role === 'mentor') && profile.registration_status === 'pendiente' ? (
+        <!-- Vista En Revisión para Jueces/Mentores -->
+        <div class="pending-container animate-fade-in">
+          <div class="dashboard-card card pending-card">
+            <div class="pending-info">
+              <div class="pending-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <h2>Tu solicitud está en revisión</h2>
+              <p class="pending-text">
+                El equipo organizador está revisando tu perfil como <strong>{profile.role === 'juez' ? 'Juez' : 'Mentor'}</strong>. Te notificaremos cuando tu registro sea aprobado.
+              </p>
+              <div class="support-info">
+                <span>Si tenés dudas, escribinos a: </span>
+                <a href="mailto:hackathonedutech@gmail.com" class="support-email">hackathonedutech@gmail.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
       ) : (
         <!-- Vista Perfil Completo con Pestañas -->
         <div class="tabs-container">
@@ -189,70 +211,76 @@ if (profile.team_id && helpEnabled) {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
               <span>Mentoría</span>
             </button>
-            <button class="tab-btn" data-tab="sos" role="tab" aria-selected="false">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <span>SOS</span>
-            </button>
+            {helpEnabled && (
+              <button class="tab-btn" data-tab="sos" role="tab" aria-selected="false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span>SOS</span>
+              </button>
+            )}
           </nav>
 
           <!-- Tab 1: Perfil -->
           <div class="tab-content active" id="tab-perfil" role="tabpanel">
             <div class="tab-profile-layout">
-              <div class="success-info">
-                <div class="success-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <div class="welcome-card card">
+                <h2>¡Hola, {profile.first_name || profile.full_name}!</h2>
+                <p class="welcome-intro">Te damos la bienvenida a la <strong>Hackathon EduTech Mendoza 2026</strong>. Tu inscripción está confirmada.</p>
+                
+                <div class="quick-links">
+                  <h3>Enlaces rápidos:</h3>
+                  <ul>
+                    <li><a href="/#faq" class="quick-link">&rarr; Preguntas Frecuentes (FAQ)</a></li>
+                    <li><a href="/#bases" class="quick-link">&rarr; Bases y Condiciones</a></li>
+                    <li><a href="/#schedule" class="quick-link">&rarr; Cronograma del Evento</a></li>
+                  </ul>
                 </div>
-                <h1>¡Inscripción confirmada!</h1>
-                <div class={`status-badge status-${profile.registration_status}`}>
-                  Estado actual: <strong>{profile.registration_status.toUpperCase()}</strong>
-                </div>
-                <p class="success-text">
-                  Próximamente te notificaremos sobre la conformación de los equipos. El formulario para la entrega del proyecto se habilitará aquí mismo el día del evento.
-                </p>
               </div>
 
-              <div class="dashboard-card card profile-card" style="margin-top: 2rem;">
-                <form id="update-contact-form" class="dash-form">
-                  <h3 class="section-label">Tus Datos Fijos</h3>
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="display_dni">DNI</label>
-                      <input type="text" id="display_dni" value={profile.dni} disabled />
+              <details class="profile-details-collapsible">
+                <summary class="details-summary-btn btn btn-outline">Editar datos de contacto</summary>
+                <div class="dashboard-card card profile-card" style="margin-top: 1rem;">
+                  <form id="update-contact-form" class="dash-form">
+                    <h3 class="section-label">Tus Datos Fijos</h3>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="display_dni">DNI</label>
+                        <input type="text" id="display_dni" value={profile.dni} disabled />
+                      </div>
+                      <div class="form-group">
+                        <label for="display_inst">Institución</label>
+                        <input type="text" id="display_inst" value={profile.institution === 'ies_9023_maipu' ? 'IES 9-023 Maipú' : profile.institution === 'ies_edison' ? 'IES Tomás Alva Edison' : 'Otra'} disabled />
+                      </div>
                     </div>
-                    <div class="form-group">
-                      <label for="display_inst">Institución</label>
-                      <input type="text" id="display_inst" value={profile.institution === 'ies_9023_maipu' ? 'IES 9-023 Maipú' : profile.institution === 'ies_edison' ? 'IES Tomás Alva Edison' : 'Otra'} disabled />
+                    <div class="form-group checkbox-group">
+                      <label class="checkbox-label" style="opacity: 0.7; cursor: default;">
+                        <input type="checkbox" checked={profile.is_egresado} disabled />
+                        <span class="custom-checkbox"></span>
+                        Egresado/a
+                      </label>
                     </div>
-                  </div>
-                  <div class="form-group checkbox-group">
-                    <label class="checkbox-label" style="opacity: 0.7; cursor: default;">
-                      <input type="checkbox" checked={profile.is_egresado} disabled />
-                      <span class="custom-checkbox"></span>
-                      Egresado/a
-                    </label>
-                  </div>
-                  
-                  <h3 class="section-label" style="margin-top: 1rem;">Datos de Contacto (Editables)</h3>
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="phone_whatsapp">Teléfono (WhatsApp)</label>
-                      <input type="text" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: 2611234567" value={profile.phone_whatsapp || ''} />
+                    
+                    <h3 class="section-label" style="margin-top: 1rem;">Datos de Contacto (Editables)</h3>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="phone_whatsapp">Teléfono (WhatsApp)</label>
+                        <input type="text" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: 2611234567" value={profile.phone_whatsapp || ''} />
+                      </div>
+                      <div class="form-group">
+                        <label for="instagram_handle">Instagram</label>
+                        <input type="text" id="instagram_handle" name="instagram_handle" placeholder="Ej: @usuario" value={profile.instagram_handle || ''} />
+                      </div>
                     </div>
-                    <div class="form-group">
-                      <label for="instagram_handle">Instagram</label>
-                      <input type="text" id="instagram_handle" name="instagram_handle" placeholder="Ej: @usuario" value={profile.instagram_handle || ''} />
-                    </div>
-                  </div>
 
-                  <div id="update-error" class="form-error" style="display: none;"></div>
-                  
-                  <div class="form-actions" style="margin-top: 0.5rem; justify-content: flex-start;">
-                    <button type="submit" class="btn btn-outline" id="update-btn">
-                      Actualizar Contacto
-                    </button>
-                  </div>
-                </form>
-              </div>
+                    <div id="update-error" class="form-error" style="display: none;"></div>
+                    
+                    <div class="form-actions" style="margin-top: 0.5rem; justify-content: flex-start;">
+                      <button type="submit" class="btn btn-outline" id="update-btn">
+                        Actualizar Contacto
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </details>
             </div>
           </div>
 
@@ -321,55 +349,53 @@ if (profile.team_id && helpEnabled) {
           </div>
 
           <!-- Tab 4: SOS -->
-          <div class="tab-content" id="tab-sos" role="tabpanel">
-            <div class="card profile-card">
-              <h3 class="section-label">Sistema de Ayuda SOS</h3>
-              {helpEnabled && profile.team_id && mentor ? (
-                <div class="sos-section-wrapper" id="sos-container" data-team-id={profile.team_id} data-initial-status={activeHelpRequest?.status || ''} data-started-at={activeHelpRequest?.started_at || ''} data-session-duration={mentorSessionDuration} style="margin-top: 1rem;">
-                  <div class="sos-card">
-                    <div class="sos-info">
-                      <p id="sos-status-text">
-                        {!activeHelpRequest
-                          ? '¿Necesitan ayuda técnica o de negocio? Pidan un SOS y su mentor vendrá a su mesa.'
-                          : activeHelpRequest.status === 'pendiente'
-                          ? '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.'
-                          : '🏃‍♂️ ¡Tu mentor está en camino! Prepará tus dudas.'}
-                      </p>
-                      {activeHelpRequest?.status === 'pendiente' && (
-                        <div class="sos-waiting">
-                          <span class="sos-waiting-dot"></span> Esperando mentor…
-                        </div>
-                      )}
-                      {activeHelpRequest?.status === 'en_camino' && (
-                        <div class="sos-timer">
-                          ⏱️ Tiempo restante: <span id="sos-timer-val">--:--</span>
-                        </div>
-                      )}
+          {helpEnabled && (
+            <div class="tab-content" id="tab-sos" role="tabpanel">
+              <div class="card profile-card">
+                <h3 class="section-label">Sistema de Ayuda SOS</h3>
+                {profile.team_id && mentor ? (
+                  <div class="sos-section-wrapper" id="sos-container" data-team-id={profile.team_id} data-initial-status={activeHelpRequest?.status || ''} data-started-at={activeHelpRequest?.started_at || ''} data-session-duration={mentorSessionDuration} style="margin-top: 1rem;">
+                    <div class="sos-card">
+                      <div class="sos-info">
+                        <p id="sos-status-text">
+                          {!activeHelpRequest
+                            ? '¿Necesitan ayuda técnica o de negocio? Pidan un SOS y su mentor vendrá a su mesa.'
+                            : activeHelpRequest.status === 'pendiente'
+                            ? '🔔 Pedido enviado. Tu mentor vendrá en cuanto esté libre.'
+                            : '🏃‍♂️ ¡Tu mentor está en camino! Prepará tus dudas.'}
+                        </p>
+                        {activeHelpRequest?.status === 'pendiente' && (
+                          <div class="sos-waiting">
+                            <span class="sos-waiting-dot"></span> Esperando mentor…
+                          </div>
+                        )}
+                        {activeHelpRequest?.status === 'en_camino' && (
+                          <div class="sos-timer">
+                            ⏱️ Tiempo restante: <span id="sos-timer-val">--:--</span>
+                          </div>
+                        )}
+                      </div>
+                      <button 
+                        id="sos-btn" 
+                        class={`btn ${activeHelpRequest ? 'btn-disabled' : 'btn-danger'}`} 
+                        disabled={!!activeHelpRequest}
+                      >
+                        {activeHelpRequest ? 'Pedido Activo' : 'Pedir Ayuda (SOS)'}
+                      </button>
                     </div>
-                    <button 
-                      id="sos-btn" 
-                      class={`btn ${activeHelpRequest ? 'btn-disabled' : 'btn-danger'}`} 
-                      disabled={!!activeHelpRequest}
-                    >
-                      {activeHelpRequest ? 'Pedido Activo' : 'Pedir Ayuda (SOS)'}
-                    </button>
                   </div>
-                </div>
-              ) : !helpEnabled ? (
-                <div class="mentor-empty" style="margin-top: 1rem;">
-                  <p>El sistema de ayuda SOS no está habilitado actualmente.</p>
-                </div>
-              ) : !profile.team_id ? (
-                <div class="mentor-empty" style="margin-top: 1rem;">
-                  <p>Para solicitar un SOS, primero debés conformar o unirte a un equipo en la pestaña <strong>Mi Equipo</strong>.</p>
-                </div>
-              ) : (
-                <div class="mentor-empty" style="margin-top: 1rem;">
-                  <p>El sistema de ayuda SOS se activará cuando tu equipo tenga un mentor asignado.</p>
-                </div>
-              )}
+                ) : !profile.team_id ? (
+                  <div class="mentor-empty" style="margin-top: 1rem;">
+                    <p>Para solicitar un SOS, primero debés conformar o unirte a un equipo en la pestaña <strong>Mi Equipo</strong>.</p>
+                  </div>
+                ) : (
+                  <div class="mentor-empty" style="margin-top: 1rem;">
+                    <p>El sistema de ayuda SOS se activará cuando tu equipo tenga un mentor asignado.</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
       )}
@@ -581,11 +607,157 @@ if (profile.team_id && helpEnabled) {
   border-color: rgba(var(--c2r), 0.2);
 }
 
+.status-pendiente {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
 .status-rechazado {
   background: rgba(var(--danger-r, 220, 38, 38), 0.1);
   color: var(--danger, #dc2626);
   border-color: rgba(var(--danger-r, 220, 38, 38), 0.2);
 }
+
+  /* Welcome Card & Pending Card Styles */
+  .welcome-card {
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-lg);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .welcome-card h2 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--txt-1);
+    margin: 0;
+  }
+
+  .welcome-intro {
+    color: var(--txt-2);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+
+  .quick-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--brd-s);
+  }
+
+  .quick-links h3 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--txt-2);
+    margin-bottom: 0.25rem;
+  }
+
+  .quick-links ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quick-link {
+    color: var(--c1);
+    font-weight: 600;
+    transition: color var(--t-fast), transform var(--t-fast);
+    display: inline-block;
+  }
+
+  .quick-link:hover {
+    color: var(--c2);
+    transform: translateX(4px);
+  }
+
+  .profile-details-collapsible {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .details-summary-btn {
+    list-style: none; /* remove default arrow */
+    outline: none;
+    display: inline-flex;
+    user-select: none;
+  }
+
+  .details-summary-btn::-webkit-details-marker {
+    display: none; /* remove default arrow in Safari */
+  }
+
+  /* Pending Review Card Styles */
+  .pending-container {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .pending-card {
+    padding: 3.5rem;
+    text-align: center;
+  }
+
+  .pending-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .pending-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(var(--c1r), 0.1);
+    color: var(--c1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pending-info h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0;
+  }
+
+  .pending-text {
+    color: var(--txt-2);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .support-info {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--txt-m);
+    padding-top: 1rem;
+    border-top: 1px solid var(--brd-s);
+    width: 100%;
+  }
+
+  .support-email {
+    color: var(--c1);
+    font-weight: 600;
+    transition: color var(--t-fast);
+  }
+
+  .support-email:hover {
+    color: var(--c2);
+    text-decoration: underline;
+  }
 
   .success-text {
     color: var(--txt-2);
