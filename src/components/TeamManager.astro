@@ -303,7 +303,7 @@ import ProjectSubmission from './ProjectSubmission.astro';
     flex-direction: column;
     gap: 0.5rem;
   }
-  .team-member-item {
+  :global(.team-member-item) {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -312,10 +312,11 @@ import ProjectSubmission from './ProjectSubmission.astro';
     border-radius: var(--r-md);
     font-size: 0.95rem;
     transition: background var(--t-fast);
+    width: 100%;
   }
-  .team-member-item:hover { background: var(--bg-2); }
+  :global(.team-member-item:hover) { background: var(--bg-2); }
 
-  .member-avatar {
+  :global(.member-avatar) {
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -328,8 +329,8 @@ import ProjectSubmission from './ProjectSubmission.astro';
     font-size: 0.8rem;
     flex-shrink: 0;
   }
-  .member-name { font-weight: 600; color: var(--txt-1); }
-  .member-badge {
+  :global(.member-name) { font-weight: 600; color: var(--txt-1); }
+  :global(.member-badge) {
     font-size: 0.7rem;
     padding: 0.15rem 0.5rem;
     border-radius: 999px;
@@ -337,22 +338,22 @@ import ProjectSubmission from './ProjectSubmission.astro';
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .badge-leader {
+  :global(.badge-leader) {
     background: rgba(var(--c2r), 0.15);
     color: var(--c2);
   }
-  .badge-egresado {
+  :global(.badge-egresado) {
     background: rgba(var(--c1r), 0.12);
     color: var(--c1);
   }
-  .member-badges-container {
+  :global(.member-badges-container) {
     margin-left: auto;
     display: flex;
     gap: 0.5rem;
     align-items: center;
     flex-wrap: wrap;
   }
-  .badge-profile {
+  :global(.badge-profile) {
     font-size: 0.7rem;
     padding: 0.15rem 0.5rem;
     border-radius: var(--r-sm);
@@ -362,17 +363,17 @@ import ProjectSubmission from './ProjectSubmission.astro';
     display: inline-flex;
     align-items: center;
   }
-  .badge-profile-tecnico {
+  :global(.badge-profile-tecnico) {
     background: rgba(var(--c1r), 0.08);
     color: var(--c1);
     border: 1px solid rgba(var(--c1r), 0.15);
   }
-  .badge-profile-docente {
+  :global(.badge-profile-docente) {
     background: rgba(var(--c2r), 0.12);
     color: var(--c2);
     border: 1px solid rgba(var(--c2r), 0.2);
   }
-  .badge-profile-otro {
+  :global(.badge-profile-otro) {
     background: rgba(119, 119, 119, 0.08);
     color: var(--txt-m);
     border: 1px solid rgba(119, 119, 119, 0.15);
