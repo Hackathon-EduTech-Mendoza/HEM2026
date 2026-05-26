@@ -96,6 +96,16 @@ import ProjectSubmission from './ProjectSubmission.astro';
         </ul>
       </div>
 
+      <!-- Mentors section -->
+      <div class="team-mentors-section" id="team-mentors-section" style="display:none">
+        <div class="team-members-header" style="margin-top: 1.5rem;">
+          <span class="team-members-label">Mentores Asignados</span>
+        </div>
+        <ul class="team-members-list" id="team-mentors-list">
+          <!-- Mentors populated here -->
+        </ul>
+      </div>
+
       <!-- Leave/Dissolve button -->
       <div class="team-leave-section">
         <button class="btn btn-danger-outline" id="leave-team-btn" style="display:none">
@@ -293,7 +303,7 @@ import ProjectSubmission from './ProjectSubmission.astro';
     flex-direction: column;
     gap: 0.5rem;
   }
-  .team-member-item {
+  :global(.team-member-item) {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -302,10 +312,11 @@ import ProjectSubmission from './ProjectSubmission.astro';
     border-radius: var(--r-md);
     font-size: 0.95rem;
     transition: background var(--t-fast);
+    width: 100%;
   }
-  .team-member-item:hover { background: var(--bg-2); }
+  :global(.team-member-item:hover) { background: var(--bg-2); }
 
-  .member-avatar {
+  :global(.member-avatar) {
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -318,23 +329,54 @@ import ProjectSubmission from './ProjectSubmission.astro';
     font-size: 0.8rem;
     flex-shrink: 0;
   }
-  .member-name { font-weight: 600; color: var(--txt-1); }
-  .member-badge {
+  :global(.member-name) { font-weight: 600; color: var(--txt-1); }
+  :global(.member-badge) {
     font-size: 0.7rem;
     padding: 0.15rem 0.5rem;
     border-radius: 999px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-left: auto;
   }
-  .badge-leader {
+  :global(.badge-leader) {
     background: rgba(var(--c2r), 0.15);
     color: var(--c2);
   }
-  .badge-egresado {
+  :global(.badge-egresado) {
     background: rgba(var(--c1r), 0.12);
     color: var(--c1);
+  }
+  :global(.member-badges-container) {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  :global(.badge-profile) {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--r-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+  }
+  :global(.badge-profile-tecnico) {
+    background: rgba(var(--c1r), 0.08);
+    color: var(--c1);
+    border: 1px solid rgba(var(--c1r), 0.15);
+  }
+  :global(.badge-profile-docente) {
+    background: rgba(var(--c2r), 0.12);
+    color: var(--c2);
+    border: 1px solid rgba(var(--c2r), 0.2);
+  }
+  :global(.badge-profile-otro) {
+    background: rgba(119, 119, 119, 0.08);
+    color: var(--txt-m);
+    border: 1px solid rgba(119, 119, 119, 0.15);
   }
   .team-member-skeleton {
     color: var(--txt-m);
@@ -449,10 +491,15 @@ import ProjectSubmission from './ProjectSubmission.astro';
       let badges = '';
       if (isLeader) badges += '<span class="member-badge badge-leader">Líder</span>';
       if (m.is_egresado) badges += '<span class="member-badge badge-egresado">Egresado</span>';
+      if (m.disciplinary_profile) {
+        const profileClass = `badge-profile badge-profile-${m.disciplinary_profile}`;
+        const profileLabel = m.disciplinary_profile === 'tecnico' ? 'Técnico' : m.disciplinary_profile === 'docente' ? 'Docente' : 'Otro';
+        badges += `<span class="${profileClass}">${profileLabel}</span>`;
+      }
       li.innerHTML = `
         <span class="member-avatar">${initials}</span>
         <span class="member-name">${m.full_name || 'Sin nombre'}</span>
-        ${badges}
+        <div class="member-badges-container">${badges}</div>
       `;
       membersList.appendChild(li);
     });
@@ -461,13 +508,62 @@ import ProjectSubmission from './ProjectSubmission.astro';
     minWarning.style.display = members.length < minSize ? '' : 'none';
   }
 
+  // --- Render mentors ---
+  function renderMentors(mentors: any[], team: any) {
+    const mentorsSection = document.getElementById('team-mentors-section') as HTMLElement;
+    const mentorsList = document.getElementById('team-mentors-list') as HTMLElement;
+    if (!mentorsSection || !mentorsList) return;
+
+    mentorsList.innerHTML = '';
+    if (mentors.length === 0) {
+      mentorsSection.style.display = 'none';
+      return;
+    }
+
+    mentorsSection.style.display = '';
+
+    // Order mentors: first mentor_id (Slot 1), then mentor_id_2 (Slot 2)
+    const orderedMentors: any[] = [];
+    if (team.mentor_id) {
+      const m1 = mentors.find(m => m.id === team.mentor_id);
+      if (m1) orderedMentors.push({ ...m1, slot: 1 });
+    }
+    if (team.mentor_id_2) {
+      const m2 = mentors.find(m => m.id === team.mentor_id_2);
+      if (m2) orderedMentors.push({ ...m2, slot: 2 });
+    }
+
+    orderedMentors.forEach(m => {
+      const displayName = m.first_name && m.last_name ? `${m.first_name} ${m.last_name}` : (m.full_name || 'Mentor');
+      const initials = displayName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
+      
+      const profileClass = `badge-profile badge-profile-${m.disciplinary_profile || 'otro'}`;
+      const profileLabel = m.disciplinary_profile === 'tecnico' ? 'Técnico' : m.disciplinary_profile === 'docente' ? 'Docente' : 'Otro';
+      const slotLabel = m.slot === 1 ? 'Mentor Técnico (Slot 1)' : 'Mentor Pedagógico (Slot 2)';
+
+      const li = document.createElement('li');
+      li.className = 'team-member-item mentor-item';
+      li.innerHTML = `
+        <span class="member-avatar">${initials}</span>
+        <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+          <span class="member-name">${displayName}</span>
+          <span style="font-size: 0.75rem; color: var(--txt-m); font-weight: 500;">${slotLabel}</span>
+        </div>
+        <div class="member-badges-container">
+          <span class="${profileClass}">${profileLabel}</span>
+        </div>
+      `;
+      mentorsList.appendChild(li);
+    });
+  }
+
   // --- Load team data ---
   async function loadTeam() {
     if (!currentTeamId) { showState('no-team'); return; }
 
     const { data: team } = await supabase
       .from('teams')
-      .select('id, name, join_code, leader_id')
+      .select('id, name, join_code, leader_id, mentor_id, mentor_id_2')
       .eq('id', currentTeamId)
       .single();
 
@@ -486,10 +582,27 @@ import ProjectSubmission from './ProjectSubmission.astro';
     // Load members
     const { data: members } = await supabase
       .from('profiles')
-      .select('id, full_name, is_egresado')
+      .select('id, full_name, is_egresado, disciplinary_profile')
       .eq('team_id', currentTeamId);
 
     renderMembers(members || [], team.leader_id);
+
+    // Load mentors if assigned
+    let mentorsData: any[] = [];
+    if (team && (team.mentor_id || team.mentor_id_2)) {
+      const mentorIds = [];
+      if (team.mentor_id) mentorIds.push(team.mentor_id);
+      if (team.mentor_id_2) mentorIds.push(team.mentor_id_2);
+
+      const { data: mentors } = await supabase
+        .from('profiles')
+        .select('id, full_name, first_name, last_name, disciplinary_profile')
+        .in('id', mentorIds);
+      if (mentors) {
+        mentorsData = mentors;
+      }
+    }
+    renderMentors(mentorsData, team);
 
     // Dispatch event so ProjectSubmission knows we have a team and if we are leader
     document.dispatchEvent(new CustomEvent('teamLoaded', {
@@ -518,6 +631,12 @@ import ProjectSubmission from './ProjectSubmission.astro';
         schema: 'public',
         table: 'profiles',
         filter: `team_id=eq.${currentTeamId}`
+      }, () => { loadTeam(); })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'teams',
+        filter: `id=eq.${currentTeamId}`
       }, () => { loadTeam(); })
       .subscribe();
   }

@@ -14,17 +14,6 @@ import Layout from '../layouts/Layout.astro';
         </div>
 
         <form id="register-form" class="auth-form" novalidate>
-          <div class="form-group">
-            <label for="full_name">Nombre completo</label>
-            <input
-              type="text"
-              id="full_name"
-              name="full_name"
-              placeholder="Ej: María García López"
-              required
-              autocomplete="name"
-            />
-          </div>
 
           <div class="form-group">
             <label for="email">Correo electrónico</label>
@@ -255,12 +244,11 @@ import Layout from '../layouts/Layout.astro';
     errorDiv.style.display = 'none';
     successDiv.style.display = 'none';
 
-    const fullName = (form.querySelector('#full_name') as HTMLInputElement).value.trim();
     const email = (form.querySelector('#email') as HTMLInputElement).value.trim();
     const password = (form.querySelector('#password') as HTMLInputElement).value;
 
     // Validación básica del lado del cliente
-    if (!fullName || !email || !password) {
+    if (!email || !password) {
       errorDiv.textContent = 'Por favor, completá todos los campos.';
       errorDiv.style.display = 'block';
       return;
@@ -279,11 +267,6 @@ import Layout from '../layouts/Layout.astro';
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-      },
     });
 
     if (error) {
@@ -312,8 +295,8 @@ import Layout from '../layouts/Layout.astro';
     successDiv.style.display = 'block';
     submitBtn.textContent = 'Cuenta creada ✓';
 
-    // Redirigir al dashboard tras el signup exitoso
-    setTimeout(() => { window.location.href = '/dashboard'; }, 800);
+    // Redirigir al onboarding tras el signup exitoso
+    setTimeout(() => { window.location.href = '/onboarding'; }, 800);
   });
 
   // Password Visibility Toggle

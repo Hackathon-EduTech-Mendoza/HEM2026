@@ -5,7 +5,7 @@ import { defineMiddleware } from 'astro:middleware';
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 
 /** Rutas que requieren haber iniciado sesión */
-const PROTECTED_ROUTES = ['/dashboard', '/admin', '/evaluacion', '/mentoria'];
+const PROTECTED_ROUTES = ['/dashboard', '/admin', '/evaluacion', '/mentoria', '/onboarding'];
 
 /** Rutas que requieren rol admin o superadmin */
 const ADMIN_ROUTES = ['/admin'];
@@ -81,6 +81,26 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Rutas protegidas: redirigir a /login si no hay sesión
   if (isProtected && !user) {
     return redirect('/login');
+  }
+
+  const isProfileComplete = !!(locals.profile?.first_name && locals.profile?.last_name);
+
+  // Redirección por perfil incompleto para usuarios autenticados
+  if (user && !isProfileComplete) {
+    if (pathname.startsWith('/dashboard') || pathname.startsWith('/mentoria') || pathname.startsWith('/evaluacion') || pathname.startsWith('/admin')) {
+      return redirect('/onboarding');
+    }
+  }
+
+  // Redirección si ya completó onboarding y trata de entrar a /onboarding
+  if (pathname === '/onboarding' && user && isProfileComplete) {
+    if (locals.profile?.role === 'juez') {
+      return redirect('/evaluacion');
+    }
+    if (locals.profile?.role === 'mentor') {
+      return redirect('/mentoria');
+    }
+    return redirect('/dashboard');
   }
 
   // Rutas de admin: redirigir a /dashboard si el rol no es suficiente

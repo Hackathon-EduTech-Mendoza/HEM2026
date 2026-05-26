@@ -6,6 +6,7 @@ import Schedule from '../components/Schedule.astro';
 import FAQ from '../components/FAQ.astro';
 import Prizes from '../components/Prizes.astro';
 import Organizers from '../components/Organizers.astro';
+import NewsSection from '../components/NewsSection.astro';
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -19,22 +20,22 @@ const jsonLd = {
   "location": [
     {
       "@type": "Place",
-      "name": "Espacio Cultural Julio Le Parc",
+      "name": "IES 9-023",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Av. Mitre y Godoy Cruz",
-        "addressLocality": "Guaymallén",
+        "streetAddress": "Dionisio Herrero 303",
+        "addressLocality": "Maipú",
         "addressRegion": "Mendoza",
         "addressCountry": "AR"
       }
     },
     {
       "@type": "Place",
-      "name": "IES Tomás Alva Edison",
+      "name": "Auditorio Municipal de Maipú, Marciano Cantero",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "25 de Mayo 1873",
-        "addressLocality": "Guaymallén",
+        "streetAddress": "Mercedes Tomasa de San Martín 1050",
+        "addressLocality": "Maipú",
         "addressRegion": "Mendoza",
         "addressCountry": "AR"
       }
@@ -62,6 +63,7 @@ const jsonLd = {
 		<Hero />
 		<InfoCards />
 		<Prizes />
+		<NewsSection />
 		<Schedule />
 		<Organizers />
 		<FAQ />

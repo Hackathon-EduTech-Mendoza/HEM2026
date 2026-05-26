@@ -7,9 +7,15 @@
         <div class="ftr-top">
             <div class="ftr-brand">
                 <a href="/#inicio" class="nav-logo" style="margin-bottom: 0.5rem;">
-                    <img src="/img/brand/MARCA_SIMPLE_NEGRO_SIN_FONDO.png" alt="" class="brand-logo" />
+                    <img src="/img/brand/Logo_Tema_Claro.png" alt="Hackathon EduTech" class="brand-logo logo-light" />
+                    <img src="/img/brand/Logo_Tema_Oscuro.png" alt="Hackathon EduTech" class="brand-logo logo-dark" />
                 </a>
                 <p>HACKATHON EDUTECH 2026 - Segunda Edición. Organizada por el IES 9-023 de Maipú y el IES Tomás Alva Edison.</p>
+                <div class="ftr-socials">
+                    <a href="https://instagram.com/hackathonedutech" target="_blank" rel="noopener noreferrer" class="ftr-social-link" aria-label="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    </a>
+                </div>
             </div>
             <div class="ftr-links">
                 <div class="ftr-col">
@@ -75,6 +81,31 @@
         line-height: 1.6;
     }
 
+    .ftr-socials {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.25rem;
+    }
+
+    .ftr-social-link {
+        color: var(--txt-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--r-sm);
+        border: 1px solid var(--brd);
+        transition: all var(--t-fast);
+    }
+
+    .ftr-social-link:hover {
+        color: var(--c1);
+        border-color: var(--c1);
+        background: rgba(var(--c1r), 0.05);
+        transform: translateY(-2px);
+    }
+
     .nav-logo {
         display: flex;
         align-items: center;
@@ -86,11 +117,18 @@
     .brand-logo {
         height: 32px;
         width: auto;
-        transition: filter var(--t-theme);
     }
 
-    :global([data-theme="brand-dark"]) .brand-logo {
-        filter: invert(1) brightness(2);
+    .logo-dark {
+        display: none !important;
+    }
+
+    :global([data-theme="brand-dark"]) .logo-light {
+        display: none !important;
+    }
+
+    :global([data-theme="brand-dark"]) .logo-dark {
+        display: block !important;
     }
 
     .ftr-links {

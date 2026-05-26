@@ -64,7 +64,6 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
 ---
 
 <Layout title="Panel de Evaluación | HEM2026">
-  <Navbar />
   <main class="eval-page">
     <div class="container eval-container">
       <div class="eval-header">
@@ -313,6 +312,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     flex-direction: column;
     justify-content: space-between;
     transition: transform var(--t-fast);
+    padding: 1.5rem;
   }
   .project-card:not(.completed):hover {
     transform: translateY(-4px);

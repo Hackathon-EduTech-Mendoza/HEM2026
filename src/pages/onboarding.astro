@@ -1,0 +1,752 @@
+---
+// src/pages/onboarding.astro
+import Layout from '../layouts/Layout.astro';
+
+const user = Astro.locals.user;
+const profile = Astro.locals.profile;
+
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const email = user.email || '';
+---
+
+<Layout title="Completar Perfil | HEM2026">
+  <main class="onboarding-page" id="onboarding-main" data-current-role={profile?.role || 'usuario'}>
+    <div class="container">
+      <div class="onboarding-card card">
+        <!-- Steps Indicator -->
+        <div class="steps-indicator">
+          <div class="step-dot active" id="dot-1">1. Rol</div>
+          <div class="step-connector"></div>
+          <div class="step-dot" id="dot-2">2. Datos</div>
+        </div>
+
+        <!-- Step 1: Seleccionar Rol -->
+        <div id="step-1-content" class="step-content active">
+          <h2>Seleccioná tu rol</h2>
+          <p class="subtitle">Elegí cómo vas a participar en la Hackathon 2026</p>
+          
+          <div class="role-grid">
+            <div class="role-card animate-on-hover" data-role="usuario">
+              <div class="role-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <h3>Participante</h3>
+              <p>Estudiante de nivel superior que competirá diseñando soluciones tecnológicas innovadoras.</p>
+            </div>
+
+            <div class="role-card animate-on-hover" data-role="mentor">
+              <div class="role-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4.8 21h14.4M12 3v14M8 7l4-4 4 4M8 13l4 4 4-4"/>
+                </svg>
+              </div>
+              <h3>Mentor</h3>
+              <p>Docente o profesional que guiará y asesorará a los equipos durante la hackathon.</p>
+            </div>
+
+            <div class="role-card animate-on-hover" data-role="juez">
+              <div class="role-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 8v8M8 12h8"></path>
+                </svg>
+              </div>
+              <h3>Juez</h3>
+              <p>Experto evaluador que puntuará las soluciones y seleccionará a los ganadores.</p>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn-primary btn-lg btn-full" id="btn-to-step-2" disabled>
+              Continuar &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Formulario -->
+        <div id="step-2-content" class="step-content">
+          <button type="button" class="btn-back" id="btn-back-to-step-1">&larr; Volver a selección de rol</button>
+          
+          <h2 id="step-2-title">Completá tus datos</h2>
+          <p class="subtitle" id="step-2-subtitle">Ingresá tu información para finalizar el registro</p>
+
+          <form id="onboarding-form" class="onboarding-form" novalidate>
+            <input type="hidden" id="selected-role" name="role" />
+
+            <!-- Nombres y Apellidos -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="first_name">Nombres (según DNI)</label>
+                <input type="text" id="first_name" name="first_name" placeholder="Ej: María José" data-req required />
+              </div>
+              <div class="form-group">
+                <label for="last_name">Apellidos (según DNI)</label>
+                <input type="text" id="last_name" name="last_name" placeholder="Ej: García López" data-req required />
+              </div>
+            </div>
+
+            <!-- DNI y WhatsApp -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="dni">DNI</label>
+                <input type="text" id="dni" name="dni" placeholder="Ej: 12345678" data-req required />
+              </div>
+              <div class="form-group">
+                <label for="phone_whatsapp">Número de WhatsApp</label>
+                <input type="tel" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: +54 9 261 555-5555" data-req required />
+              </div>
+            </div>
+
+            <!-- Email (Readonly) -->
+            <div class="form-group">
+              <label for="email">Correo electrónico</label>
+              <input type="email" id="email" name="email" value={email} readonly />
+            </div>
+
+            <!-- Instagram (Solo Usuario & Mentor) -->
+            <div class="form-group" data-role-group="usuario mentor">
+              <label for="instagram_handle">Usuario de Instagram (Opcional)</label>
+              <input type="text" id="instagram_handle" name="instagram_handle" placeholder="Ej: @usuario" />
+            </div>
+
+            <!-- Institución -->
+            <div class="form-group">
+              <label for="institution">Institución de pertenencia</label>
+              <select id="institution" name="institution" data-req required>
+                <option value="" disabled selected>Seleccioná tu institución</option>
+                <option value="ies_9023_maipu">IES 9-023 (Maipú)</option>
+                <option value="ies_edison">IES Tomás Alva Edison</option>
+                <option value="otra">Otra institución</option>
+              </select>
+            </div>
+
+            <!-- Perfil Disciplinar -->
+            <div class="form-group">
+              <label for="disciplinary_profile">Perfil disciplinar</label>
+              <select id="disciplinary_profile" name="disciplinary_profile" data-req required>
+                <option value="" disabled selected>Seleccioná tu perfil disciplinar</option>
+                <option value="docente">Formación Docente</option>
+                <option value="tecnico">Formación Técnica</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <!-- Año Cursado (Solo Usuario/Participante) -->
+            <div class="form-group" data-role-group="usuario">
+              <label for="year_of_study">Año de cursado / Estado</label>
+              <select id="year_of_study" name="year_of_study" data-req>
+                <option value="" disabled selected>Seleccioná tu año de cursado</option>
+                <option value="primero">1° Año</option>
+                <option value="segundo">2° Año</option>
+                <option value="tercero">3° Año (o superior)</option>
+                <option value="otro">Profesional / Egresado / Otro</option>
+              </select>
+            </div>
+
+            <!-- Título Profesional (Solo Usuario si año es Profesional) -->
+            <div class="form-group" id="professional-title-group" style="display: none;">
+              <label for="professional_title">Título Profesional / Especialidad</label>
+              <input type="text" id="professional_title" name="professional_title" placeholder="Ej: Técnico Superior en Computación" />
+            </div>
+
+            <!-- ¿Sos egresado? (Solo Usuario) -->
+            <div class="form-group checkbox-group" data-role-group="usuario">
+              <label class="checkbox-container">
+                <input type="checkbox" id="is_egresado" name="is_egresado" />
+                <span class="checkmark"></span>
+                ¿Sos egresado/a de alguna carrera de nivel superior?
+              </label>
+            </div>
+
+            <div id="form-error" class="form-error" style="display: none;"></div>
+            <div id="form-success" class="form-success" style="display: none;"></div>
+
+            <div class="step-actions">
+              <button type="submit" class="btn btn-primary btn-lg btn-full" id="submit-btn">
+                Finalizar Registro
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .onboarding-page {
+    min-height: calc(100vh - var(--nav-h));
+    padding: calc(var(--nav-h) + 2rem) 0 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .onboarding-card {
+    max-width: 680px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 3rem;
+  }
+
+  /* Indicator */
+  .steps-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .step-dot {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--txt-2);
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--r-full);
+    border: 1px solid var(--brd);
+    background: var(--bg-3);
+    transition: all var(--t-base);
+  }
+
+  .step-dot.active {
+    color: #ffffff;
+    background: var(--c1);
+    border-color: var(--c1);
+    box-shadow: 0 4px 12px rgba(var(--c1r), 0.25);
+  }
+
+  .step-connector {
+    flex-grow: 1;
+    max-width: 100px;
+    height: 2px;
+    background: var(--brd);
+    transition: background var(--t-base);
+  }
+
+  .step-connector.active {
+    background: var(--c1);
+  }
+
+  /* Steps content */
+  .step-content {
+    display: none;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .step-content.active {
+    display: flex;
+  }
+
+  .step-content h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 0.25rem;
+  }
+
+  .step-content .subtitle {
+    color: var(--txt-2);
+    font-size: 1.05rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  /* Grid of role cards */
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .role-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .role-card {
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    padding: 1.75rem 1.25rem;
+    background: var(--bg-card);
+    cursor: pointer;
+    transition: all var(--t-base);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .role-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--c1);
+    box-shadow: 0 8px 24px rgba(var(--c1r), 0.1);
+  }
+
+  .role-card.selected {
+    border-color: var(--c1);
+    background: rgba(var(--c1r), 0.04);
+    box-shadow: 0 8px 24px rgba(var(--c1r), 0.15), 0 0 0 2px var(--c1);
+  }
+
+  .role-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-full);
+    background: rgba(var(--c1r), 0.1);
+    color: var(--c1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--t-base);
+  }
+
+  .role-card.selected .role-icon {
+    background: var(--c1);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(var(--c1r), 0.3);
+  }
+
+  .role-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .role-card p {
+    font-size: 0.85rem;
+    color: var(--txt-2);
+    line-height: 1.5;
+  }
+
+  /* Form */
+  .onboarding-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-group label {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--txt-1);
+  }
+
+  .form-group input,
+  .form-group select {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    color: var(--txt-1);
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
+    outline: none;
+    width: 100%;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--c1);
+    box-shadow: 0 0 0 3px rgba(var(--c1r), 0.12);
+  }
+
+  .form-group input::placeholder {
+    color: var(--txt-m);
+  }
+
+  /* Checkbox Custom styling */
+  .checkbox-group {
+    margin-top: 0.5rem;
+  }
+
+  .checkbox-container {
+    display: block;
+    position: relative;
+    padding-left: 2rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    user-select: none;
+    color: var(--txt-1);
+    line-height: 1.5;
+  }
+
+  .checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  .checkmark {
+    position: absolute;
+    top: 0.15rem;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-sm);
+    transition: all var(--t-fast);
+  }
+
+  .checkbox-container:hover input ~ .checkmark {
+    border-color: var(--c1);
+  }
+
+  .checkbox-container input:checked ~ .checkmark {
+    background-color: var(--c1);
+    border-color: var(--c1);
+  }
+
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  .checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+  }
+
+  .checkbox-container .checkmark:after {
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  /* Return to Step 1 */
+  .btn-back {
+    background: none;
+    border: none;
+    color: var(--txt-2);
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    align-self: flex-start;
+    transition: color var(--t-fast);
+    margin-bottom: 0.75rem;
+  }
+
+  .btn-back:hover {
+    color: var(--c1);
+  }
+
+  .form-error {
+    background: rgba(var(--danger-r), 0.1);
+    border: 1px solid rgba(var(--danger-r), 0.3);
+    color: var(--danger);
+    padding: 0.75rem 1rem;
+    border-radius: var(--r-md);
+    font-size: 0.9rem;
+  }
+
+  .form-success {
+    background: rgba(var(--c2r), 0.1);
+    border: 1px solid rgba(var(--c2r), 0.3);
+    color: var(--c2);
+    padding: 0.75rem 1rem;
+    border-radius: var(--r-md);
+    font-size: 0.9rem;
+  }
+
+  .step-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+  }
+</style>
+
+<script>
+  import { createBrowserClient } from '@supabase/ssr';
+
+  const supabase = createBrowserClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  const mainEl = document.getElementById('onboarding-main') as HTMLElement;
+  const currentRole = mainEl?.dataset.currentRole || 'usuario';
+
+  const roleCards = document.querySelectorAll('.role-card');
+  const btnToStep2 = document.getElementById('btn-to-step-2') as HTMLButtonElement;
+  const btnBackToStep1 = document.getElementById('btn-back-to-step-1') as HTMLButtonElement;
+  const step1Content = document.getElementById('step-1-content') as HTMLDivElement;
+  const step2Content = document.getElementById('step-2-content') as HTMLDivElement;
+  const dot2 = document.getElementById('dot-2') as HTMLDivElement;
+  const stepConnector = document.querySelector('.step-connector') as HTMLDivElement;
+  const selectedRoleInput = document.getElementById('selected-role') as HTMLInputElement;
+  const step2Title = document.getElementById('step-2-title') as HTMLHeadingElement;
+
+  const onboardingForm = document.getElementById('onboarding-form') as HTMLFormElement;
+  const errorDiv = document.getElementById('form-error') as HTMLDivElement;
+  const successDiv = document.getElementById('form-success') as HTMLDivElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const yearOfStudySelect = document.getElementById('year_of_study') as HTMLSelectElement;
+  const professionalTitleGroup = document.getElementById('professional-title-group') as HTMLDivElement;
+  const professionalTitleInput = document.getElementById('professional_title') as HTMLInputElement;
+
+  let selectedRole = '';
+
+  // Interacción del Paso 1: Selección de Rol
+  roleCards.forEach(card => {
+    card.addEventListener('click', () => {
+      roleCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedRole = card.getAttribute('data-role') || '';
+      btnToStep2.disabled = false;
+    });
+  });
+
+  // Configuración de campos dinámicos para el Paso 2
+  function updateFormFields(role: string) {
+    selectedRoleInput.value = role;
+
+    const roleNames: Record<string, string> = {
+      usuario: 'Participante',
+      mentor: 'Mentor',
+      juez: 'Juez',
+      admin: 'Administrador',
+      superadmin: 'Superadministrador'
+    };
+    step2Title.textContent = `Completá tu registro como ${roleNames[role] || ''}`;
+
+    // Mostrar/ocultar y habilitar/deshabilitar campos según el rol
+    document.querySelectorAll('[data-role-group]').forEach(el => {
+      const htmlEl = el as HTMLElement;
+      const roles = htmlEl.getAttribute('data-role-group') || '';
+      const allowedRoles = roles.split(' ');
+      
+      const inputs = htmlEl.querySelectorAll('input, select');
+      
+      const isAllowed = allowedRoles.includes(role) || 
+                        ((role === 'admin' || role === 'superadmin') && !allowedRoles.includes('usuario'));
+      
+      if (isAllowed) {
+        htmlEl.style.display = 'flex';
+        inputs.forEach(input => {
+          const inputEl = input as HTMLInputElement | HTMLSelectElement;
+          inputEl.disabled = false;
+          if (inputEl.hasAttribute('data-req')) {
+            inputEl.setAttribute('required', 'true');
+          }
+        });
+      } else {
+        htmlEl.style.display = 'none';
+        inputs.forEach(input => {
+          const inputEl = input as HTMLInputElement | HTMLSelectElement;
+          inputEl.disabled = true;
+          inputEl.removeAttribute('required');
+        });
+      }
+    });
+
+    handleYearOfStudyChange();
+  }
+
+  function handleYearOfStudyChange() {
+    if (selectedRole === 'usuario' && yearOfStudySelect && yearOfStudySelect.value === 'otro') {
+      professionalTitleGroup.style.display = 'flex';
+      professionalTitleInput.disabled = false;
+      professionalTitleInput.setAttribute('required', 'true');
+    } else {
+      if (professionalTitleGroup) professionalTitleGroup.style.display = 'none';
+      if (professionalTitleInput) {
+        professionalTitleInput.disabled = true;
+        professionalTitleInput.removeAttribute('required');
+        professionalTitleInput.value = '';
+      }
+    }
+  }
+
+  if (yearOfStudySelect) {
+    yearOfStudySelect.addEventListener('change', handleYearOfStudyChange);
+  }
+
+  // Transición al Paso 2
+  btnToStep2.addEventListener('click', () => {
+    if (!selectedRole) return;
+    updateFormFields(selectedRole);
+
+    step1Content.classList.remove('active');
+    step2Content.classList.add('active');
+    dot2.classList.add('active');
+    stepConnector.classList.add('active');
+  });
+
+  // Volver al Paso 1
+  btnBackToStep1.addEventListener('click', () => {
+    step2Content.classList.remove('active');
+    step1Content.classList.add('active');
+    dot2.classList.remove('active');
+    stepConnector.classList.remove('active');
+  });
+
+  // Validación básica de DNI
+  function isValidDNI(dni: string): boolean {
+    const cleanDNI = dni.replace(/\D/g, '');
+    if (selectedRole === 'usuario') {
+      return cleanDNI.length >= 7 && cleanDNI.length <= 8;
+    }
+    return cleanDNI.length > 0;
+  }
+
+  // Envío del formulario
+  onboardingForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    // Verificación de validez del navegador
+    if (!onboardingForm.checkValidity()) {
+      errorDiv.textContent = 'Por favor, completá todos los campos requeridos correctamente.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    const first_name = (document.getElementById('first_name') as HTMLInputElement).value.trim();
+    const last_name = (document.getElementById('last_name') as HTMLInputElement).value.trim();
+    const dni = (document.getElementById('dni') as HTMLInputElement).value.trim();
+    const phone_whatsapp = (document.getElementById('phone_whatsapp') as HTMLInputElement).value.trim();
+    const institution = (document.getElementById('institution') as HTMLSelectElement).value;
+    const disciplinary_profile = (document.getElementById('disciplinary_profile') as HTMLSelectElement).value;
+
+    if (!first_name || !last_name || !dni || !phone_whatsapp || !institution || !disciplinary_profile) {
+      errorDiv.textContent = 'Por favor, completá todos los campos obligatorios.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    if (!isValidDNI(dni)) {
+      if (selectedRole === 'usuario') {
+        errorDiv.textContent = 'El DNI debe tener entre 7 y 8 dígitos.';
+      } else {
+        errorDiv.textContent = 'Por favor, ingresá un DNI válido.';
+      }
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    // Armado del objeto a actualizar
+    const updateData: any = {
+      first_name,
+      last_name,
+      dni,
+      phone_whatsapp,
+      institution,
+      disciplinary_profile,
+      role: selectedRole
+    };
+
+    if (selectedRole === 'usuario' || selectedRole === 'mentor') {
+      const instagram = (document.getElementById('instagram_handle') as HTMLInputElement).value.trim();
+      updateData.instagram_handle = instagram || null;
+    }
+
+    if (selectedRole === 'usuario') {
+      updateData.year_of_study = yearOfStudySelect.value;
+      if (yearOfStudySelect.value === 'otro') {
+        updateData.professional_title = professionalTitleInput.value.trim() || null;
+      } else {
+        updateData.professional_title = null;
+      }
+      updateData.is_egresado = (document.getElementById('is_egresado') as HTMLInputElement).checked;
+    } else {
+      updateData.year_of_study = null;
+      updateData.professional_title = null;
+      updateData.is_egresado = false;
+    }
+
+    // Estado de carga
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando perfil...';
+
+    // Obtener usuario autenticado actual
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      errorDiv.textContent = 'No se encontró una sesión activa de usuario. Iniciá sesión de nuevo.';
+      errorDiv.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Finalizar Registro';
+      return;
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(updateData)
+      .eq('id', user.id);
+
+    if (error) {
+      errorDiv.textContent = `Error al guardar los datos: ${error.message}`;
+      errorDiv.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Finalizar Registro';
+      return;
+    }
+
+    successDiv.textContent = '¡Registro completado! Redirigiendo...';
+    successDiv.style.display = 'block';
+    submitBtn.textContent = 'Registro completado ✓';
+
+    setTimeout(() => {
+      window.location.href = '/dashboard';
+    }, 1000);
+  });
+
+  // Si ya es admin o superadmin, saltear paso 1 de forma automática y configurar UI
+  const isAdminOrSuper = currentRole === 'admin' || currentRole === 'superadmin';
+  if (isAdminOrSuper) {
+    selectedRole = currentRole;
+    step1Content.classList.remove('active');
+    step2Content.classList.add('active');
+    dot2.classList.add('active');
+    stepConnector.classList.add('active');
+
+    // Ocultar elementos que no aplican para admin/superadmin
+    const indicator = document.querySelector('.steps-indicator') as HTMLElement;
+    if (indicator) indicator.style.display = 'none';
+    if (btnBackToStep1) btnBackToStep1.style.display = 'none';
+
+    updateFormFields(currentRole);
+  }
+</script>
