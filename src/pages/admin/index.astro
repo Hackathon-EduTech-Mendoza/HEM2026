@@ -91,15 +91,10 @@ if (leaderboardError) {
 
 const leaderboard = leaderboardData || [];
 
-// Obtener estadísticas de mentoría
-const { data: mentorStats } = await supabase
-  .from("mentor_help_stats")
-  .select("*");
-
-// Obtener mentores aprobados
+// Obtener mentores aprobados con datos de contacto
 const { data: allMentors } = await supabase
   .from("profiles")
-  .select("id, full_name, first_name, last_name, disciplinary_profile")
+  .select("id, full_name, first_name, last_name, email, dni, institution, disciplinary_profile")
   .eq("role", "mentor")
   .eq("registration_status", "aprobado")
   .order("full_name", { ascending: true });
@@ -131,6 +126,19 @@ if (teamsError) {
 
 const teams = allTeams || [];
 const unassignedTeamsCount = teams.filter(t => !t.mentor_id && !t.mentor_id_2).length;
+
+// Procesar mentores con sus equipos asignados directamente en memoria
+const mentorsWithTeams = mentors.map(m => {
+  const slot1Teams = teams.filter(t => t.mentor_id === m.id).map(t => t.name);
+  const slot2Teams = teams.filter(t => t.mentor_id_2 === m.id).map(t => t.name);
+  
+  return {
+    ...m,
+    slot1Teams,
+    slot2Teams,
+    totalTeamsCount: slot1Teams.length + slot2Teams.length
+  };
+});
 ---
 
 <Layout title="Administración | HEM2026">
@@ -598,10 +606,10 @@ const unassignedTeamsCount = teams.filter(t => !t.mentor_id && !t.mentor_id_2).l
     </div>
 
 	<div class="admin-actions" style="justify-content: space-between;">
-		<h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Métricas de Mentoría</h2>
+		<h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Resumen de Mentoría</h2>
 		<button id="refresh-mentor-stats" class="btn btn-outline" style="display: flex; align-items: center; gap: 0.5rem;">
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
-			Actualizar Métricas
+			Actualizar Datos
 		</button>
 	</div>
 
@@ -611,32 +619,51 @@ const unassignedTeamsCount = teams.filter(t => !t.mentor_id && !t.mentor_id_2).l
 		<thead>
 			<tr>
 			<th>Mentor</th>
-			<th>Equipos</th>
-			<th>Tickets</th>
-			<th>Pend.</th>
-			<th>En Camino</th>
-			<th>Final.</th>
-			<th>Expir.</th>
-			<th>Prom. Rta. (min)</th>
-			<th>Prom. Sesión (min)</th>
+			<th>Especialidad</th>
+			<th>DNI / Institución</th>
+			<th>Contacto</th>
+			<th>Equipos Asignados</th>
 			</tr>
 		</thead>
 		<tbody>
 			{
-			!mentorStats || mentorStats.length === 0 ? (
-				<tr><td colspan="9" class="empty-state">No hay actividad de mentoría registrada aún.</td></tr>
+			mentorsWithTeams.length === 0 ? (
+				<tr><td colspan="5" class="empty-state">No hay mentores registrados o aprobados aún.</td></tr>
 			) : (
-				mentorStats.map((s: any) => (
+				mentorsWithTeams.map((m: any) => (
 				<tr>
-					<td data-label="Mentor"><strong>{s.mentor_name}</strong></td>
-					<td data-label="Equipos">{s.assigned_teams}</td>
-					<td data-label="Tickets">{s.total_tickets}</td>
-					<td data-label="Pendientes">{s.pending_count}</td>
-					<td data-label="En Camino">{s.in_progress_count}</td>
-					<td data-label="Finalizados">{s.finished_count}</td>
-					<td data-label="Expirados">{s.expired_count}</td>
-					<td data-label="Prom. Rta.">{s.avg_response_minutes > 0 ? s.avg_response_minutes + " min" : "-"}</td>
-					<td data-label="Prom. Sesión">{s.avg_session_minutes > 0 ? s.avg_session_minutes + " min" : "-"}</td>
+					<td data-label="Mentor"><strong>{m.full_name || (m.first_name + " " + m.last_name)}</strong></td>
+					<td data-label="Especialidad">
+            <span class={`badge-profile badge-profile-${m.disciplinary_profile || 'otro'}`}>
+              {m.disciplinary_profile === 'tecnico' ? 'Técnico' : m.disciplinary_profile === 'docente' ? 'Docente' : 'Otro'}
+            </span>
+          </td>
+					<td data-label="DNI / Institución">
+            <span style="font-size: 0.85rem; color: var(--txt-2); display: block;">DNI: {m.dni || 'Sin DNI'}</span>
+            <span style="font-size: 0.8rem; color: var(--txt-m);">{m.institution || 'Sin Institución'}</span>
+          </td>
+					<td data-label="Contacto">
+            <a href={`mailto:${m.email}`} class="support-email" style="font-size: 0.9rem;">{m.email}</a>
+          </td>
+					<td data-label="Equipos Asignados">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem;">
+              {m.slot1Teams.length > 0 && (
+                <div>
+                  <strong style="color: var(--c1); font-size: 0.75rem; text-transform: uppercase;">Slot 1 (Técnico):</strong>
+                  <span style="color: var(--txt-1); margin-left: 0.25rem;">{m.slot1Teams.join(', ')}</span>
+                </div>
+              )}
+              {m.slot2Teams.length > 0 && (
+                <div>
+                  <strong style="color: var(--c2); font-size: 0.75rem; text-transform: uppercase;">Slot 2 (Pedagógico):</strong>
+                  <span style="color: var(--txt-1); margin-left: 0.25rem;">{m.slot2Teams.join(', ')}</span>
+                </div>
+              )}
+              {m.totalTeamsCount === 0 && (
+                <span class="text-muted" style="font-style: italic;">Sin equipos asignados</span>
+              )}
+            </div>
+          </td>
 				</tr>
 				))
 			)

@@ -207,9 +207,9 @@ if (profile.team_id && helpEnabled) {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
               <span>Mi Equipo</span>
             </button>
-            <button class="tab-btn" data-tab="mentoria" role="tab" aria-selected="false">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
-              <span>Mentoría</span>
+            <button class="tab-btn" data-tab="recursos" role="tab" aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              <span>Recursos</span>
             </button>
             {helpEnabled && (
               <button class="tab-btn" data-tab="sos" role="tab" aria-selected="false">
@@ -309,42 +309,66 @@ if (profile.team_id && helpEnabled) {
             )}
           </div>
 
-          <!-- Tab 3: Mentoría -->
-          <div class="tab-content" id="tab-mentoria" role="tabpanel">
-            <div class="card profile-card">
-              <h3 class="section-label">Tu Mentor Asignado</h3>
-              {profile.team_id ? (
-                mentor ? (
-                  <div class="mentor-card" style="margin-top: 1rem;">
-                    <div class="mentor-avatar-sm">
-                      {mentor.full_name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
-                    </div>
-                    <div class="mentor-details">
-                      <span class="mentor-name">{mentor.full_name}</span>
-                      <div class="mentor-socials">
-                        {mentor.phone_whatsapp && (
-                          <a href={`https://wa.me/${mentor.phone_whatsapp}`} target="_blank" class="social-link" title="WhatsApp">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                          </a>
-                        )}
-                        {mentor.instagram_handle && (
-                          <a href={`https://instagram.com/${mentor.instagram_handle.replace('@','')}`} target="_blank" class="social-link" title="Instagram">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div class="mentor-empty" style="margin-top: 1rem;">
-                    <p>Aún no se ha asignado un mentor a tu equipo. Los mentores se asignarán al comienzo del evento.</p>
-                  </div>
-                )
-              ) : (
-                <div class="mentor-empty" style="margin-top: 1rem;">
-                  <p>Para tener un mentor asignado, primero debés conformar o unirte a un equipo en la pestaña <strong>Mi Equipo</strong>.</p>
+          <!-- Tab 3: Recursos (Toolkit) -->
+          <div class="tab-content" id="tab-recursos" role="tabpanel">
+            <div class="card profile-card" style="padding: 2rem;">
+              <h3 class="section-label" style="font-size: 1.3rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open" style="color: var(--c1);"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Toolkit del Competidor
+              </h3>
+              <p style="color: var(--txt-2); font-size: 0.95rem; margin-bottom: 2rem;">
+                Accedé a herramientas de prototipado, documentación técnica y materiales oficiales de la Hackathon para impulsar el proyecto de tu equipo.
+              </p>
+
+              <div class="toolkit-grid">
+                <!-- Figma -->
+                <div class="toolkit-card">
+                  <div class="toolkit-icon">🎨</div>
+                  <h4>Figma</h4>
+                  <p>La herramienta líder para diseñar interfaces y armar wireframes interactivos en equipo.</p>
+                  <a href="https://www.figma.com" target="_blank" rel="noopener noreferrer" class="toolkit-link btn btn-primary w-100">Diseñar en Figma</a>
                 </div>
-              )}
+
+                <!-- Glide -->
+                <div class="toolkit-card">
+                  <div class="toolkit-icon">📱</div>
+                  <h4>Glide Apps</h4>
+                  <p>Creá una aplicación móvil funcional en minutos utilizando Google Sheets o Excel como base de datos.</p>
+                  <a href="https://www.glideapps.com" target="_blank" rel="noopener noreferrer" class="toolkit-link btn btn-primary w-100">Prototipar en Glide</a>
+                </div>
+
+                <!-- Astro Docs -->
+                <div class="toolkit-card">
+                  <div class="toolkit-icon">🚀</div>
+                  <h4>Astro Docs</h4>
+                  <p>Documentación oficial de Astro para el desarrollo de sitios web veloces y modernos.</p>
+                  <a href="https://docs.astro.build" target="_blank" rel="noopener noreferrer" class="toolkit-link btn btn-secondary w-100">Ver Documentación</a>
+                </div>
+
+                <!-- Supabase Docs -->
+                <div class="toolkit-card">
+                  <div class="toolkit-icon">⚡</div>
+                  <h4>Supabase</h4>
+                  <p>Guías para conectar autenticación, base de datos Postgres y RLS de forma veloz.</p>
+                  <a href="https://supabase.com/docs" target="_blank" rel="noopener noreferrer" class="toolkit-link btn btn-secondary w-100">Ver Documentación</a>
+                </div>
+
+                <!-- Plantilla Pitch -->
+                <div class="toolkit-card" style="border-color: rgba(var(--c2r), 0.3); background: rgba(var(--c2r), 0.025);">
+                  <div class="toolkit-icon">📢</div>
+                  <h4 style="color: var(--c2);">Plantilla de Pitch</h4>
+                  <p>Estructura oficial para la presentación final de tu proyecto ante el jurado evaluador.</p>
+                  <a href="https://canva.com" target="_blank" rel="noopener noreferrer" class="toolkit-link btn btn-primary w-100" style="background: var(--c2); border-color: var(--c2);">Abrir Plantilla</a>
+                </div>
+
+                <!-- Bases -->
+                <div class="toolkit-card">
+                  <div class="toolkit-icon">📄</div>
+                  <h4>Bases del Evento</h4>
+                  <p>Reglas oficiales, criterios de evaluación y cronograma detallado de la Hackathon.</p>
+                  <a href="/#bases" class="toolkit-link btn btn-secondary w-100">Consultar Bases</a>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -990,6 +1014,70 @@ if (profile.team_id && helpEnabled) {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Toolkit / Recursos Styles */
+  .toolkit-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .toolkit-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+  }
+
+  .toolkit-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    transition: all var(--t-base);
+  }
+
+  .toolkit-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--c1);
+    box-shadow: var(--sh-md);
+  }
+
+  .toolkit-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .toolkit-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--txt-1);
+  }
+
+  .toolkit-card p {
+    margin: 0 0 1.25rem 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--txt-2);
+    flex-grow: 1;
+  }
+
+  .toolkit-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    border-radius: var(--r-sm);
+    transition: all var(--t-fast);
+    cursor: pointer;
   }
 </style>
 

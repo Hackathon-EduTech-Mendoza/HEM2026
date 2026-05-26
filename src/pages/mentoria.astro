@@ -29,8 +29,8 @@ const supabase = createServerClient(
   }
 );
 
-// Obtener equipos asignados al mentor logueado (o todos si es admin/superadmin)
-let teamsQuery = supabase
+// Obtener equipos asignados al mentor logueado o todos si es admin/superadmin
+let query = supabase
   .from('teams')
   .select(`
     id,
@@ -50,19 +50,16 @@ let teamsQuery = supabase
       title,
       description_problem,
       description_solution,
-      prototype_url,
-      support_url
+      url_prototype,
+      url_support_material
     )
   `);
 
-const isAdmin = profile?.role === 'admin' || profile?.role === 'superadmin';
-
-if (!isAdmin) {
-  teamsQuery = teamsQuery.or(`mentor_id.eq.${user.id},mentor_id_2.eq.${user.id}`);
+if (profile?.role === 'mentor') {
+  query = query.or(`mentor_id.eq.${user.id},mentor_id_2.eq.${user.id}`);
 }
 
-const { data: assignedTeamsData, error: teamsError } = await teamsQuery
-  .order('name', { ascending: true });
+const { data: assignedTeamsData, error: teamsError } = await query.order('name', { ascending: true });
 
 if (teamsError) {
   console.error("Error fetching assigned teams:", teamsError);
@@ -78,16 +75,6 @@ const assignedTeams = assignedTeamsData || [];
         <h1>Panel de Mentoría</h1>
         <p class="mentor-subtitle">Revisá los equipos asignados a tu tutoría, sus integrantes y el estado de sus proyectos.</p>
       </div>
-
-      {isAdmin && (
-        <div class="admin-view-banner card">
-          <span class="banner-icon">🛡️</span>
-          <div class="banner-content">
-            <strong>Vista de Administrador</strong>
-            <p>Se muestran todos los equipos creados en la plataforma para facilitar el testeo y auditoría.</p>
-          </div>
-        </div>
-      )}
 
       <div class="mentor-sections">
         <section class="mentor-section">
@@ -121,9 +108,6 @@ const assignedTeams = assignedTeamsData || [];
                 } else if (isMentor2) {
                   roleBadgeLabel = "Mentor Pedagógico (Slot 2)";
                   roleBadgeClass = "badge-mentor-pedagogico";
-                } else if (isAdmin) {
-                  roleBadgeLabel = "Supervisor (Admin)";
-                  roleBadgeClass = "badge-mentor-both";
                 }
 
                 // Obtener el proyecto (se espera relación de 1-1, pero PostgREST puede devolverlo como array u objeto)
@@ -199,13 +183,13 @@ const assignedTeams = assignedTeamsData || [];
                             )}
 
                             <div class="project-actions-mini">
-                              {project.prototype_url && (
-                                <a href={project.prototype_url} target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm project-link-btn">
+                              {project.url_prototype && (
+                                <a href={project.url_prototype} target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm project-link-btn">
                                   🌐 Ver Prototipo
                                 </a>
                               )}
-                              {project.support_url && (
-                                <a href={project.support_url} target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm project-link-btn">
+                              {project.url_support_material && (
+                                <a href={project.url_support_material} target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm project-link-btn">
                                   📁 Material de Apoyo
                                 </a>
                               )}
@@ -278,36 +262,6 @@ const assignedTeams = assignedTeamsData || [];
     padding: 0.1rem 0.6rem;
     border-radius: var(--r-full);
     font-size: 0.9rem;
-  }
-
-  /* Admin View Banner */
-  .admin-view-banner {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    background: rgba(var(--c1r), 0.05);
-    border: 1px solid rgba(var(--c1r), 0.2);
-    border-radius: var(--r-md);
-    margin-bottom: 2.5rem;
-  }
-
-  .banner-icon {
-    font-size: 1.5rem;
-  }
-
-  .banner-content strong {
-    display: block;
-    color: var(--txt-1);
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-
-  .banner-content p {
-    color: var(--txt-2);
-    font-size: 0.85rem;
-    margin: 0.15rem 0 0 0;
-    line-height: 1.4;
   }
 
   /* Assigned Teams Grid */
