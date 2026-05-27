@@ -333,7 +333,7 @@
 
   function initGallery() {
     // 1. Lógica Aleatoria de Video Nativo (1 de 5)
-    const videoPool = Array.from({ length: 5 }, (_, i) => `/videos/vibe-${i + 1}.mp4`);
+    const videoPool = Array.from({ length: 5 }, (_, i) => `/videos/vibe-${i + 1}.webm`);
     const selectedVideo = videoPool[Math.floor(Math.random() * videoPool.length)];
     const videoPlayer = document.getElementById('vibe-player') as HTMLVideoElement;
     if (videoPlayer) {
