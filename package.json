@@ -14,9 +14,14 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/vercel": "^10.0.6",
+    "@fontsource/lexend": "^5.2.11",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
     "@vercel/analytics": "^2.0.1",
     "astro": "^6.2.1"
+  },
+  "devDependencies": {
+    "lighthouse": "^13.3.0",
+    "puppeteer": "^25.1.0"
   }
 }

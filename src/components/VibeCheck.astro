@@ -22,35 +22,35 @@
       <!-- Slot 2: Foto 1 (1x1) -->
       <div class="vibe-item vibe-photo-slot photo-slot-1">
         <div class="photo-placeholder"></div>
-        <img class="vibe-photo" alt="Hackathon EduTech Momentos" />
+        <img class="vibe-photo" alt="Hackathon EduTech Momentos" loading="lazy" />
         <div class="photo-glow"></div>
       </div>
 
       <!-- Slot 3: Foto 2 (1x2 Vertical) -->
       <div class="vibe-item vibe-photo-slot photo-slot-2 vibe-tall">
         <div class="photo-placeholder"></div>
-        <img class="vibe-photo" alt="Hackathon EduTech Trabajo en Equipo" />
+        <img class="vibe-photo" alt="Hackathon EduTech Trabajo en Equipo" loading="lazy" />
         <div class="photo-glow"></div>
       </div>
 
       <!-- Slot 4: Foto 3 (1x1) -->
       <div class="vibe-item vibe-photo-slot photo-slot-3">
         <div class="photo-placeholder"></div>
-        <img class="vibe-photo" alt="Hackathon EduTech Creatividad" />
+        <img class="vibe-photo" alt="Hackathon EduTech Creatividad" loading="lazy" />
         <div class="photo-glow"></div>
       </div>
 
       <!-- Slot 5: Foto 4 (2x1 Horizontal) -->
       <div class="vibe-item vibe-photo-slot photo-slot-4 vibe-wide">
         <div class="photo-placeholder"></div>
-        <img class="vibe-photo" alt="Hackathon EduTech Pitch" />
+        <img class="vibe-photo" alt="Hackathon EduTech Pitch" loading="lazy" />
         <div class="photo-glow"></div>
       </div>
 
       <!-- Slot 6: Foto 5 (4x1 Banner Completo) -->
       <div class="vibe-item vibe-photo-slot photo-slot-5 vibe-banner">
         <div class="photo-placeholder"></div>
-        <img class="vibe-photo" alt="Hackathon EduTech Desarrollo" />
+        <img class="vibe-photo" alt="Hackathon EduTech Desarrollo" loading="lazy" />
         <div class="photo-glow"></div>
       </div>
     </div>
@@ -295,7 +295,7 @@
 
   function initGallery() {
     // 1. Lógica Aleatoria de Video Nativo (1 de 5)
-    const videoPool = Array.from({ length: 5 }, (_, i) => `/videos/vibe-${i + 1}.webm`);
+    const videoPool = Array.from({ length: 5 }, (_, i) => `/videos/vibe-${i + 1}.mp4`);
     const selectedVideo = videoPool[Math.floor(Math.random() * videoPool.length)];
     const videoPlayer = document.getElementById('vibe-player') as HTMLVideoElement;
     if (videoPlayer) {

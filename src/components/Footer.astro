@@ -1,5 +1,6 @@
 ---
 // src/components/Footer.astro
+import { Image } from 'astro:assets';
 ---
 
 <footer class="site-footer">
@@ -7,8 +8,8 @@
         <div class="ftr-top">
             <div class="ftr-brand">
                 <a href="/#inicio" class="nav-logo" style="margin-bottom: 0.5rem;">
-                    <img src="/img/brand/Logo_Tema_Claro.png" alt="Hackathon EduTech" class="brand-logo logo-light" />
-                    <img src="/img/brand/Logo_Tema_Oscuro.png" alt="Hackathon EduTech" class="brand-logo logo-dark" />
+                    <Image src="/img/brand/Logo_Tema_Claro.png" alt="Hackathon EduTech" width={240} height={64} format="webp" class="brand-logo logo-light" />
+                    <Image src="/img/brand/Logo_Tema_Oscuro.png" alt="Hackathon EduTech" width={240} height={64} format="webp" class="brand-logo logo-dark" />
                 </a>
                 <p>HACKATHON EDUTECH 2026 - Segunda Edición. Organizada por el IES 9-023 de Maipú y el IES Tomás Alva Edison.</p>
                 <div class="ftr-socials">
@@ -19,7 +20,7 @@
             </div>
             <div class="ftr-links">
                 <div class="ftr-col">
-                    <h4>Evento</h4>
+                    <p class="ftr-heading">Evento</p>
                     <ul>
                         <li><a href="/#acerca">Acerca</a></li>
                         <li><a href="/#cronograma">Cronograma</a></li>
@@ -28,7 +29,7 @@
                     </ul>
                 </div>
                 <div class="ftr-col">
-                    <h4>Participá</h4>
+                    <p class="ftr-heading">Participá</p>
                     <ul>
                         <li><a href="/registro">Inscripción</a></li>
                         <li><a href="/bases-y-condiciones">Bases y Condiciones</a></li>
@@ -36,7 +37,7 @@
                     </ul>
                 </div>
                 <div class="ftr-col">
-                    <h4>Organizan</h4>
+                    <p class="ftr-heading">Organizan</p>
                     <ul>
                         <li><a href="https://ies9023-infd.mendoza.edu.ar/sitio/" target="_blank" rel="noopener noreferrer">IES N°9-023 Maipú</a></li>
                         <li><a href="https://superior.fundacionedison.org.ar/" target="_blank" rel="noopener noreferrer">IES Tomás Alva Edison</a></li>
@@ -137,7 +138,7 @@
         flex-wrap: wrap;
     }
 
-    .ftr-col h4 {
+    .ftr-col .ftr-heading {
         font-family: var(--font-mono);
         font-size: 0.7rem;
         font-weight: 500;
