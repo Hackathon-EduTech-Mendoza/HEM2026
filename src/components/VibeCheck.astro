@@ -1,0 +1,336 @@
+---
+// src/components/VibeCheck.astro
+---
+
+<section class="vibe-section" id="vibe">
+  <div class="vibe-container">
+    <div class="vibe-header">
+      <h2 class="section-title">Vibe Check</h2>
+      <p class="section-subtitle">
+        Reviví la energía, el trabajo colaborativo y la innovación que se respira en cada jornada de la Hackathon.
+      </p>
+    </div>
+
+    <div class="vibe-grid">
+      <!-- Slot 1: Video Destacado (Vertical Bento, 1x2) -->
+      <div class="vibe-item vibe-video-slot">
+        <video autoplay loop muted playsinline class="vibe-video" id="vibe-player">
+          <!-- El source se inyectará dinámicamente -->
+        </video>
+      </div>
+
+      <!-- Slot 2: Foto 1 (1x1) -->
+      <div class="vibe-item vibe-photo-slot photo-slot-1">
+        <div class="photo-placeholder"></div>
+        <img class="vibe-photo" alt="Hackathon EduTech Momentos" />
+        <div class="photo-glow"></div>
+      </div>
+
+      <!-- Slot 3: Foto 2 (1x2 Vertical) -->
+      <div class="vibe-item vibe-photo-slot photo-slot-2 vibe-tall">
+        <div class="photo-placeholder"></div>
+        <img class="vibe-photo" alt="Hackathon EduTech Trabajo en Equipo" />
+        <div class="photo-glow"></div>
+      </div>
+
+      <!-- Slot 4: Foto 3 (1x1) -->
+      <div class="vibe-item vibe-photo-slot photo-slot-3">
+        <div class="photo-placeholder"></div>
+        <img class="vibe-photo" alt="Hackathon EduTech Creatividad" />
+        <div class="photo-glow"></div>
+      </div>
+
+      <!-- Slot 5: Foto 4 (2x1 Horizontal) -->
+      <div class="vibe-item vibe-photo-slot photo-slot-4 vibe-wide">
+        <div class="photo-placeholder"></div>
+        <img class="vibe-photo" alt="Hackathon EduTech Pitch" />
+        <div class="photo-glow"></div>
+      </div>
+
+      <!-- Slot 6: Foto 5 (4x1 Banner Completo) -->
+      <div class="vibe-item vibe-photo-slot photo-slot-5 vibe-banner">
+        <div class="photo-placeholder"></div>
+        <img class="vibe-photo" alt="Hackathon EduTech Desarrollo" />
+        <div class="photo-glow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .vibe-section {
+    padding: 6rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vibe-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .vibe-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--txt-1);
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--txt-1) 30%, rgba(var(--c1r), 0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .section-subtitle {
+    font-size: 1.1rem;
+    color: var(--txt-2);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .vibe-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  /* Grid tablet (2 columnas, 4 filas) */
+  @media (min-width: 768px) {
+    .vibe-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(4, 250px);
+    }
+    
+    .vibe-video-slot {
+      grid-column: 1 / 2;
+      grid-row: 1 / 3;
+      height: 100%;
+    }
+
+    .photo-slot-1 {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      height: 100%;
+    }
+
+    .photo-slot-2 {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      height: 100%;
+    }
+
+    .photo-slot-3 {
+      grid-column: 1 / 2;
+      grid-row: 3 / 4;
+      height: 100%;
+    }
+
+    .photo-slot-4 {
+      grid-column: 2 / 3;
+      grid-row: 3 / 4;
+      height: 100%;
+    }
+
+    .photo-slot-5 {
+      grid-column: 1 / 3;
+      grid-row: 4 / 5;
+      height: 100%;
+    }
+  }
+
+  /* Grid desktop bento layout (4 columnas, 3 filas) */
+  @media (min-width: 1024px) {
+    .vibe-grid {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 220px);
+      gap: 1.5rem;
+    }
+
+    .vibe-video-slot {
+      grid-column: 1 / 2;
+      grid-row: 1 / 3;
+      height: 100%;
+    }
+
+    .photo-slot-1 {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      height: 100%;
+    }
+
+    .photo-slot-2 {
+      grid-column: 4 / 5;
+      grid-row: 1 / 3;
+      height: 100%;
+    }
+
+    .photo-slot-3 {
+      grid-column: 3 / 4;
+      grid-row: 1 / 2;
+      height: 100%;
+    }
+
+    .photo-slot-4 {
+      grid-column: 2 / 4;
+      grid-row: 2 / 3;
+      height: 100%;
+    }
+
+    .photo-slot-5 {
+      grid-column: 1 / 5;
+      grid-row: 3 / 4;
+      height: 100%;
+    }
+  }
+
+  .vibe-item {
+    position: relative;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 1px solid var(--brd);
+    background: var(--bg-card);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+  }
+
+  .vibe-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+    display: block;
+    background: #000;
+  }
+
+  @media (max-width: 767px) {
+    .vibe-video-slot {
+      aspect-ratio: 9 / 16;
+      max-height: 480px;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 320px;
+    }
+    .vibe-photo-slot {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+
+
+  .vibe-photo-slot {
+    cursor: pointer;
+  }
+
+  .photo-placeholder {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(var(--c1r), 0.05) 0%, rgba(var(--c2r), 0.05) 100%);
+    animation: shimmer 2.2s infinite linear;
+    transition: opacity 0.5s ease;
+    z-index: 1;
+  }
+
+  @keyframes shimmer {
+    0% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.4; }
+  }
+
+  .vibe-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform var(--t-base) ease;
+  }
+
+  .vibe-photo.loaded {
+    opacity: 1;
+  }
+
+  .photo-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(var(--c1r), 0.15) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity var(--t-base) ease;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .vibe-photo-slot:hover {
+    transform: translateY(-4px) scale(1.01);
+    border-color: var(--c1);
+    box-shadow: 0 10px 30px rgba(var(--c1r), 0.15);
+  }
+
+  .vibe-photo-slot:nth-child(even):hover {
+    border-color: var(--c2);
+    box-shadow: 0 10px 30px rgba(var(--c2r), 0.15);
+  }
+
+  .vibe-photo-slot:hover .vibe-photo {
+    transform: scale(1.03);
+  }
+
+  .vibe-photo-slot:hover .photo-glow {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  function shuffleArray(array: string[]) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function initGallery() {
+    // 1. Lógica Aleatoria de Video Nativo (1 de 5)
+    const videoPool = Array.from({ length: 5 }, (_, i) => `/videos/vibe-${i + 1}.webm`);
+    const selectedVideo = videoPool[Math.floor(Math.random() * videoPool.length)];
+    const videoPlayer = document.getElementById('vibe-player') as HTMLVideoElement;
+    if (videoPlayer) {
+      videoPlayer.src = selectedVideo;
+      videoPlayer.load(); // Cargar la fuente de video asignada
+    }
+
+    // 2. Lógica Aleatoria de Fotos WebP (5 de 37)
+    const photoPool = Array.from({ length: 37 }, (_, i) => `/img/gallery/foto-${i + 1}.webp`);
+    const selectedPhotos = shuffleArray(photoPool).slice(0, 5);
+    const imgElements = document.querySelectorAll('.vibe-photo') as NodeListOf<HTMLImageElement>;
+    
+    imgElements.forEach((img, index) => {
+      if (selectedPhotos[index]) {
+        img.src = selectedPhotos[index];
+        
+        // Manejar transición una vez que la imagen termine de cargar
+        if (img.complete) {
+          img.classList.add('loaded');
+          const placeholder = img.previousElementSibling as HTMLElement;
+          if (placeholder) placeholder.style.opacity = '0';
+        } else {
+          img.addEventListener('load', () => {
+            img.classList.add('loaded');
+            const placeholder = img.previousElementSibling as HTMLElement;
+            if (placeholder) placeholder.style.opacity = '0';
+          });
+        }
+      }
+    });
+  }
+
+  // Ejecutar al cargar la página
+  initGallery();
+
+  // Asegurar funcionamiento con transiciones de página de Astro
+  document.addEventListener('astro:page-load', initGallery);
+</script>

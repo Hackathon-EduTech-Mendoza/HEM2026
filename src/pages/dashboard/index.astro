@@ -207,9 +207,9 @@ if (profile.team_id && helpEnabled) {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
               <span>Mi Equipo</span>
             </button>
-            <button class="tab-btn" data-tab="mentoria" role="tab" aria-selected="false">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
-              <span>Mentoría</span>
+            <button class="tab-btn" data-tab="recursos" role="tab" aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              <span>Recursos</span>
             </button>
             {helpEnabled && (
               <button class="tab-btn" data-tab="sos" role="tab" aria-selected="false">
@@ -309,42 +309,288 @@ if (profile.team_id && helpEnabled) {
             )}
           </div>
 
-          <!-- Tab 3: Mentoría -->
-          <div class="tab-content" id="tab-mentoria" role="tabpanel">
-            <div class="card profile-card">
-              <h3 class="section-label">Tu Mentor Asignado</h3>
-              {profile.team_id ? (
-                mentor ? (
-                  <div class="mentor-card" style="margin-top: 1rem;">
-                    <div class="mentor-avatar-sm">
-                      {mentor.full_name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
-                    </div>
-                    <div class="mentor-details">
-                      <span class="mentor-name">{mentor.full_name}</span>
-                      <div class="mentor-socials">
-                        {mentor.phone_whatsapp && (
-                          <a href={`https://wa.me/${mentor.phone_whatsapp}`} target="_blank" class="social-link" title="WhatsApp">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                          </a>
-                        )}
-                        {mentor.instagram_handle && (
-                          <a href={`https://instagram.com/${mentor.instagram_handle.replace('@','')}`} target="_blank" class="social-link" title="Instagram">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                          </a>
-                        )}
-                      </div>
-                    </div>
+          <!-- Tab 3: Recursos (Toolkit) -->
+          <div class="tab-content" id="tab-recursos" role="tabpanel">
+            <div class="card profile-card" style="padding: 2rem;">
+              <h3 class="section-label" style="font-size: 1.3rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open" style="color: var(--c1);"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Toolkit del Competidor
+              </h3>
+              <p style="color: var(--txt-2); font-size: 0.95rem; margin-bottom: 2rem;">
+                Accedé a herramientas de prototipado, documentación técnica y materiales oficiales de la Hackathon para impulsar el proyecto de tu equipo.
+              </p>
+
+              <div class="toolkit-categories-grid">
+                <!-- Categoría 1: Diseño y Prototipado -->
+                <div class="category-card">
+                  <h3>
+                    <svg class="category-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C17.52 22 22 17.52 22 12S17.52 2 12 2 2 6.48 2 12c0 2.37 1.08 4.49 2.78 5.88.24.2.22.58-.03.77A4.27 4.27 0 0 1 2 21.8c-.16.08-.2.28-.08.41C2.04 22.34 2.2 22 2.5 22H12z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="11.5" cy="7.5" r="1"/><circle cx="16.5" cy="9.5" r="1"/><circle cx="15.5" cy="14.5" r="1"/></svg>
+                    Diseño y Prototipado
+                  </h3>
+                  <div class="tools-pill-container">
+                    <a href="https://www.figma.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z"/><path d="M12 2h3.5A3.5 3.5 0 1 1 12 5.5V2z"/><path d="M12 12.5a3.5 3.5 0 1 1 3.5-3.5V12.5H12z"/><path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z"/><path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z"/></svg>
+                      </span>
+                      <span>Figma</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://penpot.app" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#05C3B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 12 14 9 21"/></svg>
+                      </span>
+                      <span>Penpot</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://www.adobe.com/products/xd.html" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#FF26BE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4" fill="#470137" stroke="none"/><path d="M7 8h1.5a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1-2.5 2.5H7V8z"/><path d="M13 8c1 0 2 1.5 2 3.5s-1 3.5-2 3.5"/><path d="M13 8h1a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/></svg>
+                      </span>
+                      <span>Adobe XD</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://www.canva.com/es_ar/pizarra-online/" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="url(#canva-grad-wb)"/><path d="M15 14.5c-0.8 0.8-2 1.2-3.2 1.2-2.4 0-4-1.6-4-4s1.6-4 4-4c1.2 0 2.4 0.4 3.2 1.2" stroke="white" stroke-width="1.8" stroke-linecap="round"/><defs><linearGradient id="canva-grad-wb" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#00C4CC"/><stop offset="1" stop-color="#7D2AE8"/></linearGradient></defs></svg>
+                      </span>
+                      <span>Canva Whiteboards</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
                   </div>
-                ) : (
-                  <div class="mentor-empty" style="margin-top: 1rem;">
-                    <p>Aún no se ha asignado un mentor a tu equipo. Los mentores se asignarán al comienzo del evento.</p>
-                  </div>
-                )
-              ) : (
-                <div class="mentor-empty" style="margin-top: 1rem;">
-                  <p>Para tener un mentor asignado, primero debés conformar o unirte a un equipo en la pestaña <strong>Mi Equipo</strong>.</p>
                 </div>
-              )}
+
+                <!-- Categoría 2: No-Code y Low-Code -->
+                <div class="category-card">
+                  <h3>
+                    <svg class="category-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    No-Code y Low-Code
+                  </h3>
+                  <div class="tools-pill-container">
+                    <a href="https://www.glideapps.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="#FF5A5F"/><path d="M2 17l10 5 10-5" stroke="#FF5A5F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12l10 5 10-5" stroke="#FF5A5F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <span>Glide Apps</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://flutterflow.io" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.9 2.5L18.4 8H12.9L7.4 2.5h5.5z" fill="#10B981"/><path d="M7.4 8.5L12.9 14H7.4L1.9 8.5h5.5z" fill="#3B82F6"/><path d="M12.9 14.5L18.4 20H12.9l-5.5-5.5h5.5z" fill="#6366F1"/></svg>
+                      </span>
+                      <span>FlutterFlow</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://bubble.io" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="2"><circle cx="9" cy="14" r="5" fill="#00C4CC" fill-opacity="0.2"/><circle cx="15" cy="9" r="5" fill="#7D2AE8" fill-opacity="0.2"/><circle cx="9" cy="14" r="5"/><circle cx="15" cy="9" r="5"/></svg>
+                      </span>
+                      <span>Bubble</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#lovable-grad-tab)"/><defs><linearGradient id="lovable-grad-tab" x1="2" y1="3" x2="22" y2="21" gradientUnits="userSpaceOnUse"><stop stop-color="#FF2A54"/><stop offset="1" stop-color="#FFB03A"/></linearGradient></defs></svg>
+                      </span>
+                      <span>Lovable</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://webflow.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"><path d="M21.4 3.7l-4 13.7-2.6-9.1-2.4 9.1-4-13.7H5L9.6 20h2.9l2.3-8.8 2.3 8.8h2.9L24.6 3.7h-3.2z" fill="#4353ff"/></svg>
+                      </span>
+                      <span>Webflow</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Categoría 3: Presentaciones y Pitch -->
+                <div class="category-card">
+                  <h3>
+                    <svg class="category-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v11H4z"/><path d="M12 14v4"/><path d="M9 18h6"/><path d="M8 7h8"/></svg>
+                    Presentaciones y Pitch
+                  </h3>
+                  <div class="tools-pill-container">
+                    <a href="https://www.canva.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="url(#canva-grad-c)"/><path d="M15 14.5c-0.8 0.8-2 1.2-3.2 1.2-2.4 0-4-1.6-4-4s1.6-4 4-4c1.2 0 2.4 0.4 3.2 1.2" stroke="white" stroke-width="1.8" stroke-linecap="round"/><defs><linearGradient id="canva-grad-c" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#00C4CC"/><stop offset="1" stop-color="#7D2AE8"/></linearGradient></defs></svg>
+                      </span>
+                      <span>Canva</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://genially.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="12" fill="#00D09E"/><path d="M7 12a5 5 0 0 1 8.5-3.5L14 10a3 3 0 1 0 0 4l1.5 1.5A5 5 0 0 1 7 12z" fill="white"/><circle cx="15.5" cy="12" r="1.5" fill="white"/></svg>
+                      </span>
+                      <span>Genially</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://gamma.app" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 18h16V6H4v12z" fill="#9D4EDD" fill-opacity="0.1"/><path d="M4 12c4-4 8 4 12 0s4-4 4-4" stroke="#9D4EDD" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <span>Gamma.app</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://prezi.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#3182CE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg>
+                      </span>
+                      <span>Prezi</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://pitch.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 4h8a5 5 0 0 1 0 10H8v6H6V4zm2 8h6a3 3 0 1 0 0-6H8v6z" fill="#FF4F00"/></svg>
+                      </span>
+                      <span>Pitch</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Categoría 4: Inteligencia Artificial -->
+                <div class="category-card">
+                  <h3>
+                    <svg class="category-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5 5 3Z"/><path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5Z"/></svg>
+                    Inteligencia Artificial
+                  </h3>
+                  <div class="tools-pill-container">
+                    <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a1 1 0 0 1 1 1c0 4.97 4.03 9 9 9a1 1 0 0 1 0 2c-4.97 0-9 4.03-9 9a1 1 0 0 1-2 0c0-4.97-4.03-9-9-9a1 1 0 0 1 0-2c4.97 0 9-4.03 9-9a1 1 0 0 1 1-1z" fill="url(#gemini-grad-tab)"/><defs><linearGradient id="gemini-grad-tab" x1="2" y1="2" x2="22" y2="22"><stop stop-color="#4285F4"/><stop offset="0.5" stop-color="#9B72F1"/><stop offset="1" stop-color="#F88DA5"/></linearGradient></defs></svg>
+                      </span>
+                      <span>Gemini</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#10a37f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5-1.5-2.5-3.5-2.5-5.5s1-4 2.5-5.5M19.5 7.5c1.5 1.5 2.5 3.5 2.5 5.5s-1 4-2.5 5.5M12 2v20M2 12h20"/><circle cx="12" cy="12" r="4" fill="#10a37f" fill-opacity="0.1"/></svg>
+                      </span>
+                      <span>ChatGPT</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2a2 2 0 0 0-4 0v-2a2 2 0 0 0-4 0v6a6 6 0 0 0 12 0v-6z"/></svg>
+                      </span>
+                      <span>Claude</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://chat.z.ai/" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="url(#chatz-grad-tab)"/><path d="M8 8h8v2l-4 4h4v2H8v-2l4-4H8V8z" fill="white"/><defs><linearGradient id="chatz-grad-tab" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#4F46E5"/><stop offset="1" stop-color="#9333EA"/></linearGradient></defs></svg>
+                      </span>
+                      <span>ChatZ</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://www.kimi.com/" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#00BFA6"/><path d="M9 7v10h2v-4l3 4h3l-4-5 4-5h-3l-3 4V7H9z" fill="white"/></svg>
+                      </span>
+                      <span>Kimi</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://chat.deepseek.com/" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#3B82F6"/><path d="M12 6a6 6 0 1 1-6 6 6 6 0 0 1 6-6zm0 2a4 4 0 1 0 4 4 4 4 0 0 0-4-4z" fill="white"/><path d="M12 9a3 3 0 1 1-3 3 3 3 0 0 1 3-3z" fill="#3B82F6"/></svg>
+                      </span>
+                      <span>DeepSeek</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Categoría 5: Desarrollo y Agentes -->
+                <div class="category-card">
+                  <h3>
+                    <svg class="category-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                    Desarrollo y Agentes
+                  </h3>
+                  <div class="tools-pill-container">
+                    <a href="https://code.visualstudio.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#007ACC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 22V2l-9 6-5-3v14l5-3 9 6z"/></svg>
+                      </span>
+                      <span>VS Code</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://antigravity.google/product/antigravity-2?app=antigravity" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6c-3 0-5 2.5-5 5.5S10.5 17 12 17s3-1 3-3-1.5-2-3-2-2 .5-2 1.5"/></svg>
+                      </span>
+                      <span>Antigravity</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://opencode.ai/es/download" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#E11D48"/><path d="M9 9l-3 3 3 3M15 9l3 3-3 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <span>OpenCode</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://code.claude.com/docs/en/quickstart" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8l3 3-3 3M12 14h5"/></svg>
+                      </span>
+                      <span>Claude Code</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://openai.com/es-419/codex/" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#10A37F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 9h8M8 13h6M8 17h4"/></svg>
+                      </span>
+                      <span>Codex</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Categoría 6: Organización -->
+                <div class="category-card">
+                  <h3>
+                    <svg class="category-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1 0-3.12 3 3 0 0 1 0-4.88 2.5 2.5 0 0 1 0-3.12A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 0-3.12 3 3 0 0 0 0-4.88 2.5 2.5 0 0 0 0-3.12A2.5 2.5 0 0 0 14.5 2Z"/></svg>
+                    Organización
+                  </h3>
+                  <div class="tools-pill-container">
+                    <a href="https://miro.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="4" fill="#FFD02F"/><path d="M6 8l3 8 3-8 3 8 3-8" stroke="#050038" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <span>Miro</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://www.notion.so" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16v18H4V3zm2 2v14h1.5l6-9.5V19h2V5h-1.5L8 14.5V5H6z"/></svg>
+                      </span>
+                      <span>Notion</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://trello.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#007ACC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" fill="#007ACC" fill-opacity="0.1"/><rect x="7" y="7" width="3" height="9" rx="1"/><rect x="14" y="7" width="3" height="5" rx="1"/></svg>
+                      </span>
+                      <span>Trello</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://clickup.com" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#7B68EE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l-7 7h14l-7-7z" fill="#7B68EE" fill-opacity="0.2"/><path d="M5 17h14"/></svg>
+                      </span>
+                      <span>ClickUp</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                    <a href="https://obsidian.md" target="_blank" rel="noopener noreferrer" class="tool-pill">
+                      <span class="tool-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 12 22 2 8.5"/><polyline points="12 2 12 22"/><line x1="2" y1="8.5" x2="22" y2="8.5"/></svg>
+                      </span>
+                      <span>Obsidian</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="external-icon"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -990,6 +1236,126 @@ if (profile.team_id && helpEnabled) {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Toolkit Categorizado */
+  .toolkit-categories-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .toolkit-categories-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .toolkit-categories-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .category-card {
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    padding: 1.5rem;
+    transition: border-color var(--t-base), box-shadow var(--t-base);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .category-card:hover {
+    border-color: rgba(var(--c1r), 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .category-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--txt-1);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .category-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--c1);
+    flex-shrink: 0;
+  }
+
+  .category-card:nth-child(even) .category-icon {
+    color: var(--c2);
+  }
+
+  .tools-pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .tool-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--brd);
+    border-radius: 50px;
+    font-size: 0.85rem;
+    color: var(--txt-2);
+    text-decoration: none;
+    transition: all var(--t-fast) cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+  }
+
+  .tool-pill:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--c1);
+    color: var(--txt-1);
+    box-shadow: 0 4px 12px rgba(var(--c1r), 0.1);
+  }
+
+  /* Alternar colores sutiles por categoría */
+  .category-card:nth-child(even):hover {
+    border-color: rgba(var(--c2r), 0.3);
+  }
+  .category-card:nth-child(even) .tool-pill:hover {
+    border-color: var(--c2);
+    box-shadow: 0 4px 12px rgba(var(--c2r), 0.1);
+  }
+
+  .tool-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .tool-logo svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .external-icon {
+    opacity: 0.3;
+    transition: opacity var(--t-fast);
+    width: 10px;
+    height: 10px;
+  }
+
+  .tool-pill:hover .external-icon {
+    opacity: 0.8;
   }
 </style>
 
