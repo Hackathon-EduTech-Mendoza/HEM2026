@@ -18,6 +18,10 @@ const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).href;
 const ogImage = image.startsWith('http') ? image : new URL(image, siteUrl).href;
 
 import '../styles/global.css';
+import '@fontsource/lexend/200.css';
+import '@fontsource/lexend/400.css';
+import '@fontsource/lexend/600.css';
+import '@fontsource/lexend/900.css';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import GooeyBackground from '../components/GooeyBackground.astro';
@@ -52,11 +56,6 @@ import Analytics from '@vercel/analytics/astro';
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={ogImage} />
 
-		<!-- Google Fonts -->
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;400;600;900&display=swap" rel="stylesheet">
-
 		<!-- Prevenir FOUC -->
 		<script is:inline>
 			const theme = (() => {
@@ -69,9 +68,12 @@ import Analytics from '@vercel/analytics/astro';
 		</script>
 	</head>
 	<body>
+		<a href="#main-content" class="skip-link">Saltar al contenido principal</a>
 		<GooeyBackground />
 		<Navbar />
-		<slot />
+		<main id="main-content">
+			<slot />
+		</main>
 		<Footer />
 		<Analytics />
 		
