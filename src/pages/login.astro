@@ -41,8 +41,10 @@ import Layout from '../layouts/Layout.astro';
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
               </button>
             </div>
+            <a href="/recuperar-password" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
           </div>
 
+          <div id="form-success" class="form-success" style="display: none;"></div>
           <div id="form-error" class="form-error" style="display: none;"></div>
 
           <button type="submit" class="btn btn-primary btn-lg btn-full" id="submit-btn">
@@ -186,6 +188,15 @@ import Layout from '../layouts/Layout.astro';
     font-size: 0.9rem;
   }
 
+  .form-success {
+    background: rgba(var(--c2r), 0.15);
+    border: 1px solid rgba(var(--c2r), 0.3);
+    color: var(--c2);
+    padding: 0.75rem 1rem;
+    border-radius: var(--r-md);
+    font-size: 0.9rem;
+  }
+
   .btn-full {
     width: 100%;
   }
@@ -212,6 +223,20 @@ import Layout from '../layouts/Layout.astro';
   .auth-link:hover {
     text-decoration: underline;
   }
+
+  .forgot-password-link {
+    font-size: 0.85rem;
+    color: var(--txt-2);
+    align-self: flex-end;
+    margin-top: 0.25rem;
+    transition: color var(--t-fast);
+    text-decoration: none;
+  }
+
+  .forgot-password-link:hover {
+    color: var(--c1);
+    text-decoration: underline;
+  }
 </style>
 
 <script>
@@ -224,11 +249,19 @@ import Layout from '../layouts/Layout.astro';
 
   const form = document.getElementById('login-form') as HTMLFormElement;
   const errorDiv = document.getElementById('form-error') as HTMLDivElement;
+  const successDiv = document.getElementById('form-success') as HTMLDivElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  // Check URL parameters for recovered status
+  if (window.location.search.includes('recovered=true') && successDiv) {
+    successDiv.textContent = 'Tu contraseña fue restablecida con éxito. Ya podés iniciar sesión.';
+    successDiv.style.display = 'block';
+  }
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     errorDiv.style.display = 'none';
+    if (successDiv) successDiv.style.display = 'none';
 
     const email = (form.querySelector('#email') as HTMLInputElement).value.trim();
     const password = (form.querySelector('#password') as HTMLInputElement).value;
