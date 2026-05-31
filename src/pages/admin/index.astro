@@ -2017,6 +2017,7 @@ const mentorsWithTeams = mentors.map(m => {
 
   openHelpBtn?.addEventListener("click", () => {
     helpDialog?.showModal();
+    document.body.style.overflow = 'hidden';
   });
 
   closeHelpBtn?.addEventListener("click", () => {
@@ -2028,5 +2029,10 @@ const mentorsWithTeams = mentors.map(m => {
     if (e.target === helpDialog) {
       helpDialog.close();
     }
+  });
+
+  // Restaurar scroll al cerrar por cualquier vía (X, Escape, Click fuera)
+  helpDialog?.addEventListener("close", () => {
+    document.body.style.overflow = '';
   });
 </script>
