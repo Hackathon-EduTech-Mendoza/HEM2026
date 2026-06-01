@@ -45,8 +45,8 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
 
-          <div id="form-error" class="form-error" style="display: none;"></div>
-          <div id="form-success" class="form-success" style="display: none;"></div>
+          <div id="form-error" class="form-error" style="display: none;" role="alert" aria-live="assertive"></div>
+          <div id="form-success" class="form-success" style="display: none;" role="status" aria-live="polite"></div>
 
           <button type="submit" class="btn btn-primary btn-lg btn-full" id="submit-btn">
             Crear cuenta

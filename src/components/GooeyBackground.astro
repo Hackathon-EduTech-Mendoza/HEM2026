@@ -56,11 +56,10 @@
     x: number;
     y: number;
     vx: number;
+    yv: number; // velocity y (using vy is also fine)
     vy: number;
     radius: number;
     color: string;
-    baseVx: number;
-    baseVy: number;
 
     constructor(x: number, y: number, radius: number, color: string) {
       this.x = x;
@@ -71,60 +70,28 @@
       // Velocidad lenta y constante
       this.vx = (Math.random() - 0.5) * 0.4;
       this.vy = (Math.random() - 0.5) * 0.4;
-      // Guardar velocidades base
-      this.baseVx = this.vx;
-      this.baseVy = this.vy;
     }
 
-    update(width: number, height: number, mouseX: number, mouseY: number, isMouseActive: boolean) {
+    update(width: number, height: number) {
       // Movimiento autónomo base
       this.x += this.vx;
       this.y += this.vy;
-
-      // Atracción al cursor (efecto magnético cooperativo)
-      if (isMouseActive) {
-        const dx = mouseX - this.x;
-        const dy = mouseY - this.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const attractionRadius = 380;
-
-        if (dist < attractionRadius) {
-          // Fuerza de atracción inversamente proporcional a la distancia
-          const force = (attractionRadius - dist) / attractionRadius;
-          const attractionStrength = 0.08;
-          
-          this.vx += (dx / dist) * force * attractionStrength;
-          this.vy += (dy / dist) * force * attractionStrength;
-        }
-      }
-
-      // Fricción suave para evitar que salgan disparadas por la fuerza magnética
-      this.vx *= 0.96;
-      this.vy *= 0.96;
-
-      // Añadir una pequeña fuerza de retorno a la velocidad base si no hay atracción fuerte
-      this.vx += (this.baseVx - this.vx) * 0.02;
-      this.vy += (this.baseVy - this.vy) * 0.02;
 
       // Rebote en los bordes del lienzo respetando el radio
       if (this.x - this.radius < 0) {
         this.x = this.radius;
         this.vx *= -1;
-        this.baseVx *= -1;
       } else if (this.x + this.radius > width) {
         this.x = width - this.radius;
         this.vx *= -1;
-        this.baseVx *= -1;
       }
 
       if (this.y - this.radius < 0) {
         this.y = this.radius;
         this.vy *= -1;
-        this.baseVy *= -1;
       } else if (this.y + this.radius > height) {
         this.y = height - this.radius;
         this.vy *= -1;
-        this.baseVy *= -1;
       }
     }
 
@@ -147,9 +114,6 @@
     let height = (canvas.height = window.innerHeight);
 
     let metaballs: Metaball[] = [];
-    let mouseX = 0;
-    let mouseY = 0;
-    let isMouseActive = false;
     let animationFrameId: number;
     let animationsEnabled = localStorage.getItem("edutech-animations") !== "false";
 
@@ -165,11 +129,11 @@
     // Configuración responsiva según viewport
     function getResponsiveConfig() {
       if (width >= 1200) {
-        return { minCount: 10, maxCount: 14, minRadius: 75, maxRadius: 155, speed: 0.4, cursorRadius: 45 };
+        return { minCount: 10, maxCount: 14, minRadius: 75, maxRadius: 155, speed: 0.4 };
       } else if (width >= 768) {
-        return { minCount: 6, maxCount: 8, minRadius: 50, maxRadius: 100, speed: 0.3, cursorRadius: 35 };
+        return { minCount: 6, maxCount: 8, minRadius: 50, maxRadius: 100, speed: 0.3 };
       } else {
-        return { minCount: 4, maxCount: 5, minRadius: 35, maxRadius: 70, speed: 0.2, cursorRadius: 25 };
+        return { minCount: 4, maxCount: 5, minRadius: 35, maxRadius: 70, speed: 0.2 };
       }
     }
 
@@ -177,6 +141,7 @@
     let colorFucsia = "";
     let colorVerde = "";
 
+    // Leer colores e inicializar metaballs por primera vez
     function fetchBrandColors() {
       const styles = getComputedStyle(document.documentElement);
       colorFucsia = styles.getPropertyValue("--c1").trim() || "#88007b";
@@ -208,10 +173,8 @@
       // Ajustar velocidad base de cada metaball según viewport
       metaballs.forEach(ball => {
         const speedFactor = config.speed / 0.4; // Relativo a la velocidad de PC
-        ball.baseVx *= speedFactor;
-        ball.baseVy *= speedFactor;
-        ball.vx = ball.baseVx;
-        ball.vy = ball.baseVy;
+        ball.vx *= speedFactor;
+        ball.vy *= speedFactor;
       });
 
       // Reducir intensidad del blur SVG en pantallas pequeñas para mejor rendimiento
@@ -233,21 +196,9 @@
       attributeFilter: ["data-theme"],
     });
 
-    // Leer colores e inicializar metaballs por primera vez
+    // Leer colores y configurar
     fetchBrandColors();
     setupMetaballs();
-
-    // Eventos de mouse (sólo activos si la animación está encendida)
-    window.addEventListener("mousemove", (e) => {
-      if (!animationsEnabled) return;
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      isMouseActive = true;
-    });
-
-    window.addEventListener("mouseleave", () => {
-      isMouseActive = false;
-    });
 
     // Resize
     let resizeTimeout: number;
@@ -277,19 +228,10 @@
       if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Dibujar metaball interactiva en el cursor (hace que las flotantes se adhieran a la mano)
-      if (isMouseActive && animationsEnabled) {
-        const config = getResponsiveConfig();
-        ctx.beginPath();
-        ctx.arc(mouseX, mouseY, config.cursorRadius, 0, Math.PI * 2);
-        ctx.fillStyle = colorFucsia;
-        ctx.fill();
-      }
-
-      // 2. Actualizar y dibujar las metaballs flotantes
+      // Actualizar y dibujar las metaballs flotantes
       metaballs.forEach((ball) => {
         if (animationsEnabled) {
-          ball.update(width, height, mouseX, mouseY, isMouseActive);
+          ball.update(width, height);
         }
         ball.draw(ctx);
       });
@@ -307,7 +249,6 @@
         animate();
       } else {
         cancelAnimationFrame(animationFrameId);
-        isMouseActive = false;
         drawStaticFrame();
       }
     });
