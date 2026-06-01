@@ -186,3 +186,7 @@ ayudas_y_recursos/
 
 # Carpetas creadas por OpenCode
 .opencode/
+
+# Archivos de contexto del agente (Impeccable)
+PRODUCT.md
+DESIGN.md

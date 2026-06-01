@@ -530,7 +530,7 @@ const mentorsWithTeams = mentors.map(m => {
     </div>
 
     <div class="config-grid" style="margin-bottom: 2rem;">
-      <div class="config-card card" style="border-left: 4px solid var(--c1);">
+      <div class="config-card card" style="border: 1px solid var(--c1); background: rgba(var(--c1r), 0.05);">
         <div class="config-info">
           <h3>Estado de Cobertura</h3>
           <p>
@@ -820,7 +820,7 @@ const mentorsWithTeams = mentors.map(m => {
     </dialog>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast">
+    <div id="toast" class="toast" role="status" aria-live="polite">
       <span id="toast-msg">Cambios guardados</span>
     </div>
   </main>
