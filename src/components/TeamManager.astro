@@ -433,6 +433,7 @@ import ProjectSubmission from './ProjectSubmission.astro';
 
 <script>
   import { createBrowserClient } from '@supabase/ssr';
+  import { showConfirm } from '../utils/alerts.js';
 
   const supabase = createBrowserClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
@@ -695,10 +696,19 @@ import ProjectSubmission from './ProjectSubmission.astro';
 
   // --- Leave Team ---
   async function handleLeave(isDissolve: boolean) {
-    const msg = isDissolve
-      ? '¿Estás seguro? Al disolver el equipo, TODOS los integrantes quedarán sin equipo.'
-      : '¿Estás seguro de abandonar el equipo?';
-    if (!confirm(msg)) return;
+    const ok = await showConfirm({
+      title: isDissolve
+        ? '¿Disolver el equipo?'
+        : '¿Abandonar el equipo?',
+      text: isDissolve
+        ? 'TODOS los integrantes quedarán sin equipo.'
+        : 'Vas a salir del equipo actual. Esta acción se puede revertir creando o uniendote a otro equipo.',
+      confirmText: isDissolve ? 'Sí, disolver' : 'Sí, abandonar',
+      cancelText: 'Cancelar',
+      destructive: true,
+      icon: 'warning',
+    });
+    if (!ok) return;
 
     const btn = isDissolve ? dissolveBtn : leaveBtn;
     btn.disabled = true;
