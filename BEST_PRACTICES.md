@@ -153,4 +153,121 @@ PUBLIC_SENTRY_DSN=tu_dsn_aqui
 
 ---
 
+## 6. Alertas y Notificaciones
+
+> Esta sección documenta el wrapper de SweetAlert2 usado en el proyecto. Reemplaza por completo el uso de `alert()` / `confirm()` / `prompt()` nativos.
+
+### 6.1 Importación
+
+**Solo en `<script>` de cliente** (nunca en frontmatter de Astro):
+
+```ts
+import { showError, showSuccess, showConfirm, showToast } from '@/utils/alerts';
+```
+
+Rutas relativas según ubicación del archivo:
+- Desde `src/pages/*.astro` → `'../../utils/alerts.js'`
+- Desde `src/components/*.astro` → `'../utils/alerts.js'`
+
+### 6.2 API
+
+| Función | Cuándo usar | Color del botón |
+|---|---|---|
+| `showError(title, text?, confirmText?)` | Validación de formulario, error de API | Rojo `#ef4444` |
+| `showSuccess(title, text?, confirmText?)` | Operación completada, confirmación positiva | Verde `#a3e635` |
+| `showConfirm({ title, text?, confirmText?, cancelText?, destructive?, icon? })` | Decisión crítica antes de acción irreversible | Fucsia `#d946ef` (normal) o rojo (destructivo) |
+| `showToast(icon, title, timer?)` | Feedback efímero no bloqueante (operaciones exitosas o errores menores) | Según icono |
+
+### 6.3 Convenciones
+
+- **NO uses** `alert()` / `confirm()` / `prompt()` nativos. Rompen el Design System y bloquean el hilo principal.
+- **NO importes** `sweetalert2` directamente. Siempre a través del wrapper.
+- **Sí** usa `await` antes de cada llamada. Todas las funciones son asíncronas.
+- **Sí** usá voseo argentino en los mensajes ("Revisá", "intentá", "completá").
+- **Sí** usá `destructive: true` para acciones irreversibles (borrar, disolver, enviar comunicado masivo).
+- **Sí** exportá las opciones como objeto para confirmaciones con lógica condicional.
+
+### 6.4 Ejemplos
+
+**Error genérico (formulario):**
+```ts
+import { showError } from '@/utils/alerts';
+
+if (password.value !== confirm.value) {
+  await showError('Las contraseñas no coinciden', 'Verificá que ambos campos tengan el mismo valor.');
+  password.focus();
+  return;
+}
+```
+
+**Éxito (operación completada):**
+```ts
+import { showSuccess } from '@/utils/alerts';
+
+await showSuccess('Enlace de recuperación enviado', 'Revisá tu bandeja de entrada.');
+window.location.href = '/login';
+```
+
+**Confirmación destructiva:**
+```ts
+import { showConfirm } from '@/utils/alerts';
+
+const ok = await showConfirm({
+  title: '¿Enviar comunicado a 150 personas?',
+  text: 'Esta acción no se puede deshacer y consumirá cuota de tu límite diario de Brevo.',
+  confirmText: 'Sí, enviar',
+  cancelText: 'Cancelar',
+  destructive: true,
+  icon: 'warning',
+});
+if (!ok) return;
+```
+
+**Toast efímero:**
+```ts
+import { showToast } from '@/utils/alerts';
+
+showToast('success', 'Usuario aprobado correctamente', 2000);
+```
+
+### 6.5 Accesibilidad
+
+El wrapper hereda las siguientes características de a11y de SweetAlert2:
+
+- `role="dialog"` y `aria-modal="true"` automáticos.
+- `aria-labelledby` y `aria-describedby` enlazados al título y contenido.
+- Focus trap con `Tab` cycling.
+- `Esc` cierra el modal.
+- `Enter` activa el botón de confirmación.
+- Restauración del foco al elemento que abrió el modal.
+
+Para testing manual con lector de pantalla, ver `docs/audits/screen-reader-test-procedure.md`.
+
+### 6.6 Shadowing de `showToast`
+
+Algunos archivos (ej. `src/pages/admin/index.astro`, `src/components/TeamManager.astro`) tienen una función local `showToast()` que se usaba antes del wrapper. **NO renombres** la función local a `showToastDS` ni similares: en su lugar, **elimínala** y migrá todas las invocaciones al wrapper. La deuda técnica está documentada en `Alertas.md §9`.
+
+Si necesitás invocar el wrapper desde un archivo que aún tiene la función local, usá el import con namespace:
+
+```ts
+import * as Alerts from '@/utils/alerts';
+Alerts.showToast('success', 'Mensaje');
+```
+
+### 6.7 Auditorías
+
+- **axe-core**: `node scripts/axe-audit.mjs` (requiere dev server corriendo).
+- **Lighthouse a11y**: `npx lighthouse <url> --only-categories=accessibility --chrome-flags="--headless --no-sandbox"`.
+- Reportes guardados en `docs/audits/axe-reports/` y `docs/audits/lighthouse-reports/`.
+
+### 6.8 Anti-patrones
+
+- ❌ Mezclar `alert()` nativos con `showError()` en el mismo archivo.
+- ❌ Usar `showConfirm()` sin `await` (devuelve `Promise<boolean>`).
+- ❌ Olvidar el foco tras cerrar un modal (ya lo hace Swal, pero si modificás el wrapper, mantenelo).
+- ❌ Importar `sweetalert2` directo en un componente (rompe la centralización del tema).
+- ❌ Crear un modal custom con `<div>` + clase `.show` cuando el wrapper alcanza.
+
+---
+
 *Documento creado para el proyecto HEM2026 — Hackathon EduTech Mendoza 2026*
