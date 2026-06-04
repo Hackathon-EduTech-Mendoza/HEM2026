@@ -36,11 +36,15 @@ import { Image } from 'astro:assets';
                     <ul>
                         <li>
                             <a href="https://ies9023-infd.mendoza.edu.ar/sitio/" target="_blank" rel="noopener noreferrer">IES N°9-023 Maipú</a>
-                            <a href="https://www.instagram.com/ies9023maipu/" target="_blank" rel="noopener noreferrer" class="ftr-instagram-link" title="Instagram IES N°9-023 Maipú" style="margin-left: 0.5rem;">📸</a>
+                            <a href="https://www.instagram.com/ies9023maipu/" target="_blank" rel="noopener noreferrer" class="ftr-instagram-link" title="Instagram IES N°9-023 Maipú" aria-label="Instagram IES N°9-023 Maipú" style="margin-left: 0.5rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-instagram"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                            </a>
                         </li>
                         <li>
                             <a href="https://superior.fundacionedison.org.ar/" target="_blank" rel="noopener noreferrer">IES Tomás Alva Edison</a>
-                            <a href="https://www.instagram.com/superioredison/" target="_blank" rel="noopener noreferrer" class="ftr-instagram-link" title="Instagram IES Tomás Alva Edison" style="margin-left: 0.5rem;">📸</a>
+                            <a href="https://www.instagram.com/superioredison/" target="_blank" rel="noopener noreferrer" class="ftr-instagram-link" title="Instagram IES Tomás Alva Edison" aria-label="Instagram IES Tomás Alva Edison" style="margin-left: 0.5rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-instagram"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -201,12 +205,19 @@ import { Image } from 'astro:assets';
             flex-direction: column;
             text-align: center;
         }
+    .ftr-col li:has(.ftr-instagram-link) {
+        display: flex;
+        align-items: center;
+    }
     .ftr-instagram-link {
-        font-size: 0.9rem;
-        display: inline-block;
-        transition: transform var(--t-fast);
+        color: var(--txt-2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: color var(--t-fast), transform var(--t-fast);
     }
     .ftr-instagram-link:hover {
-        transform: scale(1.2);
+        color: var(--c1);
+        transform: scale(1.15) translateY(-1px);
     }
 </style>
