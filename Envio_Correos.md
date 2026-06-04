@@ -123,15 +123,15 @@ BREVO_SENDER_NAME=Hackathon EduTech Mendoza
 
 ### Fase 2 — UI Admin: Pestaña Comunicados (Frontend)
 
-- [ ] **2.1** Agregar el botón de pestaña "Comunicados" en `.admin-tabs-nav` (después de "Resultados").
-- [ ] **2.2** Crear el contenedor `<div class="tab-content" id="tab-comunicados">`.
-- [ ] **2.3** Agregar badge informativo: `📧 X destinatarios aprobados | Límite: 300/día`.
+- [x] **2.1** Agregar el botón de pestaña "Comunicados" en `.admin-tabs-nav` (después de "Resultados").
+- [x] **2.2** Crear el contenedor `<div class="tab-content" id="tab-comunicados">`.
+- [x] **2.3** Agregar badge informativo: `📧 X destinatarios aprobados | Límite: 300/día`.
   - El valor `X` se calcula en el frontmatter a partir del array `profiles` ya cargado.
-- [ ] **2.4** Agregar el campo de asunto: `<input type="text" id="bulletin-subject" maxlength="150">`.
-- [ ] **2.5** Agregar el campo de mensaje: `<textarea id="bulletin-message" rows="8" maxlength="5000">`.
-- [ ] **2.6** Agregar contador de caracteres dinámico debajo del textarea.
-- [ ] **2.7** Agregar botón de envío: `<button id="send-bulletin-btn" class="btn btn-primary">Enviar Comunicado</button>`.
-- [ ] **2.8** Agregar sección colapsable de vista previa del email (opcional, mejora UX).
+- [x] **2.4** Agregar el campo de asunto: `<input type="text" id="bulletin-subject" maxlength="150">`.
+- [x] **2.5** Agregar el campo de mensaje: `<textarea id="bulletin-message" rows="8" maxlength="5000">`.
+- [x] **2.6** Agregar contador de caracteres dinámico debajo del textarea.
+- [x] **2.7** Agregar botón de envío: `<button id="send-bulletin-btn" class="btn btn-primary">Enviar Comunicado</button>`.
+- [x] **2.8** Agregar sección colapsable de vista previa del email (opcional, mejora UX).
 
 ---
 
