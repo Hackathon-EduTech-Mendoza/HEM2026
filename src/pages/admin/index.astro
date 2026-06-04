@@ -2380,11 +2380,17 @@ const mentorsWithTeams = mentors.map(m => {
     const btn = reset ? assignResetBtn : assignSimpleBtn;
     if (!btn) return;
 
-    const confirmMsg = reset 
-      ? "¿Estás seguro? Se eliminarán todas las asignaciones actuales y se repartirán los equipos de nuevo entre los mentores aprobados."
-      : "¿Asignar mentores a los equipos que aún no tienen uno?";
-    
-    if (!confirm(confirmMsg)) return;
+    const ok = await showConfirm({
+      title: reset ? "¿Resetear y reasignar mentores?" : "¿Asignar mentores?",
+      text: reset
+        ? "Se eliminarán todas las asignaciones actuales y se repartirán los equipos de nuevo entre los mentores aprobados."
+        : "Se asignarán mentores a los equipos que aún no tienen uno.",
+      confirmText: reset ? "Sí, resetear" : "Sí, asignar",
+      cancelText: "Cancelar",
+      destructive: reset,
+      icon: "warning",
+    });
+    if (!ok) return;
 
     (btn as HTMLButtonElement).disabled = true;
     const originalText = btn.textContent;
