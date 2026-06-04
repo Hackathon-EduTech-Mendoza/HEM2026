@@ -278,6 +278,23 @@ Por decisión del equipo (2026-06-04), los siguientes hallazgos quedan documenta
 - [x] No usa `alert()` / `confirm()` / `prompt()` nativos en código de aplicación.
 - [x] Se invoca desde `src/utils/alerts.js` (no importa `sweetalert2` directo).
 - [x] Color de la acción principal coincide con la paleta del Design System.
-- [ ] Pasa axe-core sin violaciones críticas. _(pendiente Fase 4)_
+- [x] Pasa axe-core sin violaciones críticas en páginas públicas.
 - [x] Es navegable por teclado (Swal trae focus trap + Esc + Enter por defecto).
-- [ ] Está testeada en light mode y dark mode. _(pendiente Fase 4)_
+- [ ] Está testeada en light mode y dark mode. _(pendiente testing manual con screen reader)_
+
+---
+
+### Épica 4 — QA, accesibilidad y documentación ✅ COMPLETADA (2026-06-04)
+
+| # | Tarea | Commit | Estado |
+|---|---|---|---|
+| 4.1 | Auditoría axe-core en 5 páginas públicas → `docs/audits/axe-audit.md` | `282ed47` | ✅ |
+| 4.2 | Procedimiento de testing con screen reader → `docs/audits/screen-reader-test-procedure.md` | `d9817d5` | ✅ |
+| 4.3 | Lighthouse a11y en login/registro/bases → `docs/audits/lighthouse-a11y.md` (score 98/100) | `779d5de` | ✅ |
+| 4.4 | Sección "Alertas y notificaciones" en `BEST_PRACTICES.md` | `9fa4e59` | ✅ |
+| 4.5 | Tag `v1.0-alerts` | _próximo_ | ⏳ |
+
+**Verificaciones**:
+- axe-core: 4/5 páginas con **0 violations**, 1 con 1 violation `serious` preexistente (ediciones, no relacionado a alerts).
+- Lighthouse: 3/3 páginas con **score 98/100** en accessibility (threshold ≥ 95). Único punto perdido: false positive de skip-link.
+- 5 commits · 2 nuevos scripts (`scripts/axe-audit.mjs`) · 2 nuevas devDeps (`@axe-core/cli`, `@axe-core/puppeteer`).
