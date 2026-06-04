@@ -149,11 +149,11 @@ BREVO_SENDER_NAME=Hackathon EduTech Mendoza
 
 ### Fase 4 — Estilos CSS
 
-- [ ] **4.1** Estilizar el formulario de comunicados (ancho max 700px, centrado).
-- [ ] **4.2** Estilizar el badge de destinatarios (píldora con colores del theme).
-- [ ] **4.3** Estilizar los inputs con focus en fucsia (`--c1`).
-- [ ] **4.4** Estilizar el botón de envío (gradiente, hover, estado disabled/loading).
-- [ ] **4.5** Asegurar que la pestaña se ve correctamente en móvil (responsive).
+- [x] **4.1** Estilizar el formulario de comunicados (ancho max 700px, centrado).
+- [x] **4.2** Estilizar el badge de destinatarios (píldora con colores del theme).
+- [x] **4.3** Estilizar los inputs con focus en fucsia (`--c1`).
+- [x] **4.4** Estilizar el botón de envío (gradiente, hover, estado disabled/loading).
+- [x] **4.5** Asegurar que la pestaña se ve correctamente en móvil (responsive).
 
 ---
 
