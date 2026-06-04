@@ -211,7 +211,82 @@ export const ALL: APIRoute = async (context) => {
     batches.push(recipients.slice(i, i + batchSize));
   }
 
-  return new Response(JSON.stringify({ message: "API Route initialized", data: { subject, message, roleFilter, recipientsCount: recipients.length, batchesCount: batches.length } }), {
+  // 1.8 Enviar cada lote a Brevo y 1.9 Manejar errores
+  const BREVO_API_KEY = import.meta.env.BREVO_API_KEY || process.env.BREVO_API_KEY;
+  const BREVO_SENDER_EMAIL = import.meta.env.BREVO_SENDER_EMAIL || process.env.BREVO_SENDER_EMAIL;
+  const BREVO_SENDER_NAME = import.meta.env.BREVO_SENDER_NAME || process.env.BREVO_SENDER_NAME;
+
+  if (!BREVO_API_KEY || !BREVO_SENDER_EMAIL || !BREVO_SENDER_NAME) {
+    console.error("Missing Brevo environment variables");
+    return new Response(JSON.stringify({ error: 'Mailing service is not properly configured.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  let sentCount = 0;
+  let failedCount = 0;
+  const errors: string[] = [];
+
+  for (let i = 0; i < batches.length; i++) {
+    const batch = batches[i];
+    const messageVersions = batch.map(r => ({
+      to: [{ email: r.email, name: r.name }],
+      params: { FNAME: r.name }
+    }));
+
+    try {
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': BREVO_API_KEY,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: {
+            name: BREVO_SENDER_NAME,
+            email: BREVO_SENDER_EMAIL
+          },
+          subject: subject,
+          htmlContent: htmlContent,
+          messageVersions: messageVersions
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Brevo API error for batch ${i + 1}:`, errorText);
+        failedCount += batch.length;
+        errors.push(`Lote ${i + 1}: ${response.status} - ${errorText}`);
+      } else {
+        sentCount += batch.length;
+      }
+    } catch (err: any) {
+      console.error(`Network error sending batch ${i + 1} to Brevo:`, err);
+      failedCount += batch.length;
+      errors.push(`Lote ${i + 1}: ${err.message || 'Network error'}`);
+    }
+  }
+
+  // 1.10 Retornar respuesta JSON al frontend
+  if (sentCount === 0) {
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: 'Failed to send all batches.', 
+      details: errors 
+    }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  return new Response(JSON.stringify({ 
+    success: true, 
+    recipientCount: sentCount,
+    failedCount: failedCount,
+    errors: errors.length > 0 ? errors : undefined
+  }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
   });
