@@ -137,13 +137,13 @@ BREVO_SENDER_NAME=Hackathon EduTech Mendoza
 
 ### Fase 3 — Lógica Client-Side (JavaScript)
 
-- [ ] **3.1** Agregar evento `click` al botón de envío con `confirm()` de confirmación.
-- [ ] **3.2** Implementar validación client-side: asunto y mensaje no vacíos.
-- [ ] **3.3** Implementar estado de carga: botón deshabilitado + spinner + texto "Enviando...".
-- [ ] **3.4** Hacer `fetch('/api/send-bulletin', { method: 'POST', body: JSON.stringify({...}) })`.
-- [ ] **3.5** Manejar respuesta exitosa: mostrar toast verde con `"✓ Comunicado enviado a X usuarios"`.
-- [ ] **3.6** Manejar respuesta de error: mostrar toast rojo con el mensaje de error.
-- [ ] **3.7** Restaurar estado del botón al finalizar (éxito o error).
+- [x] **3.1** Agregar evento `click` al botón de envío con `confirm()` de confirmación.
+- [x] **3.2** Implementar validación client-side: asunto y mensaje no vacíos.
+- [x] **3.3** Implementar estado de carga: botón deshabilitado + spinner + texto "Enviando...".
+- [x] **3.4** Hacer `fetch('/api/send-bulletin', { method: 'POST', body: JSON.stringify({...}) })`.
+- [x] **3.5** Manejar respuesta exitosa: mostrar toast verde con `"✓ Comunicado enviado a X usuarios"`.
+- [x] **3.6** Manejar respuesta de error: mostrar toast rojo con el mensaje de error.
+- [x] **3.7** Restaurar estado del botón al finalizar (éxito o error).
 
 ---
 
