@@ -9,6 +9,17 @@ export const ALL: APIRoute = async (context) => {
     });
   }
 
+  const { locals } = context;
+  const user = locals.user;
+  const profile = locals.profile;
+
+  if (!user || !profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized. Admin or superadmin role required.' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   return new Response(JSON.stringify({ message: "API Route initialized" }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
