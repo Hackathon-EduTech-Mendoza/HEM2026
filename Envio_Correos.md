@@ -159,15 +159,15 @@ BREVO_SENDER_NAME=Hackathon EduTech Mendoza
 
 ### Fase 5 — Verificación
 
-- [ ] **5.1** Ejecutar `npm run build` → sin errores de compilación.
-- [ ] **5.2** Probar `GET /api/send-bulletin` → debe retornar 405.
-- [ ] **5.3** Probar `POST /api/send-bulletin` sin sesión → debe retornar 403.
-- [ ] **5.4** Probar `POST /api/send-bulletin` con usuario `usuario` → debe retornar 403.
-- [ ] **5.5** Probar envío con asunto/mensaje vacíos → validación client-side y server-side.
-- [ ] **5.6** Probar envío real con un destinatario de prueba → verificar recepción del email.
-- [ ] **5.7** Verificar que el email recibido tiene el template correcto (branding, colores, responsive).
-- [ ] **5.8** Verificar responsividad de la pestaña Comunicados en móvil.
-- [ ] **5.9** Hacer commit con mensaje descriptivo.
+- [x] **5.1** Ejecutar `npm run build` → sin errores de compilación.
+- [x] **5.2** Probar `GET /api/send-bulletin` → debe retornar 405.
+- [x] **5.3** Probar `POST /api/send-bulletin` sin sesión → debe retornar 403.
+- [x] **5.4** Probar `POST /api/send-bulletin` con usuario `usuario` → debe retornar 403.
+- [x] **5.5** Probar envío con asunto/mensaje vacíos → validación client-side y server-side.
+- [x] **5.6** Probar envío real con un destinatario de prueba → verificar recepción del email.
+- [x] **5.7** Verificar que el email recibido tiene el template correcto (branding, colores, responsive).
+- [x] **5.8** Verificar responsividad de la pestaña Comunicados en móvil.
+- [x] **5.9** Hacer commit con mensaje descriptivo.
 
 ---
 
