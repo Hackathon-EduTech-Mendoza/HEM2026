@@ -34,8 +34,14 @@ import { Image } from 'astro:assets';
                 <div class="ftr-col">
                     <p class="ftr-heading">Organizan</p>
                     <ul>
-                        <li><a href="https://ies9023-infd.mendoza.edu.ar/sitio/" target="_blank" rel="noopener noreferrer">IES N°9-023 Maipú</a></li>
-                        <li><a href="https://superior.fundacionedison.org.ar/" target="_blank" rel="noopener noreferrer">IES Tomás Alva Edison</a></li>
+                        <li>
+                            <a href="https://ies9023-infd.mendoza.edu.ar/sitio/" target="_blank" rel="noopener noreferrer">IES N°9-023 Maipú</a>
+                            <a href="https://www.instagram.com/ies9023maipu/" target="_blank" rel="noopener noreferrer" class="ftr-instagram-link" title="Instagram IES N°9-023 Maipú" style="margin-left: 0.5rem;">📸</a>
+                        </li>
+                        <li>
+                            <a href="https://superior.fundacionedison.org.ar/" target="_blank" rel="noopener noreferrer">IES Tomás Alva Edison</a>
+                            <a href="https://www.instagram.com/superioredison/" target="_blank" rel="noopener noreferrer" class="ftr-instagram-link" title="Instagram IES Tomás Alva Edison" style="margin-left: 0.5rem;">📸</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -195,5 +201,12 @@ import { Image } from 'astro:assets';
             flex-direction: column;
             text-align: center;
         }
+    .ftr-instagram-link {
+        font-size: 0.9rem;
+        display: inline-block;
+        transition: transform var(--t-fast);
+    }
+    .ftr-instagram-link:hover {
+        transform: scale(1.2);
     }
 </style>
