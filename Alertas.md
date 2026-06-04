@@ -197,7 +197,7 @@ Una alerta está "estandarizada" cuando:
 1. ✅ Equipo técnico aprueba paleta y API del wrapper.
 2. ✅ Merge de Épica 1 a `main`.
 3. ✅ Auditoría completada (Épica 2).
-4. ⏳ Refactor por módulos (Épica 3) en PRs pequeños.
+4. ✅ Refactor de alertas nativas (Épica 3).
 5. ⏳ QA + tag de release (Épica 4).
 
 ---
@@ -254,3 +254,30 @@ Por decisión del equipo (2026-06-04), los siguientes hallazgos quedan documenta
 | 25 `console.error` sin feedback al usuario | 13 archivos (incl. `Navbar.astro:722, 755`, `mentoria.astro:65`) | No es hallazgo de alerts nativos; revisar en épica de observabilidad. |
 
 **Estimación de esfuerzo si se aborda en el futuro**: ~3h.
+
+---
+
+### Épica 3 — Refactor de alertas nativas ✅ COMPLETADA (2026-06-04)
+
+**Alcance reducido**: solo `alert()` / `confirm()` nativos (modales custom y toasts en §9).
+
+| # | Hallazgo | Archivo | Commit | Estado |
+|---|---|---|---|---|
+| 3.1 | `confirm()` Brevo (P0) | `src/pages/admin/index.astro:2554` | `55d4306` | ✅ |
+| 3.2 | `alert()` help SOS | `src/pages/dashboard/index.astro:1546` | `b67a269` | ✅ |
+| 3.3 | `alert()` proyecto | `src/components/ProjectSubmission.astro:303` | `9e8824f` | ✅ |
+| 3.4 | `confirm()` abandonar/disolver equipo | `src/components/TeamManager.astro:701` | `8bdb468` | ✅ |
+| 3.5 | `confirm()` reset/asignar mentores | `src/pages/admin/index.astro:2386` | `a21c085` | ✅ |
+| 3.6 | Eliminar página de smoke test | `src/pages/__test-alerts.astro` | `f279986` | ✅ |
+
+**Verificación**:
+- `rg "\b(alert\|confirm\|prompt)\s*\(" src/` → 0 resultados (única coincidencia: JSDoc del wrapper).
+- `npm run build` → ✅ sin errores.
+
+**Criterio de cierre DoD**:
+- [x] No usa `alert()` / `confirm()` / `prompt()` nativos en código de aplicación.
+- [x] Se invoca desde `src/utils/alerts.js` (no importa `sweetalert2` directo).
+- [x] Color de la acción principal coincide con la paleta del Design System.
+- [ ] Pasa axe-core sin violaciones críticas. _(pendiente Fase 4)_
+- [x] Es navegable por teclado (Swal trae focus trap + Esc + Enter por defecto).
+- [ ] Está testeada en light mode y dark mode. _(pendiente Fase 4)_
