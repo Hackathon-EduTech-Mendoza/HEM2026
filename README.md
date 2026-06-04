@@ -1,5 +1,7 @@
 # HEM2026 — Hackathon EduTech Mendoza 2026
 
+![Estado](https://img.shields.io/badge/Estado-Release_v1.0_QA_Ready-success)
+
 Plataforma web oficial para la **Hackathon EduTech Mendoza 2026**, desarrollada de manera colaborativa por estudiantes del **IES 9-023** y el **IES Tomás Alva Edison**.
 
 ## ¿Por qué HEM2026?
@@ -122,6 +124,7 @@ El módulo de entrega de proyectos finales permite a los equipos subir su soluci
 | Documento | Descripción |
 |-----------|-------------|
 | [README.md](./README.md) | Visión general del proyecto (este archivo) |
+| [Playbook_de_QA.md](./Playbook_de_QA.md) | Plan de pruebas E2E manual para Beta Testers |
 | [GIT_GUIDELINES.md](./GIT_GUIDELINES.md) | Convenciones de ramas, commits y Pull Requests |
 | [BEST_PRACTICES.md](./BEST_PRACTICES.md) | Estándares de calidad, testing y uso responsable de IA |
 | [LICENSE](./LICENSE) | Licencia del proyecto |
