@@ -196,7 +196,7 @@ Una alerta está "estandarizada" cuando:
 
 1. ✅ Equipo técnico aprueba paleta y API del wrapper.
 2. ✅ Merge de Épica 1 a `main`.
-3. ⏳ Desplegar subagente de auditoría (Épica 2).
+3. ✅ Auditoría completada (Épica 2).
 4. ⏳ Refactor por módulos (Épica 3) en PRs pequeños.
 5. ⏳ QA + tag de release (Épica 4).
 
@@ -216,3 +216,22 @@ Una alerta está "estandarizada" cuando:
 **Verificación**: `npm run build` completado sin errores. La página de smoke test sólo se renderiza en modo `dev` (`import.meta.env.DEV` → 404 en producción).
 
 **Pendiente tras aprobación de Fase 2**: eliminar `src/pages/__test-alerts.astro`.
+
+### Épica 2 — Auditoría exhaustiva ✅ COMPLETADA (2026-06-04)
+
+| # | Tarea | Commit | Estado |
+|---|---|---|---|
+| 2.1 | Subagente `explore` → mapa de hallazgos en `docs/audits/alerts-audit.md` | `c0c92f3` | ✅ |
+| 2.2 | Backlog priorizado en `docs/audits/alerts-audit-priority.md` | `ac2358e` | ✅ |
+| 2.3 | Publicación de hallazgos (este commit) | _próximo_ | ⏳ |
+
+**Hallazgos clave**:
+
+- 5 alerts/confirm nativos (`alert`: 2, `confirm`: 3) en 4 archivos.
+- 2 modales custom (`<dialog>` admin, `<div>` evaluación).
+- 5 wrappers `showToast` duplicados (admin: 22 invocaciones, total: 34).
+- Esfuerzo total estimado: **~3.5h** (40min para los 5 hallazgos bloqueantes de release).
+
+**Documentos publicados**:
+- `docs/audits/alerts-audit.md` — auditoría exhaustiva con tabla por categoría.
+- `docs/audits/alerts-audit-priority.md` — matriz de priorización + backlog ordenado.
