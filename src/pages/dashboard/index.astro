@@ -1361,6 +1361,7 @@ if (profile.team_id && helpEnabled) {
 
 <script>
   import { createBrowserClient } from '@supabase/ssr';
+  import { showError } from '../../utils/alerts.js';
 
   const supabase = createBrowserClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
@@ -1543,7 +1544,7 @@ if (sosContainer && sosBtn) {
     const { data, error } = await supabase.rpc('request_help');
 
     if (error || !data?.ok) {
-      alert(data?.error || error?.message || 'Error al pedir ayuda.');
+      await showError('No se pudo enviar el pedido de ayuda', data?.error || error?.message);
       sosBtn.disabled = false;
       sosBtn.textContent = 'Pedir Ayuda (SOS)';
       return;
