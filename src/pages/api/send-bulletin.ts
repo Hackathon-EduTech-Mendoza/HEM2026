@@ -20,7 +20,55 @@ export const ALL: APIRoute = async (context) => {
     });
   }
 
-  return new Response(JSON.stringify({ message: "API Route initialized" }), {
+  let body: any;
+  try {
+    body = await context.request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const { subject, message, roleFilter = 'all' } = body;
+
+  if (!subject || typeof subject !== 'string' || subject.trim() === '') {
+    return new Response(JSON.stringify({ error: 'Subject is required.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  if (subject.length > 150) {
+    return new Response(JSON.stringify({ error: 'Subject must be 150 characters or less.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  if (!message || typeof message !== 'string' || message.trim() === '') {
+    return new Response(JSON.stringify({ error: 'Message is required.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  if (message.length > 5000) {
+    return new Response(JSON.stringify({ error: 'Message must be 5000 characters or less.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const validFilters = ['all', 'participant', 'mentor'];
+  if (!validFilters.includes(roleFilter)) {
+    return new Response(JSON.stringify({ error: 'Invalid role filter.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  return new Response(JSON.stringify({ message: "API Route initialized", data: { subject, message, roleFilter } }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
   });
