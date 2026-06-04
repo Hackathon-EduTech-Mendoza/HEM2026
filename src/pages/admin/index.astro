@@ -1930,6 +1930,7 @@ const mentorsWithTeams = mentors.map(m => {
 
 <script>
   import { createBrowserClient } from "@supabase/ssr";
+  import { showConfirm } from "../../utils/alerts.js";
 
   // --- Lógica de Tabs ---
   const tabBtns = document.querySelectorAll(".tab-btn");
@@ -2550,8 +2551,15 @@ const mentorsWithTeams = mentors.map(m => {
     }
 
     // Confirmación del envío
-    const confirmMsg = `¿Estás seguro que deseas enviar este comunicado a ${count} destinatarios?\n\nEsta acción no se puede deshacer y consumirá cuota de tu límite diario de Brevo.`;
-    if (!confirm(confirmMsg)) return;
+    const ok = await showConfirm({
+      title: `¿Enviar comunicado a ${count} destinatarios?`,
+      text: "Esta acción no se puede deshacer y consumirá cuota de tu límite diario de Brevo.",
+      confirmText: "Sí, enviar",
+      cancelText: "Cancelar",
+      destructive: true,
+      icon: "warning",
+    });
+    if (!ok) return;
 
     // Estado de carga
     sendBulletinBtn.disabled = true;
