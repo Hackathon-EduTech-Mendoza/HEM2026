@@ -43,6 +43,12 @@ if (error) {
 
 const profiles = allProfiles || [];
 
+// Conteos para el módulo de comunicados masivos
+const approvedProfiles = profiles.filter(p => p.registration_status === 'aprobado');
+const countAllApproved = approvedProfiles.length;
+const countParticipantsApproved = approvedProfiles.filter(p => p.role === 'usuario').length;
+const countMentorsApproved = approvedProfiles.filter(p => p.role === 'mentor').length;
+
 // Obtener configuración del evento para teams, projects y evaluations
 const { data: configData } = await supabase
   .from("event_config")
