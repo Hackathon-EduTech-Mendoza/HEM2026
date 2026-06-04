@@ -1,0 +1,5309 @@
+{
+  "testEngine": {
+    "name": "axe-core",
+    "version": "4.11.4"
+  },
+  "testRunner": {
+    "name": "axe"
+  },
+  "testEnvironment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.0.0 Safari/537.36",
+    "windowWidth": 800,
+    "windowHeight": 600,
+    "orientationAngle": 0,
+    "orientationType": "portrait-primary"
+  },
+  "timestamp": "2026-06-04T17:22:37.214Z",
+  "url": "http://localhost:4321/bases-y-condiciones",
+  "toolOptions": {
+    "runOnly": {
+      "type": "tag",
+      "values": [
+        "wcag2a",
+        "wcag2aa",
+        "wcag21a",
+        "wcag21aa"
+      ]
+    },
+    "reporter": "v1"
+  },
+  "inapplicable": [
+    {
+      "id": "area-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag244",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT6.a",
+        "EN-301-549",
+        "EN-9.2.4.4",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-1.1.2"
+      ],
+      "description": "Ensure <area> elements of image maps have alternative text",
+      "help": "Active <area> elements must have alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/area-alt?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-braille-equivalent",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2"
+      ],
+      "description": "Ensure aria-braillelabel and aria-brailleroledescription have a non-braille equivalent",
+      "help": "aria-braille attributes must have a non-braille equivalent",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-braille-equivalent?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-command-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "TTv5",
+        "TT6.a",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-11.9.1"
+      ],
+      "description": "Ensure every ARIA button, link and menuitem has an accessible name",
+      "help": "ARIA commands must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-command-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-deprecated-role",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure elements do not use deprecated roles",
+      "help": "Deprecated ARIA roles must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-deprecated-role?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-hidden-focus",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412",
+        "TTv5",
+        "TT6.a",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-10.8.1"
+      ],
+      "description": "Ensure aria-hidden elements are not focusable nor contain focusable elements",
+      "help": "ARIA hidden element must not be focusable or contain focusable elements",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-hidden-focus?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-input-field-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "TTv5",
+        "TT5.c",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-11.1.1"
+      ],
+      "description": "Ensure every ARIA input field has an accessible name",
+      "help": "ARIA input fields must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-input-field-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-meter-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag111",
+        "EN-301-549",
+        "EN-9.1.1.1",
+        "RGAAv4",
+        "RGAA-11.1.1"
+      ],
+      "description": "Ensure every ARIA meter node has an accessible name",
+      "help": "ARIA meter nodes must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-meter-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-progressbar-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag111",
+        "EN-301-549",
+        "EN-9.1.1.1",
+        "RGAAv4",
+        "RGAA-11.1.1"
+      ],
+      "description": "Ensure every ARIA progressbar node has an accessible name",
+      "help": "ARIA progressbar nodes must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-progressbar-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-required-attr",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure elements with ARIA roles have all required ARIA attributes",
+      "help": "Required ARIA attributes must be provided",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-required-attr?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-required-children",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag131",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "RGAAv4",
+        "RGAA-9.3.1"
+      ],
+      "description": "Ensure elements with an ARIA role that require child roles contain them",
+      "help": "Certain ARIA roles must contain particular children",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-required-children?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-required-parent",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag131",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "RGAAv4",
+        "RGAA-9.3.1"
+      ],
+      "description": "Ensure elements with an ARIA role that require parent roles are contained by them",
+      "help": "Certain ARIA roles must be contained by particular parents",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-required-parent?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-roles",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure all elements with a role attribute use a valid value",
+      "help": "ARIA roles used must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-roles?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-toggle-field-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "TTv5",
+        "TT5.c",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure every ARIA toggle field has an accessible name",
+      "help": "ARIA toggle fields must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-toggle-field-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "aria-tooltip-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2"
+      ],
+      "description": "Ensure every ARIA tooltip node has an accessible name",
+      "help": "ARIA tooltip nodes must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-tooltip-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "autocomplete-valid",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "wcag21aa",
+        "wcag135",
+        "EN-301-549",
+        "EN-9.1.3.5",
+        "ACT",
+        "RGAAv4",
+        "RGAA-11.13.1"
+      ],
+      "description": "Ensure the autocomplete attribute is correct and suitable for the form field",
+      "help": "autocomplete attribute must be used correctly",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/autocomplete-valid?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "blink",
+      "impact": null,
+      "tags": [
+        "cat.time-and-media",
+        "wcag2a",
+        "wcag222",
+        "section508",
+        "section508.22.j",
+        "TTv5",
+        "TT2.b",
+        "EN-301-549",
+        "EN-9.2.2.2",
+        "RGAAv4",
+        "RGAA-13.8.1"
+      ],
+      "description": "Ensure <blink> elements are not used",
+      "help": "<blink> elements are deprecated and must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/blink?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "definition-list",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag2a",
+        "wcag131",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "RGAAv4",
+        "RGAA-9.3.3"
+      ],
+      "description": "Ensure <dl> elements are structured correctly",
+      "help": "<dl> elements must only directly contain properly-ordered <dt> and <dd> groups, <script>, <template> or <div> elements",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/definition-list?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "dlitem",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag2a",
+        "wcag131",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "RGAAv4",
+        "RGAA-9.3.3"
+      ],
+      "description": "Ensure <dt> and <dd> elements are contained by a <dl>",
+      "help": "<dt> and <dd> elements must be contained by a <dl>",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/dlitem?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "duplicate-id-aria",
+      "impact": null,
+      "tags": [
+        "cat.parsing",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-8.2.1"
+      ],
+      "description": "Ensure every id attribute value used in ARIA and in labels is unique",
+      "help": "IDs used in ARIA and labels must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/duplicate-id-aria?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "form-field-multiple-labels",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "wcag2a",
+        "wcag332",
+        "TTv5",
+        "TT5.c",
+        "EN-301-549",
+        "EN-9.3.3.2",
+        "RGAAv4",
+        "RGAA-11.2.1"
+      ],
+      "description": "Ensure form field does not have multiple label elements",
+      "help": "Form field must not have multiple label elements",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/form-field-multiple-labels?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "frame-focusable-content",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "wcag2a",
+        "wcag211",
+        "TTv5",
+        "TT4.a",
+        "EN-301-549",
+        "EN-9.2.1.1",
+        "RGAAv4",
+        "RGAA-7.3.2"
+      ],
+      "description": "Ensure <frame> and <iframe> elements with focusable content do not have tabindex=-1",
+      "help": "Frames with focusable content must not have tabindex=-1",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/frame-focusable-content?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "frame-title-unique",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag412",
+        "TTv5",
+        "TT12.d",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-2.2.1"
+      ],
+      "description": "Ensure <iframe> and <frame> elements contain a unique title attribute",
+      "help": "Frames must have a unique title attribute",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/frame-title-unique?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "frame-title",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.i",
+        "TTv5",
+        "TT12.d",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-2.1.1"
+      ],
+      "description": "Ensure <iframe> and <frame> elements have an accessible name",
+      "help": "Frames must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/frame-title?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "html-xml-lang-mismatch",
+      "impact": null,
+      "tags": [
+        "cat.language",
+        "wcag2a",
+        "wcag311",
+        "EN-301-549",
+        "EN-9.3.1.1",
+        "ACT",
+        "RGAAv4",
+        "RGAA-8.3.1"
+      ],
+      "description": "Ensure that HTML elements with both valid lang and xml:lang attributes agree on the base language of the page",
+      "help": "HTML elements with lang and xml:lang must have the same base language",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/html-xml-lang-mismatch?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "input-button-name",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT5.c",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-11.9.1"
+      ],
+      "description": "Ensure input buttons have discernible text",
+      "help": "Input buttons must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/input-button-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "input-image-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT7.a",
+        "EN-301-549",
+        "EN-9.1.1.1",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-1.1.3"
+      ],
+      "description": "Ensure <input type=\"image\"> elements have alternative text",
+      "help": "Image buttons must have alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/input-image-alt?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "label",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.n",
+        "TTv5",
+        "TT5.c",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-11.1.1"
+      ],
+      "description": "Ensure every form element has a label",
+      "help": "Form elements must have labels",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/label?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "marquee",
+      "impact": null,
+      "tags": [
+        "cat.parsing",
+        "wcag2a",
+        "wcag222",
+        "TTv5",
+        "TT2.b",
+        "EN-301-549",
+        "EN-9.2.2.2",
+        "RGAAv4",
+        "RGAA-13.8.1"
+      ],
+      "description": "Ensure <marquee> elements are not used",
+      "help": "<marquee> elements are deprecated and must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/marquee?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "meta-refresh",
+      "impact": null,
+      "tags": [
+        "cat.time-and-media",
+        "wcag2a",
+        "wcag221",
+        "TTv5",
+        "TT8.a",
+        "EN-301-549",
+        "EN-9.2.2.1",
+        "RGAAv4",
+        "RGAA-13.1.2"
+      ],
+      "description": "Ensure <meta http-equiv=\"refresh\"> is not used for delayed refresh",
+      "help": "Delayed refresh under 20 hours must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/meta-refresh?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "object-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "section508",
+        "section508.22.a",
+        "EN-301-549",
+        "EN-9.1.1.1",
+        "RGAAv4",
+        "RGAA-1.1.6"
+      ],
+      "description": "Ensure <object> elements have alternative text",
+      "help": "<object> elements must have alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/object-alt?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "role-img-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT7.a",
+        "EN-301-549",
+        "EN-9.1.1.1",
+        "ACT",
+        "RGAAv4",
+        "RGAA-1.1.1"
+      ],
+      "description": "Ensure [role=\"img\"] elements have alternative text",
+      "help": "[role=\"img\"] elements must have alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/role-img-alt?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "scrollable-region-focusable",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "wcag2a",
+        "wcag211",
+        "wcag213",
+        "TTv5",
+        "TT4.a",
+        "EN-301-549",
+        "EN-9.2.1.1",
+        "EN-9.2.1.3",
+        "RGAAv4",
+        "RGAA-7.3.2"
+      ],
+      "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
+      "help": "Scrollable region must have keyboard access",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/scrollable-region-focusable?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "select-name",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.n",
+        "TTv5",
+        "TT5.c",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-11.1.1"
+      ],
+      "description": "Ensure select element has an accessible name",
+      "help": "Select element must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/select-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "server-side-image-map",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag211",
+        "section508",
+        "section508.22.f",
+        "TTv5",
+        "TT4.a",
+        "EN-301-549",
+        "EN-9.2.1.1",
+        "RGAAv4",
+        "RGAA-1.1.4"
+      ],
+      "description": "Ensure that server-side image maps are not used",
+      "help": "Server-side image maps must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/server-side-image-map?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "summary-name",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT6.a",
+        "EN-301-549",
+        "EN-9.4.1.2"
+      ],
+      "description": "Ensure summary elements have discernible text",
+      "help": "Summary elements must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/summary-name?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "svg-img-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT7.a",
+        "EN-301-549",
+        "EN-9.1.1.1",
+        "ACT",
+        "RGAAv4",
+        "RGAA-1.1.5"
+      ],
+      "description": "Ensure <svg> elements with an img, graphics-document or graphics-symbol role have accessible text",
+      "help": "<svg> elements with an img role must have alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/svg-img-alt?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "td-headers-attr",
+      "impact": null,
+      "tags": [
+        "cat.tables",
+        "wcag2a",
+        "wcag131",
+        "section508",
+        "section508.22.g",
+        "TTv5",
+        "TT14.b",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "RGAAv4",
+        "RGAA-5.7.4"
+      ],
+      "description": "Ensure that each cell in a table that uses the headers attribute refers only to other <th> elements in that table",
+      "help": "Table cell headers attributes must refer to other <th> elements in the same table",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/td-headers-attr?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "th-has-data-cells",
+      "impact": null,
+      "tags": [
+        "cat.tables",
+        "wcag2a",
+        "wcag131",
+        "section508",
+        "section508.22.g",
+        "TTv5",
+        "TT14.b",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "RGAAv4",
+        "RGAA-5.7.1"
+      ],
+      "description": "Ensure that <th> elements and elements with role=columnheader/rowheader have data cells they describe",
+      "help": "Table headers in a data table must refer to data cells",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/th-has-data-cells?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "valid-lang",
+      "impact": null,
+      "tags": [
+        "cat.language",
+        "wcag2aa",
+        "wcag312",
+        "TTv5",
+        "TT11.b",
+        "EN-301-549",
+        "EN-9.3.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-8.8.1"
+      ],
+      "description": "Ensure lang attributes have valid values",
+      "help": "lang attribute must have a valid value",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/valid-lang?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "video-caption",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag122",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT17.a",
+        "EN-301-549",
+        "EN-9.1.2.2",
+        "RGAAv4",
+        "RGAA-4.3.1"
+      ],
+      "description": "Ensure <video> elements have captions",
+      "help": "<video> elements must have captions",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/video-caption?application=axe-puppeteer",
+      "nodes": []
+    },
+    {
+      "id": "no-autoplay-audio",
+      "impact": null,
+      "tags": [
+        "cat.time-and-media",
+        "wcag2a",
+        "wcag142",
+        "TTv5",
+        "TT2.a",
+        "EN-301-549",
+        "EN-9.1.4.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-4.10.1"
+      ],
+      "description": "Ensure <video> or <audio> elements do not autoplay audio for more than 3 seconds without a control mechanism to stop or mute the audio",
+      "help": "<video> or <audio> elements must not play automatically",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/no-autoplay-audio?application=axe-puppeteer",
+      "nodes": []
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-allowed-attr",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure an element's role supports its ARIA attributes",
+      "help": "Elements must only use supported ARIA attributes",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-allowed-attr?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-allowed-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attributes are used correctly for the defined role"
+            },
+            {
+              "id": "aria-allowed-attr-elm",
+              "data": null,
+              "relatedNodes": [],
+              "message": "ARIA attributes are allowed for this element",
+              "impact": "critical"
+            }
+          ],
+          "none": [
+            {
+              "id": "aria-unsupported-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute is supported"
+            }
+          ],
+          "impact": null,
+          "html": "<button class=\"visual-btn anim-togg...\" id=\"animToggleBtn\" aria-label=\"Activar o desactivar...\" title=\"Activar/Desactivar a...\" data-astro-cid-vj2v3...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:166\">",
+          "target": [
+            ".mobile-anim-row > .anim-toggle-btn.paused[data-astro-source-loc=\"5:166\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-allowed-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attributes are used correctly for the defined role"
+            },
+            {
+              "id": "aria-allowed-attr-elm",
+              "data": null,
+              "relatedNodes": [],
+              "message": "ARIA attributes are allowed for this element",
+              "impact": "critical"
+            }
+          ],
+          "none": [
+            {
+              "id": "aria-unsupported-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute is supported"
+            }
+          ],
+          "impact": null,
+          "html": "<button class=\"visual-btn theme-tog...\" id=\"themeToggleBtn\" aria-label=\"Cambiar tema visual\" title=\"Cambiar tema (Claro ...\" data-astro-cid-x3pjs...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:136\">",
+          "target": [
+            "#themeToggleBtn"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-allowed-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attributes are used correctly for the defined role"
+            },
+            {
+              "id": "aria-allowed-attr-elm",
+              "data": null,
+              "relatedNodes": [],
+              "message": "ARIA attributes are allowed for this element",
+              "impact": "critical"
+            }
+          ],
+          "none": [
+            {
+              "id": "aria-unsupported-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute is supported"
+            }
+          ],
+          "impact": null,
+          "html": "<button class=\"nav-toggle\" id=\"navToggle\" aria-label=\"Menú\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"113:73\">",
+          "target": [
+            "#navToggle"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-allowed-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attributes are used correctly for the defined role"
+            },
+            {
+              "id": "aria-allowed-attr-elm",
+              "data": null,
+              "relatedNodes": [],
+              "message": "ARIA attributes are allowed for this element",
+              "impact": "critical"
+            }
+          ],
+          "none": [
+            {
+              "id": "aria-unsupported-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute is supported"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES N°9-02...\" aria-label=\"Instagram IES N°9-02...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[title=\"Instagram IES N°9-023 Maipú\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-allowed-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attributes are used correctly for the defined role"
+            },
+            {
+              "id": "aria-allowed-attr-elm",
+              "data": null,
+              "relatedNodes": [],
+              "message": "ARIA attributes are allowed for this element",
+              "impact": "critical"
+            }
+          ],
+          "none": [
+            {
+              "id": "aria-unsupported-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute is supported"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES Tomás ...\" aria-label=\"Instagram IES Tomás ...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[data-astro-source-loc=\"45:264\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aria-conditional-attr",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure ARIA attributes are used as described in the specification of the element's role",
+      "help": "ARIA attributes must be used as specified for the element's role",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-conditional-attr?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-conditional-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn anim-togg...\" id=\"animToggleBtn\" aria-label=\"Activar o desactivar...\" title=\"Activar/Desactivar a...\" data-astro-cid-vj2v3...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:166\">",
+          "target": [
+            ".mobile-anim-row > .anim-toggle-btn.paused[data-astro-source-loc=\"5:166\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-conditional-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn theme-tog...\" id=\"themeToggleBtn\" aria-label=\"Cambiar tema visual\" title=\"Cambiar tema (Claro ...\" data-astro-cid-x3pjs...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:136\">",
+          "target": [
+            "#themeToggleBtn"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-conditional-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"nav-toggle\" id=\"navToggle\" aria-label=\"Menú\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"113:73\">",
+          "target": [
+            "#navToggle"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-conditional-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES N°9-02...\" aria-label=\"Instagram IES N°9-02...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[title=\"Instagram IES N°9-023 Maipú\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-conditional-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES Tomás ...\" aria-label=\"Instagram IES Tomás ...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[data-astro-source-loc=\"45:264\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aria-hidden-body",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag131",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-10.8.1"
+      ],
+      "description": "Ensure aria-hidden=\"true\" is not present on the document body.",
+      "help": "aria-hidden=\"true\" must not be present on the document body",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-hidden-body?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "aria-hidden-body",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "No aria-hidden attribute is present on document body"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<body data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/layouts/Layout.astro\" data-astro-source-loc=\"70:8\">",
+          "target": [
+            "body"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aria-prohibited-attr",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure ARIA attributes are not prohibited for an element's role",
+      "help": "Elements must only use permitted ARIA attributes",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-prohibited-attr?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "aria-prohibited-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "impact": null,
+          "html": "<button class=\"visual-btn anim-togg...\" id=\"animToggleBtn\" aria-label=\"Activar o desactivar...\" title=\"Activar/Desactivar a...\" data-astro-cid-vj2v3...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:166\">",
+          "target": [
+            ".mobile-anim-row > .anim-toggle-btn.paused[data-astro-source-loc=\"5:166\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "aria-prohibited-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "impact": null,
+          "html": "<button class=\"visual-btn theme-tog...\" id=\"themeToggleBtn\" aria-label=\"Cambiar tema visual\" title=\"Cambiar tema (Claro ...\" data-astro-cid-x3pjs...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:136\">",
+          "target": [
+            "#themeToggleBtn"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "aria-prohibited-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "impact": null,
+          "html": "<button class=\"nav-toggle\" id=\"navToggle\" aria-label=\"Menú\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"113:73\">",
+          "target": [
+            "#navToggle"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "aria-prohibited-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES N°9-02...\" aria-label=\"Instagram IES N°9-02...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[title=\"Instagram IES N°9-023 Maipú\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "aria-prohibited-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "ARIA attribute is allowed"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES Tomás ...\" aria-label=\"Instagram IES Tomás ...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[data-astro-source-loc=\"45:264\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure all ARIA attributes have valid values",
+      "help": "ARIA attributes must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-valid-attr-value?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-valid-attr-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute values are valid"
+            },
+            {
+              "id": "aria-errormessage",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-errormessage exists and references elements visible to screen readers that use a supported aria-errormessage technique"
+            },
+            {
+              "id": "aria-level",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-level values are valid"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn anim-togg...\" id=\"animToggleBtn\" aria-label=\"Activar o desactivar...\" title=\"Activar/Desactivar a...\" data-astro-cid-vj2v3...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:166\">",
+          "target": [
+            ".mobile-anim-row > .anim-toggle-btn.paused[data-astro-source-loc=\"5:166\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-valid-attr-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute values are valid"
+            },
+            {
+              "id": "aria-errormessage",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-errormessage exists and references elements visible to screen readers that use a supported aria-errormessage technique"
+            },
+            {
+              "id": "aria-level",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-level values are valid"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn theme-tog...\" id=\"themeToggleBtn\" aria-label=\"Cambiar tema visual\" title=\"Cambiar tema (Claro ...\" data-astro-cid-x3pjs...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:136\">",
+          "target": [
+            "#themeToggleBtn"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-valid-attr-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute values are valid"
+            },
+            {
+              "id": "aria-errormessage",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-errormessage exists and references elements visible to screen readers that use a supported aria-errormessage technique"
+            },
+            {
+              "id": "aria-level",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-level values are valid"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"nav-toggle\" id=\"navToggle\" aria-label=\"Menú\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"113:73\">",
+          "target": [
+            "#navToggle"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-valid-attr-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute values are valid"
+            },
+            {
+              "id": "aria-errormessage",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-errormessage exists and references elements visible to screen readers that use a supported aria-errormessage technique"
+            },
+            {
+              "id": "aria-level",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-level values are valid"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES N°9-02...\" aria-label=\"Instagram IES N°9-02...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[title=\"Instagram IES N°9-023 Maipú\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-valid-attr-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute values are valid"
+            },
+            {
+              "id": "aria-errormessage",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-errormessage exists and references elements visible to screen readers that use a supported aria-errormessage technique"
+            },
+            {
+              "id": "aria-level",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-level values are valid"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES Tomás ...\" aria-label=\"Instagram IES Tomás ...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[data-astro-source-loc=\"45:264\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aria-valid-attr",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure attributes that begin with aria- are valid ARIA attributes",
+      "help": "ARIA attributes must conform to valid names",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-valid-attr?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "aria-valid-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute name is valid"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn anim-togg...\" id=\"animToggleBtn\" aria-label=\"Activar o desactivar...\" title=\"Activar/Desactivar a...\" data-astro-cid-vj2v3...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:166\">",
+          "target": [
+            ".mobile-anim-row > .anim-toggle-btn.paused[data-astro-source-loc=\"5:166\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "aria-valid-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute name is valid"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn theme-tog...\" id=\"themeToggleBtn\" aria-label=\"Cambiar tema visual\" title=\"Cambiar tema (Claro ...\" data-astro-cid-x3pjs...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:136\">",
+          "target": [
+            "#themeToggleBtn"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "aria-valid-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute name is valid"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"nav-toggle\" id=\"navToggle\" aria-label=\"Menú\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"113:73\">",
+          "target": [
+            "#navToggle"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "aria-valid-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute name is valid"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES N°9-02...\" aria-label=\"Instagram IES N°9-02...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[title=\"Instagram IES N°9-023 Maipú\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "aria-valid-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute name is valid"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES Tomás ...\" aria-label=\"Instagram IES Tomás ...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[data-astro-source-loc=\"45:264\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag21aa",
+        "wcag1412",
+        "EN-301-549",
+        "EN-9.1.4.12",
+        "ACT"
+      ],
+      "description": "Ensure that text spacing set through style attributes can be adjusted with custom stylesheets",
+      "help": "Inline text spacing must be adjustable with custom stylesheets",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/avoid-inline-spacing?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "important-letter-spacing",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Letter-spacing in the style attribute is not set to !important, or meets the minimum"
+            },
+            {
+              "id": "important-word-spacing",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "word-spacing in the style attribute is not set to !important, or meets the minimum"
+            },
+            {
+              "id": "important-line-height",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "line-height in the style attribute is not set to !important, or meets the minimum"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"/#inicio\" class=\"nav-logo\" style=\"margin-bottom: 0.5rem;\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"10:84\">",
+          "target": [
+            "a[data-astro-source-loc=\"10:84\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "important-letter-spacing",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Letter-spacing in the style attribute is not set to !important, or meets the minimum"
+            },
+            {
+              "id": "important-word-spacing",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "word-spacing in the style attribute is not set to !important, or meets the minimum"
+            },
+            {
+              "id": "important-line-height",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "line-height in the style attribute is not set to !important, or meets the minimum"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES N°9-02...\" aria-label=\"Instagram IES N°9-02...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[title=\"Instagram IES N°9-023 Maipú\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "important-letter-spacing",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Letter-spacing in the style attribute is not set to !important, or meets the minimum"
+            },
+            {
+              "id": "important-word-spacing",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "word-spacing in the style attribute is not set to !important, or meets the minimum"
+            },
+            {
+              "id": "important-line-height",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "line-height in the style attribute is not set to !important, or meets the minimum"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES Tomás ...\" aria-label=\"Instagram IES Tomás ...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[data-astro-source-loc=\"45:264\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "button-name",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT6.a",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-11.9.1"
+      ],
+      "description": "Ensure buttons have discernible text",
+      "help": "Buttons must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/button-name?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "aria-label",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-label attribute exists and is not empty"
+            },
+            {
+              "id": "non-empty-title",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has a title attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn anim-togg...\" id=\"animToggleBtn\" aria-label=\"Activar o desactivar...\" title=\"Activar/Desactivar a...\" data-astro-cid-vj2v3...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:166\">",
+          "target": [
+            ".mobile-anim-row > .anim-toggle-btn.paused[data-astro-source-loc=\"5:166\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "aria-label",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-label attribute exists and is not empty"
+            },
+            {
+              "id": "non-empty-title",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has a title attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn theme-tog...\" id=\"themeToggleBtn\" aria-label=\"Cambiar tema visual\" title=\"Cambiar tema (Claro ...\" data-astro-cid-x3pjs...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:136\">",
+          "target": [
+            "#themeToggleBtn"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "aria-label",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-label attribute exists and is not empty"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"nav-toggle\" id=\"navToggle\" aria-label=\"Menú\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"113:73\">",
+          "target": [
+            "#navToggle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bypass",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "wcag2a",
+        "wcag241",
+        "section508",
+        "section508.22.o",
+        "TTv5",
+        "TT9.a",
+        "EN-301-549",
+        "EN-9.2.4.1",
+        "RGAAv4",
+        "RGAA-12.7.1"
+      ],
+      "description": "Ensure each page has at least one mechanism for a user to bypass navigation and jump straight to the content",
+      "help": "Page must have means to bypass repeated blocks",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/bypass?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "internal-link-present",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Valid skip link found"
+            },
+            {
+              "id": "header-present",
+              "data": null,
+              "relatedNodes": [
+                {
+                  "html": "<h1 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"11:13\">Bases y Condiciones</h1>",
+                  "target": [
+                    "h1"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"16:17\">1. Organizadores</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"16:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"21:17\">2. Objetivo del Evento</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"21:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"26:17\">3. Participantes</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"26:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"36:17\">4. Fechas y Modalidad</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"36:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"45:17\">5. Temática</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"45:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"50:17\">6. Evaluación y Criterios</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"50:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"61:17\">7. Premiación</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"61:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"66:17\">8. Propiedad Intelectual</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"66:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"71:17\">9. Código de Conducta</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"71:17\"]"
+                  ]
+                },
+                {
+                  "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"76:17\">10. Aceptación de las Bases</h2>",
+                  "target": [
+                    "h2[data-astro-source-loc=\"76:17\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Page has a heading"
+            },
+            {
+              "id": "landmark",
+              "data": null,
+              "relatedNodes": [
+                {
+                  "html": "<main id=\"main-content\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/layouts/Layout.astro\" data-astro-source-loc=\"74:27\">",
+                  "target": [
+                    "#main-content"
+                  ]
+                },
+                {
+                  "html": "<main class=\"legal-page\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"7:28\">",
+                  "target": [
+                    ".legal-page"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Page has a landmark region"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<html lang=\"es\" data-theme=\"brand-light\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT",
+        "RGAAv4",
+        "RGAA-3.2.1"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#ffffff",
+                "bgColor": "#88007b",
+                "contrastRatio": 9,
+                "fontSize": "12.0pt (16px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 9"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"#main-content\" class=\"skip-link\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/layouts/Layout.astro\" data-astro-source-loc=\"71:45\">Saltar al contenido principal</a>",
+          "target": [
+            ".skip-link"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"26:17\">3. Participantes</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"26:17\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"28:19\">",
+          "target": [
+            "li[data-astro-source-loc=\"28:19\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"28:46\">estudiantes y egresados de instituciones de Nivel Superior</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"28:46\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"29:19\">",
+          "target": [
+            "li[data-astro-source-loc=\"29:19\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"29:45\">individual y gratuita</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"29:45\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"30:19\">",
+          "target": [
+            "li[data-astro-source-loc=\"30:19\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"30:73\">3</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"30:73\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"30:107\">5</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"30:107\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"31:19\">La conformación final de los equipos se realizará durante la primera jornada presencial del evento.</li>",
+          "target": [
+            "li[data-astro-source-loc=\"31:19\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"36:17\">4. Fechas y Modalidad</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"36:17\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"38:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"38:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"38:27\">Martes 19 de agosto:</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"38:27\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"39:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"39:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"39:27\">Jueves 21 de agosto:</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"39:27\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"40:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"40:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"40:27\">Viernes 22 de agosto:</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"40:27\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"45:17\">5. Temática</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"45:17\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"46:16\">",
+          "target": [
+            "p[data-astro-source-loc=\"46:16\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"50:17\">6. Evaluación y Criterios</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"50:17\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"51:16\">Un jurado designado por la organización evaluará los proyectos en base a los siguientes criterios:</p>",
+          "target": [
+            "p[data-astro-source-loc=\"51:16\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"53:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"53:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"53:27\">Pertinencia pedagógica:</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"53:27\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"54:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"54:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"54:27\">Innovación tecnológica:</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"54:27\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"55:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"55:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"55:27\">Viabilidad:</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"55:27\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"56:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"56:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"56:27\">Calidad de presentación (Pitch):</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"56:27\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"61:17\">7. Premiación</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"61:17\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"62:16\">",
+          "target": [
+            "p[data-astro-source-loc=\"62:16\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"62:41\">tres primeros lugares</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"62:41\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"66:17\">8. Propiedad Intelectual</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"66:17\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"67:16\">",
+          "target": [
+            "p[data-astro-source-loc=\"67:16\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"71:17\">9. Código de Conducta</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"71:17\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"72:16\">",
+          "target": [
+            "p[data-astro-source-loc=\"72:16\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#222220",
+                "bgColor": "#ffffff",
+                "contrastRatio": 15.93,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 15.93"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"76:17\">10. Aceptación de las Bases</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"76:17\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"77:16\">",
+          "target": [
+            "p[data-astro-source-loc=\"77:16\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.8pt (14.4px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"82:14\">",
+          "target": [
+            "p[data-astro-source-loc=\"82:14\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#88007b",
+                "bgColor": "#ffffff",
+                "contrastRatio": 9,
+                "fontSize": "10.8pt (14.4px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 9"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"mailto:hackathonedutech@gmail.com\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"82:91\">hackathonedutech@gmail.com</a>",
+          "target": [
+            "a[data-astro-source-loc=\"82:91\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"14:20\">HACKATHON EDUTECH 2026 - Segunda Edición. Organizada por el IES 9-023 de Maipú y el IES Tomás Alva Edison.</p>",
+          "target": [
+            "p[data-astro-source-loc=\"14:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#707070",
+                "bgColor": "#ffffff",
+                "contrastRatio": 4.95,
+                "fontSize": "8.4pt (11.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 4.95"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p class=\"ftr-heading\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"18:44\">Evento</p>",
+          "target": [
+            "p[data-astro-source-loc=\"18:44\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"/#acerca\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"20:48\">Acerca</a>",
+          "target": [
+            "a[data-astro-source-loc=\"20:48\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"/#cronograma\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"21:52\">Cronograma</a>",
+          "target": [
+            "a[data-astro-source-loc=\"21:52\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"/ediciones\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"22:50\">Ediciones anteriores</a>",
+          "target": [
+            "a[data-astro-source-loc=\"22:50\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"/#faq\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"23:45\">Preguntas frecuentes</a>",
+          "target": [
+            "a[data-astro-source-loc=\"23:45\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#707070",
+                "bgColor": "#ffffff",
+                "contrastRatio": 4.95,
+                "fontSize": "8.4pt (11.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 4.95"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p class=\"ftr-heading\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"27:44\">Participá</p>",
+          "target": [
+            "p[data-astro-source-loc=\"27:44\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"/registro\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"29:49\">Inscripción</a>",
+          "target": [
+            "a[data-astro-source-loc=\"29:49\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"/bases-y-condiciones\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"30:60\">Bases y Condiciones</a>",
+          "target": [
+            "a[href$=\"bases-y-condiciones\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"mailto:hackathonedutech@gmail.com\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"31:73\">Contacto</a>",
+          "target": [
+            "a[data-astro-source-loc=\"31:73\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#707070",
+                "bgColor": "#ffffff",
+                "contrastRatio": 4.95,
+                "fontSize": "8.4pt (11.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 4.95"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<p class=\"ftr-heading\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"35:44\">Organizan</p>",
+          "target": [
+            ".ftr-heading[data-astro-source-loc=\"35:44\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://ies9023-infd.mendoza.edu.ar/sitio/\" target=\"_blank\" rel=\"noopener noreferrer\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"38:124\">IES N°9-023 Maipú</a>",
+          "target": [
+            "a[data-astro-source-loc=\"38:124\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#555555",
+                "bgColor": "#ffffff",
+                "contrastRatio": 7.45,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 7.45"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"https://superior.fundacionedison.org.ar/\" target=\"_blank\" rel=\"noopener noreferrer\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"44:122\">IES Tomás Alva Edison</a>",
+          "target": [
+            "a[data-astro-source-loc=\"44:122\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#707070",
+                "bgColor": "#ffffff",
+                "contrastRatio": 4.95,
+                "fontSize": "8.4pt (11.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 4.95"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span class=\"ftr-copy\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"54:36\">© 2026 HACKATHON EDUTECH. Todos los derechos reservados.</span>",
+          "target": [
+            "span[data-astro-source-loc=\"54:36\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#707070",
+                "bgColor": "#ffffff",
+                "contrastRatio": 4.95,
+                "fontSize": "8.4pt (11.2px)",
+                "fontWeight": "normal",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 4.95"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span class=\"ftr-copy\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"55:36\">Diseñado con fines educativos</span>",
+          "target": [
+            "span[data-astro-source-loc=\"55:36\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "document-title",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag242",
+        "TTv5",
+        "TT12.a",
+        "EN-301-549",
+        "EN-9.2.4.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-8.5.1"
+      ],
+      "description": "Ensure each HTML document contains a non-empty <title> element",
+      "help": "Documents must have <title> element to aid in navigation",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/document-title?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "doc-has-title",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Document has a non-empty <title> element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<html lang=\"es\" data-theme=\"brand-light\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "html-has-lang",
+      "impact": null,
+      "tags": [
+        "cat.language",
+        "wcag2a",
+        "wcag311",
+        "TTv5",
+        "TT11.a",
+        "EN-301-549",
+        "EN-9.3.1.1",
+        "ACT",
+        "RGAAv4",
+        "RGAA-8.3.1"
+      ],
+      "description": "Ensure every HTML document has a lang attribute",
+      "help": "<html> element must have a lang attribute",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/html-has-lang?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "has-lang",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "The <html> element has a lang attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<html lang=\"es\" data-theme=\"brand-light\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "html-lang-valid",
+      "impact": null,
+      "tags": [
+        "cat.language",
+        "wcag2a",
+        "wcag311",
+        "TTv5",
+        "TT11.a",
+        "EN-301-549",
+        "EN-9.3.1.1",
+        "ACT",
+        "RGAAv4",
+        "RGAA-8.4.1"
+      ],
+      "description": "Ensure the lang attribute of the <html> element has a valid value",
+      "help": "<html> element must have a valid value for the lang attribute",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/html-lang-valid?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "valid-lang",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Value of lang attribute is included in the list of valid languages"
+            }
+          ],
+          "impact": null,
+          "html": "<html lang=\"es\" data-theme=\"brand-light\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "image-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT7.a",
+        "TT7.b",
+        "EN-301-549",
+        "EN-9.1.1.1",
+        "ACT",
+        "RGAAv4",
+        "RGAA-1.1.1"
+      ],
+      "description": "Ensure <img> elements have alternative text or a role of none or presentation",
+      "help": "Images must have alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/image-alt?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "has-alt",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has an alt attribute"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "alt-space-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has a valid alt attribute value"
+            }
+          ],
+          "impact": null,
+          "html": "<img src=\"/img/brand/Logo_Tema...\" data-image-component=\"true\" alt=\"Hackathon EduTech\" data-astro-cid-5blmo...=\"true\" loading=\"lazy\" decoding=\"async\" width=\"240\" height=\"64\" class=\"brand-logo logo-ligh...\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"53:2\">",
+          "target": [
+            ".logo-light[src$=\"Logo_Tema_Claro.png\"][data-astro-cid-5blmo7yk=\"true\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-alt",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has an alt attribute"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "alt-space-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has a valid alt attribute value"
+            }
+          ],
+          "impact": null,
+          "html": "<img src=\"/img/brand/Logo_Tema...\" data-image-component=\"true\" alt=\"Hackathon EduTech\" data-astro-cid-sz7xm...=\"true\" loading=\"lazy\" decoding=\"async\" width=\"240\" height=\"64\" class=\"brand-logo logo-ligh...\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"53:2\">",
+          "target": [
+            ".logo-light[src$=\"Logo_Tema_Claro.png\"][data-astro-cid-sz7xmlte=\"true\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "link-in-text-block",
+      "impact": null,
+      "tags": [
+        "cat.color",
+        "wcag2a",
+        "wcag141",
+        "TTv5",
+        "TT13.a",
+        "EN-301-549",
+        "EN-9.1.4.1",
+        "RGAAv4",
+        "RGAA-10.6.1"
+      ],
+      "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+      "help": "Links must be distinguishable without relying on color",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/link-in-text-block?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "link-in-text-block-style",
+              "data": null,
+              "relatedNodes": [
+                {
+                  "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"82:14\">",
+                  "target": [
+                    "p[data-astro-source-loc=\"82:14\"]"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Links can be distinguished from surrounding text by visual styling"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<a href=\"mailto:hackathonedutech@gmail.com\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"82:91\">hackathonedutech@gmail.com</a>",
+          "target": [
+            "a[data-astro-source-loc=\"82:91\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "link-name",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag244",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT6.a",
+        "EN-301-549",
+        "EN-9.2.4.4",
+        "EN-9.4.1.2",
+        "ACT",
+        "RGAAv4",
+        "RGAA-6.2.1"
+      ],
+      "description": "Ensure links have discernible text",
+      "help": "Links must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/link-name?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"#main-content\" class=\"skip-link\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/layouts/Layout.astro\" data-astro-source-loc=\"71:45\">Saltar al contenido principal</a>",
+          "target": [
+            ".skip-link"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#inicio\" class=\"nav-logo\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"30:45\">",
+          "target": [
+            "a[data-astro-source-loc=\"30:45\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#inicio\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"37:40\">Inicio</a>",
+          "target": [
+            "a[data-astro-source-loc=\"37:40\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#acerca\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"38:40\">Acerca</a>",
+          "target": [
+            "a[data-astro-source-loc=\"38:40\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#cronograma\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"39:44\">Cronograma</a>",
+          "target": [
+            "a[data-astro-source-loc=\"39:44\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/ediciones\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"40:42\">Ediciones</a>",
+          "target": [
+            "a[data-astro-source-loc=\"40:42\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#faq\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"41:37\">FAQ</a>",
+          "target": [
+            "a[data-astro-source-loc=\"41:37\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/login\" class=\"btn btn-outline\">Iniciar Sesión</a>",
+          "target": [
+            "#nav-auth-buttons-mobile > .btn-outline.btn[href$=\"login\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/registro\" class=\"btn btn-primary\">Registro</a>",
+          "target": [
+            "#nav-auth-buttons-mobile > .btn-primary.btn[href$=\"registro\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/\" class=\"legal-back\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"10:40\">← Volver al inicio</a>",
+          "target": [
+            ".legal-back"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"mailto:hackathonedutech@gmail.com\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"82:91\">hackathonedutech@gmail.com</a>",
+          "target": [
+            "a[data-astro-source-loc=\"82:91\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#inicio\" class=\"nav-logo\" style=\"margin-bottom: 0.5rem;\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"10:84\">",
+          "target": [
+            "a[data-astro-source-loc=\"10:84\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#acerca\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"20:48\">Acerca</a>",
+          "target": [
+            "a[data-astro-source-loc=\"20:48\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#cronograma\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"21:52\">Cronograma</a>",
+          "target": [
+            "a[data-astro-source-loc=\"21:52\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/ediciones\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"22:50\">Ediciones anteriores</a>",
+          "target": [
+            "a[data-astro-source-loc=\"22:50\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/#faq\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"23:45\">Preguntas frecuentes</a>",
+          "target": [
+            "a[data-astro-source-loc=\"23:45\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/registro\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"29:49\">Inscripción</a>",
+          "target": [
+            "a[data-astro-source-loc=\"29:49\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"/bases-y-condiciones\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"30:60\">Bases y Condiciones</a>",
+          "target": [
+            "a[href$=\"bases-y-condiciones\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"mailto:hackathonedutech@gmail.com\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"31:73\">Contacto</a>",
+          "target": [
+            "a[data-astro-source-loc=\"31:73\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"https://ies9023-infd.mendoza.edu.ar/sitio/\" target=\"_blank\" rel=\"noopener noreferrer\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"38:124\">IES N°9-023 Maipú</a>",
+          "target": [
+            "a[data-astro-source-loc=\"38:124\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "aria-label",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "aria-label attribute exists and is not empty"
+            },
+            {
+              "id": "non-empty-title",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has a title attribute"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES N°9-02...\" aria-label=\"Instagram IES N°9-02...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[title=\"Instagram IES N°9-023 Maipú\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"https://superior.fundacionedison.org.ar/\" target=\"_blank\" rel=\"noopener noreferrer\" data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"44:122\">IES Tomás Alva Edison</a>",
+          "target": [
+            "a[data-astro-source-loc=\"44:122\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "aria-label",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "aria-label attribute exists and is not empty"
+            },
+            {
+              "id": "non-empty-title",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has a title attribute"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "focusable-no-name",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element is not in tab order or has accessible text"
+            }
+          ],
+          "impact": null,
+          "html": "<a href=\"https://www.instagra...\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ftr-instagram-link\" title=\"Instagram IES Tomás ...\" aria-label=\"Instagram IES Tomás ...\" style=\"margin-left: 0.5rem;\" data-astro-cid-sz7xm...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" ...>",
+          "target": [
+            "a[data-astro-source-loc=\"45:264\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "list",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag2a",
+        "wcag131",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "RGAAv4",
+        "RGAA-9.3.1"
+      ],
+      "description": "Ensure that lists are structured correctly",
+      "help": "<ul> and <ol> must only directly contain <li>, <script> or <template> elements",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/list?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "only-listitems",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List element only has direct children that are allowed inside <li> elements"
+            }
+          ],
+          "impact": null,
+          "html": "<ul class=\"nav-links\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"36:35\">",
+          "target": [
+            ".nav-links"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "only-listitems",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List element only has direct children that are allowed inside <li> elements"
+            }
+          ],
+          "impact": null,
+          "html": "<ul data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"27:17\">",
+          "target": [
+            "ul[data-astro-source-loc=\"27:17\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "only-listitems",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List element only has direct children that are allowed inside <li> elements"
+            }
+          ],
+          "impact": null,
+          "html": "<ul data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"37:17\">",
+          "target": [
+            "ul[data-astro-source-loc=\"37:17\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "only-listitems",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List element only has direct children that are allowed inside <li> elements"
+            }
+          ],
+          "impact": null,
+          "html": "<ul data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"52:17\">",
+          "target": [
+            "ul[data-astro-source-loc=\"52:17\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "only-listitems",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List element only has direct children that are allowed inside <li> elements"
+            }
+          ],
+          "impact": null,
+          "html": "<ul data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"19:25\">",
+          "target": [
+            "ul[data-astro-source-loc=\"19:25\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "only-listitems",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List element only has direct children that are allowed inside <li> elements"
+            }
+          ],
+          "impact": null,
+          "html": "<ul data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"28:25\">",
+          "target": [
+            "ul[data-astro-source-loc=\"28:25\"]"
+          ]
+        },
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "only-listitems",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List element only has direct children that are allowed inside <li> elements"
+            }
+          ],
+          "impact": null,
+          "html": "<ul data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"36:25\">",
+          "target": [
+            "ul[data-astro-source-loc=\"36:25\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "listitem",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag2a",
+        "wcag131",
+        "EN-301-549",
+        "EN-9.1.3.1",
+        "RGAAv4",
+        "RGAA-9.3.1"
+      ],
+      "description": "Ensure <li> elements are used semantically",
+      "help": "<li> elements must be contained in a <ul> or <ol>",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/listitem?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"37:22\">",
+          "target": [
+            "li[data-astro-source-loc=\"37:22\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"38:22\">",
+          "target": [
+            "li[data-astro-source-loc=\"38:22\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"39:22\">",
+          "target": [
+            "li[data-astro-source-loc=\"39:22\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"40:22\">",
+          "target": [
+            "li[data-astro-source-loc=\"40:22\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"41:22\">",
+          "target": [
+            "li[data-astro-source-loc=\"41:22\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"28:19\">",
+          "target": [
+            "li[data-astro-source-loc=\"28:19\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"29:19\">",
+          "target": [
+            "li[data-astro-source-loc=\"29:19\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"30:19\">",
+          "target": [
+            "li[data-astro-source-loc=\"30:19\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"31:19\">La conformación final de los equipos se realizará durante la primera jornada presencial del evento.</li>",
+          "target": [
+            "li[data-astro-source-loc=\"31:19\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"38:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"38:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"39:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"39:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"40:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"40:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"53:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"53:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"54:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"54:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"55:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"55:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"56:20\">",
+          "target": [
+            "li[data-astro-source-loc=\"56:20\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"20:30\">",
+          "target": [
+            "li[data-astro-source-loc=\"20:30\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"21:30\">",
+          "target": [
+            "li[data-astro-source-loc=\"21:30\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"22:30\">",
+          "target": [
+            "li[data-astro-source-loc=\"22:30\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"23:30\">",
+          "target": [
+            "li[data-astro-source-loc=\"23:30\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"29:30\">",
+          "target": [
+            "li[data-astro-source-loc=\"29:30\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"30:30\">",
+          "target": [
+            "li[data-astro-source-loc=\"30:30\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"31:30\">",
+          "target": [
+            "li[data-astro-source-loc=\"31:30\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"37:29\">",
+          "target": [
+            "li[data-astro-source-loc=\"37:29\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "listitem",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "List item has a <ul>, <ol> or role=\"list\" parent element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<li data-astro-cid-sz7xmlte=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Footer.astro\" data-astro-source-loc=\"43:29\">",
+          "target": [
+            "li[data-astro-source-loc=\"43:29\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meta-viewport",
+      "impact": null,
+      "tags": [
+        "cat.sensory-and-visual-cues",
+        "wcag2aa",
+        "wcag144",
+        "EN-301-549",
+        "EN-9.1.4.4",
+        "ACT",
+        "RGAAv4",
+        "RGAA-10.4.2"
+      ],
+      "description": "Ensure <meta name=\"viewport\"> does not disable text scaling and zooming",
+      "help": "Zooming and scaling must not be disabled",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/meta-viewport?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "meta-viewport",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "<meta> tag does not disable zooming on mobile devices"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+          "target": [
+            "meta[name=\"viewport\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nested-interactive",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "wcag2a",
+        "wcag412",
+        "TTv5",
+        "TT6.a",
+        "EN-301-549",
+        "EN-9.4.1.2",
+        "RGAAv4",
+        "RGAA-7.1.1"
+      ],
+      "description": "Ensure interactive controls are not nested as they are not always announced by screen readers or can cause focus problems for assistive technologies",
+      "help": "Interactive controls must not be nested",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/nested-interactive?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<img src=\"/img/brand/Logo_Tema...\" data-image-component=\"true\" alt=\"Hackathon EduTech\" data-astro-cid-5blmo...=\"true\" loading=\"lazy\" decoding=\"async\" width=\"240\" height=\"64\" class=\"brand-logo logo-ligh...\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"53:2\">",
+          "target": [
+            ".logo-light[src$=\"Logo_Tema_Claro.png\"][data-astro-cid-5blmo7yk=\"true\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn anim-togg...\" id=\"animToggleBtn\" aria-label=\"Activar o desactivar...\" title=\"Activar/Desactivar a...\" data-astro-cid-vj2v3...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:166\">",
+          "target": [
+            ".mobile-anim-row > .anim-toggle-btn.paused[data-astro-source-loc=\"5:166\"]"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"visual-btn theme-tog...\" id=\"themeToggleBtn\" aria-label=\"Cambiar tema visual\" title=\"Cambiar tema (Claro ...\" data-astro-cid-x3pjs...=\"\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"5:136\">",
+          "target": [
+            "#themeToggleBtn"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button class=\"nav-toggle\" id=\"navToggle\" aria-label=\"Menú\" data-astro-cid-5blmo7yk=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/Navbar.astro\" data-astro-source-loc=\"113:73\">",
+          "target": [
+            "#navToggle"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<img src=\"/img/brand/Logo_Tema...\" data-image-component=\"true\" alt=\"Hackathon EduTech\" data-astro-cid-sz7xm...=\"true\" loading=\"lazy\" decoding=\"async\" width=\"240\" height=\"64\" class=\"brand-logo logo-ligh...\" data-astro-source-fi...=\"C:/Repositorios_Loca...\" data-astro-source-lo...=\"53:2\">",
+          "target": [
+            ".logo-light[src$=\"Logo_Tema_Claro.png\"][data-astro-cid-sz7xmlte=\"true\"]"
+          ]
+        }
+      ]
+    }
+  ],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT",
+        "RGAAv4",
+        "RGAA-3.2.1"
+      ],
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axe-puppeteer",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.2pt (13.6px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<a href=\"/\" class=\"legal-back\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"10:40\">← Volver al inicio</a>",
+          "target": [
+            ".legal-back"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "27.0pt (36px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h1 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"11:13\">Bases y Condiciones</h1>",
+          "target": [
+            "h1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "12.0pt (16px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"legal-subtitle\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"12:35\">Hackathon EduTech Mendoza 2026 — Segunda Edición</p>",
+          "target": [
+            ".legal-subtitle"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"16:17\">1. Organizadores</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"16:17\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"17:16\">",
+          "target": [
+            "p[data-astro-source-loc=\"17:16\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"17:27\">Hackathon EduTech Mendoza 2026</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"17:27\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"17:142\">IES N°9-023 de Maipú</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"17:142\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<strong data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"17:185\">IES Tomás Alva Edison</strong>",
+          "target": [
+            "strong[data-astro-source-loc=\"17:185\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "14.4pt (19.2px)",
+                "fontWeight": "bold",
+                "messageKey": "imgNode",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"legal-card card\" data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"9:36\">",
+                  "target": [
+                    ".legal-card"
+                  ]
+                },
+                {
+                  "html": "<canvas id=\"gooey-canvas\" data-astro-cid-twnqlkx4=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/components/GooeyBackground.astro\" data-astro-source-loc=\"6:4\" width=\"800\" height=\"600\"></canvas>",
+                  "target": [
+                    "#gooey-canvas"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because element contains an image node"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h2 data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"21:17\">2. Objetivo del Evento</h2>",
+          "target": [
+            "h2[data-astro-source-loc=\"21:17\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because element contains an image node"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "11.4pt (15.2px)",
+                "fontWeight": "normal",
+                "messageKey": "elmPartiallyObscuring",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it partially overlaps other elements"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p data-astro-cid-apansjpm=\"\" data-astro-source-file=\"C:/Repositorios_Locales/Proyectos_Personales/HEM2026/src/pages/bases-y-condiciones.astro\" data-astro-source-loc=\"22:16\">",
+          "target": [
+            "p[data-astro-source-loc=\"22:16\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements"
+        }
+      ]
+    }
+  ],
+  "violations": []
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "name": "landing",
+    "url": "http://localhost:4321/",
+    "violations": 0,
+    "incomplete": 2,
+    "passes": 19,
+    "critical": 0,
+    "serious": 0
+  },
+  {
+    "name": "login",
+    "url": "http://localhost:4321/login",
+    "violations": 0,
+    "incomplete": 1,
+    "passes": 23,
+    "critical": 0,
+    "serious": 0
+  },
+  {
+    "name": "registro",
+    "url": "http://localhost:4321/registro",
+    "violations": 0,
+    "incomplete": 1,
+    "passes": 24,
+    "critical": 0,
+    "serious": 0
+  },
+  {
+    "name": "bases",
+    "url": "http://localhost:4321/bases-y-condiciones",
+    "violations": 0,
+    "incomplete": 1,
+    "passes": 20,
+    "critical": 0,
+    "serious": 0
+  },
+  {
+    "name": "ediciones",
+    "url": "http://localhost:4321/ediciones",
+    "violations": 1,
+    "incomplete": 1,
+    "passes": 19,
+    "critical": 0,
+    "serious": 1
+  }
+]
