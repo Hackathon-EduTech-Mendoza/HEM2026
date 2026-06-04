@@ -204,7 +204,14 @@ export const ALL: APIRoute = async (context) => {
 </body>
 </html>`;
 
-  return new Response(JSON.stringify({ message: "API Route initialized", data: { subject, message, roleFilter, recipientsCount: recipients.length } }), {
+  // 1.7 Dividir los destinatarios en lotes de 99 (límite de Brevo por messageVersion)
+  const batchSize = 99;
+  const batches: typeof recipients[] = [];
+  for (let i = 0; i < recipients.length; i += batchSize) {
+    batches.push(recipients.slice(i, i + batchSize));
+  }
+
+  return new Response(JSON.stringify({ message: "API Route initialized", data: { subject, message, roleFilter, recipientsCount: recipients.length, batchesCount: batches.length } }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
   });
