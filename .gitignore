@@ -190,3 +190,6 @@ ayudas_y_recursos/
 # Archivos de contexto del agente (Impeccable)
 PRODUCT.md
 DESIGN.md
+
+# Documentación y reportes de auditoría (excluidos del repo)
+docs/
