@@ -1,5 +1,6 @@
 // src/pages/api/send-bulletin.ts
 import type { APIRoute } from 'astro';
+import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 
 export const ALL: APIRoute = async (context) => {
   if (context.request.method !== 'POST') {
@@ -68,7 +69,70 @@ export const ALL: APIRoute = async (context) => {
     });
   }
 
-  return new Response(JSON.stringify({ message: "API Route initialized", data: { subject, message, roleFilter } }), {
+  // 1.5 Obtener los destinatarios desde Supabase
+  const supabase = createServerClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          try {
+            return parseCookieHeader(context.request.headers.get("Cookie") ?? "");
+          } catch {
+            return [];
+          }
+        },
+        setAll() {},
+      },
+    }
+  );
+
+  let query = supabase
+    .from('profiles')
+    .select('email, first_name, full_name, role')
+    .eq('registration_status', 'aprobado');
+
+  if (roleFilter === 'participant') {
+    query = query.eq('role', 'usuario');
+  } else if (roleFilter === 'mentor') {
+    query = query.eq('role', 'mentor');
+  }
+
+  const { data: recipientsData, error: dbError } = await query;
+
+  if (dbError) {
+    console.error("Database error fetching recipients:", dbError);
+    return new Response(JSON.stringify({ error: 'Failed to fetch recipients from database.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const recipients = (recipientsData || [])
+    .filter((r): r is { email: string; first_name?: string; full_name?: string; role: string } => 
+      typeof r.email === 'string' && r.email.trim() !== ''
+    )
+    .map(r => {
+      let name = 'Participante';
+      if (r.first_name && r.first_name.trim() !== '') {
+        name = r.first_name.trim();
+      } else if (r.full_name && r.full_name.trim() !== '') {
+        name = r.full_name.trim().split(' ')[0];
+      }
+      return {
+        email: r.email.trim(),
+        name: name
+      };
+    });
+
+  if (recipients.length === 0) {
+    return new Response(JSON.stringify({ error: 'No approved recipients found for the selected filter.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  return new Response(JSON.stringify({ message: "API Route initialized", data: { subject, message, roleFilter, recipientsCount: recipients.length } }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
   });
