@@ -1,7 +1,7 @@
 # Alertas — Estandarización de UX con SweetAlert2
 
-> **Estado**: 📋 Propuesta pendiente de aprobación visual por el equipo técnico.
-> **Alcance**: reemplazar `alert()` / `confirm()` / `prompt()` nativos por un wrapper accesible y consistente con el Design System.
+> **Estado**: ✅ Wrapper aprobado. Fase 2 (auditoría) completada. Pendiente: Fase 3 (refactor de alertas nativas).
+> **Alcance acordado (2026-06-04)**: reemplazar `alert()` / `confirm()` / `prompt()` nativos por un wrapper accesible y consistente con el Design System. Modales custom y wrappers `showToast` quedan **fuera de scope** de esta épica (ver §9 Deuda técnica diferida).
 > **Stack objetivo**: Astro 6.2 + vanilla JS + SweetAlert2 11+.
 
 ---
@@ -235,3 +235,22 @@ Una alerta está "estandarizada" cuando:
 **Documentos publicados**:
 - `docs/audits/alerts-audit.md` — auditoría exhaustiva con tabla por categoría.
 - `docs/audits/alerts-audit-priority.md` — matriz de priorización + backlog ordenado.
+
+---
+
+## 9. Deuda técnica diferida (fuera de scope de esta épica)
+
+Por decisión del equipo (2026-06-04), los siguientes hallazgos quedan documentados pero **no se refactorizan** en esta épica. Se atenderán en una iteración futura:
+
+| Hallazgo | Archivo | Razón del diferimiento |
+|---|---|---|
+| `<dialog id="help-dialog">` (modal admin) | `src/pages/admin/index.astro:892/933/2420` | Ya es accesible (`<dialog>` nativo). Migración es mejora estética, no funcional. |
+| `<div class="modal-backdrop">` (modal evaluación con sliders) | `src/pages/evaluacion.astro:138-225` | Formulario complejo con estado (sliders, textarea, links). Riesgo alto de bugs al serializar. |
+| `showToast()` local con 22 invocaciones | `src/pages/admin/index.astro:1984` | Refactor mecánico grande; no bloquea release. |
+| `showToast()` local con 8 invocaciones | `src/components/TeamManager.astro:469` | Idem. |
+| `showToast()` local con 2 invocaciones | `src/pages/evaluacion.astro:631` | Idem. |
+| `showToast()` local con 1 invocación | `src/pages/recuperar-password.astro:230` | Idem. |
+| `showToast()` local con 1 invocación | `src/pages/actualizar-password.astro:251` | Idem. |
+| 25 `console.error` sin feedback al usuario | 13 archivos (incl. `Navbar.astro:722, 755`, `mentoria.astro:65`) | No es hallazgo de alerts nativos; revisar en épica de observabilidad. |
+
+**Estimación de esfuerzo si se aborda en el futuro**: ~3h.
