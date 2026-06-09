@@ -51,19 +51,18 @@ import { Image } from 'astro:assets';
             </div>
         </div>
         <div class="ftr-bot">
-            <div class="ftr-copy" style="line-height: 1.6; text-align: center; color: var(--txt-2);">
-                &copy; 2026 Hackathon EduTech Mendoza. Todos los derechos reservados.<br/>
-                Plataforma construida con 💻 por Matías Nahuel Ghilardi.<br/>
-                Testing y QA por el Equipo EduTech.
+            <div class="ftr-copy ftr-credits">
+                <span>&copy; 2026 Hackathon EduTech Mendoza. Todos los derechos reservados.</span>
+                <span>Plataforma construida por <a href="https://www.linkedin.com/in/nahuel-ghilardi/" target="_blank" rel="noopener noreferrer" class="author-link">Matías Nahuel Ghilardi</a>.</span>
+                <span>Testing y QA por el Equipo EduTech.</span>
             </div>
-            <span class="ftr-copy">Diseñado con fines educativos</span>
         </div>
     </div>
 </footer>
 
 <style>
     .site-footer {
-        padding: 6rem 0 2.5rem;
+        padding: 3rem 0 2rem;
         border-top: 1px solid var(--brd);
         position: relative;
         z-index: 1;
@@ -180,12 +179,31 @@ import { Image } from 'astro:assets';
 
     .ftr-bot {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
         padding-top: 1.5rem;
         border-top: 1px solid var(--brd-s);
         flex-wrap: wrap;
         gap: 1rem;
+    }
+
+    .ftr-credits {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: center;
+        color: var(--txt-2);
+        margin: 0;
+    }
+
+    .author-link {
+        color: var(--c1);
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity var(--t-fast);
+    }
+    .author-link:hover {
+        opacity: 0.8;
     }
 
     .ftr-copy {
