@@ -70,6 +70,7 @@
         btn.classList.toggle('playing', animsEnabled);
         btn.classList.toggle('paused', !animsEnabled);
       });
+      document.documentElement.classList.toggle('animations-paused', !animsEnabled);
     }
 
     // Inicializar visualización de todos los botones de animación activos en el DOM
