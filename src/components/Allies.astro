@@ -147,17 +147,17 @@
     }
 
     /* Toggle logos based on theme */
-    .logo-dark-theme {
+    :global(.logo-dark-theme) {
         display: none !important;
     }
-    .logo-light-theme {
+    :global(.logo-light-theme) {
         display: block !important;
     }
 
-    :global([data-theme="brand-dark"]) .logo-dark-theme {
+    :global([data-theme="brand-dark"] .logo-dark-theme) {
         display: block !important;
     }
-    :global([data-theme="brand-dark"]) .logo-light-theme {
+    :global([data-theme="brand-dark"] .logo-light-theme) {
         display: none !important;
     }
 
