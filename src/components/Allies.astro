@@ -16,7 +16,7 @@
         <div class="marquee-track">
             <!-- Set 1 -->
             <a href="https://www.underc0de.org/" target="_blank" rel="noopener noreferrer" class="marquee-item">
-                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo" style="height: 65px; width: auto; object-fit: contain;" />
+                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo logo-undercode" style="height: 65px; width: auto; object-fit: contain;" />
             </a>
             <a href="https://edu.google.com/intl/es-419_ALL/" target="_blank" rel="noopener noreferrer" class="marquee-item">
                 <img src="/img/allies/google-for-education.webp" alt="Google for Education" class="marquee-logo" style="height: 65px; width: auto; object-fit: contain;" />
@@ -30,7 +30,7 @@
 
             <!-- Set 2 -->
             <a href="https://www.underc0de.org/" target="_blank" rel="noopener noreferrer" class="marquee-item">
-                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo" style="height: 65px; width: auto; object-fit: contain;" />
+                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo logo-undercode" style="height: 65px; width: auto; object-fit: contain;" />
             </a>
             <a href="https://edu.google.com/intl/es-419_ALL/" target="_blank" rel="noopener noreferrer" class="marquee-item">
                 <img src="/img/allies/google-for-education.webp" alt="Google for Education" class="marquee-logo" style="height: 65px; width: auto; object-fit: contain;" />
@@ -44,7 +44,7 @@
 
             <!-- Set 3 -->
             <a href="https://www.underc0de.org/" target="_blank" rel="noopener noreferrer" class="marquee-item">
-                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo" style="height: 65px; width: auto; object-fit: contain;" />
+                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo logo-undercode" style="height: 65px; width: auto; object-fit: contain;" />
             </a>
             <a href="https://edu.google.com/intl/es-419_ALL/" target="_blank" rel="noopener noreferrer" class="marquee-item">
                 <img src="/img/allies/google-for-education.webp" alt="Google for Education" class="marquee-logo" style="height: 65px; width: auto; object-fit: contain;" />
@@ -127,11 +127,12 @@
         outline: none;
     }
 
+    /* --- BASE LOGO STYLING (Light Theme Default) --- */
     .marquee-logo {
         height: 65px;
         width: auto;
         object-fit: contain;
-        /* Default state: slightly dimmed and grayscale for sleek corporate look */
+        /* Standard logos (Google, PMI, Siglo 21) have dark text, visible as-is in light mode */
         filter: grayscale(1) opacity(0.65);
         transition: filter var(--t-base), opacity var(--t-base), transform var(--t-base);
     }
@@ -142,13 +143,31 @@
         transform: scale(1.05);
     }
 
-    /* Theme adaptive styling for dark theme to guarantee readability */
-    :global([data-theme="brand-dark"]) .marquee-logo {
-        /* In dark theme, if the logos are black/dark, we make them white/light */
+    /* Undercode logo is natively white, so in light theme we must invert it to make it dark/visible */
+    .logo-undercode {
+        filter: grayscale(1) invert(1) brightness(0.2) opacity(0.65);
+    }
+
+    .marquee-item:hover .logo-undercode {
+        filter: grayscale(0) invert(1) brightness(0.2) opacity(1);
+    }
+
+    /* --- DARK THEME ADJUSTMENTS --- */
+    /* In dark theme, invert the dark logos (Google, PMI, Siglo 21) so they become white/light */
+    :global([data-theme="brand-dark"]) .marquee-logo:not(.logo-undercode) {
         filter: grayscale(1) invert(0.8) brightness(1.5) opacity(0.7);
     }
 
-    :global([data-theme="brand-dark"]) .marquee-item:hover .marquee-logo {
+    :global([data-theme="brand-dark"]) .marquee-item:hover .marquee-logo:not(.logo-undercode) {
+        filter: grayscale(0) invert(0) brightness(1) opacity(1);
+    }
+
+    /* In dark theme, Undercode logo should NOT be inverted (remains white) */
+    :global([data-theme="brand-dark"]) .logo-undercode {
+        filter: grayscale(1) invert(0) brightness(1) opacity(0.7);
+    }
+
+    :global([data-theme="brand-dark"]) .marquee-item:hover .logo-undercode {
         filter: grayscale(0) invert(0) brightness(1) opacity(1);
     }
 
