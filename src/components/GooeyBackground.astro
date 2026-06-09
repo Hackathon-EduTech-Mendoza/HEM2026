@@ -117,13 +117,10 @@
     let animationFrameId: number;
     let animationsEnabled = localStorage.getItem("edutech-animations") !== "false";
 
-    // Respetar preferencia del sistema operativo para movimiento reducido
+    // Respetar OS sin sobrescribir localStorage: el toggle mantiene la decision final
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion && localStorage.getItem('edutech-animations') === null) {
       animationsEnabled = false;
-      localStorage.setItem('edutech-animations', 'false');
-      // Sincronizar el botón de AnimToggle
-      window.dispatchEvent(new CustomEvent('edutech-animations-changed', { detail: { enabled: false } }));
     }
 
     // Configuración responsiva según viewport
