@@ -9,34 +9,51 @@
             <h2 class="section-title">Aliados Estratégicos</h2>
             <p class="section-desc">Instituciones que impulsan la innovación aportando mentorías, capacitaciones y premios.</p>
         </div>
+    </div>
 
-        <div class="allies-grid">
-            <div class="card ally-card reveal rd1">
-                <div class="ally-img-wrapper dark-bg">
-                    <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="ally-logo" />
-                </div>
-                <h3>Fundación Undercode</h3>
+    <!-- Infinite Marquee Section (Full width, outside container for edge-to-edge scroll) -->
+    <div class="allies-marquee reveal rd2">
+        <div class="marquee-track">
+            <!-- Set 1 -->
+            <div class="marquee-item">
+                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo" />
+            </div>
+            <div class="marquee-item">
+                <img src="/img/allies/google-for-education.webp" alt="Google for Education" class="marquee-logo" />
+            </div>
+            <div class="marquee-item">
+                <img src="/img/allies/pmi-andes-patagonia.webp" alt="PMI Andes Patagonia" class="marquee-logo" />
+            </div>
+            <div class="marquee-item">
+                <img src="/img/allies/universidad-siglo-21.webp" alt="Universidad Siglo 21" class="marquee-logo" />
             </div>
 
-            <div class="card ally-card reveal rd2">
-                <div class="ally-img-wrapper light-bg">
-                    <img src="/img/allies/google-for-education.webp" alt="Google for Education" class="ally-logo" />
-                </div>
-                <h3>Google for Education</h3>
+            <!-- Set 2 -->
+            <div class="marquee-item">
+                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo" />
+            </div>
+            <div class="marquee-item">
+                <img src="/img/allies/google-for-education.webp" alt="Google for Education" class="marquee-logo" />
+            </div>
+            <div class="marquee-item">
+                <img src="/img/allies/pmi-andes-patagonia.webp" alt="PMI Andes Patagonia" class="marquee-logo" />
+            </div>
+            <div class="marquee-item">
+                <img src="/img/allies/universidad-siglo-21.webp" alt="Universidad Siglo 21" class="marquee-logo" />
             </div>
 
-            <div class="card ally-card reveal rd3">
-                <div class="ally-img-wrapper light-bg">
-                    <img src="/img/allies/pmi-andes-patagonia.webp" alt="PMI Andes Patagonia" class="ally-logo" />
-                </div>
-                <h3>PMI Andes Patagonia</h3>
+            <!-- Set 3 -->
+            <div class="marquee-item">
+                <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="marquee-logo" />
             </div>
-
-            <div class="card ally-card reveal rd4">
-                <div class="ally-img-wrapper light-bg">
-                    <img src="/img/allies/universidad-siglo-21.webp" alt="Universidad Siglo 21" class="ally-logo" />
-                </div>
-                <h3>Universidad Siglo 21</h3>
+            <div class="marquee-item">
+                <img src="/img/allies/google-for-education.webp" alt="Google for Education" class="marquee-logo" />
+            </div>
+            <div class="marquee-item">
+                <img src="/img/allies/pmi-andes-patagonia.webp" alt="PMI Andes Patagonia" class="marquee-logo" />
+            </div>
+            <div class="marquee-item">
+                <img src="/img/allies/universidad-siglo-21.webp" alt="Universidad Siglo 21" class="marquee-logo" />
             </div>
         </div>
     </div>
@@ -45,75 +62,127 @@
 <style>
     .allies {
         padding: 8rem 0;
+        overflow: hidden;
     }
 
     .allies-hdr {
-        margin-bottom: 6rem;
+        margin-bottom: 4rem;
     }
 
-    .allies-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
-    .ally-card {
-        padding: 2.5rem;
-        text-align: center;
-        transition: transform var(--ease) 0.3s, box-shadow var(--ease) 0.3s, border-color var(--ease) 0.3s;
+    /* Marquee container */
+    .allies-marquee {
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        padding: 2rem 0;
+        overflow: hidden;
         display: flex;
-        flex-direction: column;
-        align-items: center;
     }
 
-    .ally-card:hover {
-        transform: translateY(-4px);
-        border-color: var(--c1);
+    /* Gradients to fade out edges */
+    .allies-marquee::before,
+    .allies-marquee::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        width: 15%;
+        height: 100%;
+        z-index: 2;
+        pointer-events: none;
+        transition: background var(--t-theme);
     }
 
-    .ally-img-wrapper {
-        width: 100%;
-        height: 120px;
-        border-radius: var(--r-md);
+    .allies-marquee::before {
+        left: 0;
+        background: linear-gradient(to right, var(--bg-1) 0%, transparent 100%);
+    }
+
+    .allies-marquee::after {
+        right: 0;
+        background: linear-gradient(to left, var(--bg-1) 0%, transparent 100%);
+    }
+
+    /* Scrolling track */
+    .marquee-track {
+        display: flex;
+        width: max-content;
+        animation: scroll-marquee 25s linear infinite;
+        gap: 6rem;
+        padding-left: 3rem;
+    }
+
+    /* Marquee hover pause */
+    .allies-marquee:hover .marquee-track {
+        animation-play-state: paused;
+    }
+
+    .marquee-item {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
+        height: 80px;
+        width: 200px;
     }
 
-    .light-bg {
-        background-color: #ffffff;
-    }
-
-    .dark-bg {
-        background-color: #111111;
-    }
-
-    .ally-logo {
+    .marquee-logo {
+        max-height: 55px;
         max-width: 100%;
-        max-height: 100%;
         object-fit: contain;
+        /* Default state: slightly dimmed and grayscale for sleek corporate look */
+        filter: grayscale(1) opacity(0.65);
+        transition: filter var(--t-base), opacity var(--t-base), transform var(--t-base);
     }
 
-    .ally-card h3 {
-        font-family: var(--font-heading);
-        font-size: 1.1rem;
-        color: var(--txt-1);
-        margin: 0;
+    /* Hover effect: reveal original colors and scale up slightly */
+    .marquee-item:hover .marquee-logo {
+        filter: grayscale(0) opacity(1);
+        transform: scale(1.05);
     }
 
-    @media (min-width: 500px) {
-        .allies-grid {
-            grid-template-columns: repeat(2, 1fr);
+    /* Theme adaptive styling for dark theme to guarantee readability */
+    :global([data-theme="brand-dark"]) .marquee-logo {
+        /* In dark theme, if the logos are black/dark, we make them white/light */
+        filter: grayscale(1) invert(0.8) brightness(1.5) opacity(0.7);
+    }
+
+    :global([data-theme="brand-dark"]) .marquee-item:hover .marquee-logo {
+        filter: grayscale(0) invert(0) brightness(1) opacity(1);
+    }
+
+    @keyframes scroll-marquee {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            /* Since we have 3 identical sets, moving by exactly 1/3 (one set) creates a perfect infinite loop */
+            transform: translateX(calc(-33.3333% - 2rem)); /* Adjustment for gap */
         }
     }
 
-    @media (min-width: 900px) {
-        .allies-grid {
-            grid-template-columns: repeat(4, 1fr);
+    @media (max-width: 768px) {
+        .allies {
+            padding: 60px 0;
+        }
+        .marquee-item {
+            height: 60px;
+            width: 150px;
+        }
+        .marquee-logo {
+            max-height: 40px;
+        }
+        .marquee-track {
+            gap: 4rem;
+        }
+        @keyframes scroll-marquee {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(calc(-33.3333% - 1.333rem));
+            }
         }
     }
 </style>
