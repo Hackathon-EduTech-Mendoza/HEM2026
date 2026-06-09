@@ -1,7 +1,7 @@
 # Auditoría y Plan de Mejora — Carrusel de Aliados (`Allies.astro`)
 
 > **Fecha**: 2026-06-04
-> **Estado**: 🐛 Bug encontrado
+> **Estado**: ✅ Completado — 4 commits ejecutados
 > **Impacto**: P1 — el carrusel no se desplaza automáticamente tras ciertas condiciones.
 
 ---
@@ -320,3 +320,16 @@ if (prefersReducedMotion && localStorage.getItem('edutech-animations') === null)
 - [ ] Si `prefers-reduced-motion: reduce` está activo, la animación se reduce a 1 iteración (respeto del SO), pero el toggle del usuario puede reactivarla.
 - [ ] El marquee se pausa correctamente al hacer hover.
 - [ ] GooeyBackground no fuerza `localStorage = 'false'` en primera visita.
+
+---
+
+## 9. Bitácora de ejecución — COMPLETADO
+
+| Fase | Archivo | Commit | Estado |
+|---|---|---|---|
+| 1 | `src/styles/global.css` | `c77977b` — `fix(a11y): soften reduced-motion override and add animations-paused class` | ✅ |
+| 2 | `src/components/Allies.astro` | `912efee` — `fix(allies): sync marquee with animation toggle and restart on enable` | ✅ |
+| 3 | `src/components/AnimToggle.astro` | `5f87e1d` — `fix(toggle): apply animations-paused class globally via toggle` | ✅ |
+| 4 | `src/components/GooeyBackground.astro` | `fa232f1` — `fix(bg): respect OS preference without overriding user choice in localStorage` | ✅ |
+
+**Verificación**: `npm run build` → ✅ sin errores.
