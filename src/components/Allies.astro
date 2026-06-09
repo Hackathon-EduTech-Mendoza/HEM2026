@@ -349,3 +349,48 @@
     }
   }
 </style>
+
+<script>
+  function initMarqueeSync() {
+    const track = document.querySelector('.marquee-track') as HTMLElement | null;
+    if (!track) return;
+
+    const STORAGE_KEY = 'edutech-animations';
+
+    function getEnabled(): boolean {
+      return localStorage.getItem(STORAGE_KEY) !== 'false';
+    }
+
+    function setGlobalClass(enabled: boolean) {
+      document.documentElement.classList.toggle('animations-paused', !enabled);
+    }
+
+    function restartMarquee() {
+      track.style.animationName = 'none';
+      track.style.animationPlayState = '';
+      void track.offsetWidth;
+      track.style.animationName = '';
+    }
+
+    function syncMarquee(enabled: boolean) {
+      setGlobalClass(enabled);
+      if (enabled) {
+        restartMarquee();
+      } else {
+        track.style.animationPlayState = 'paused';
+      }
+    }
+
+    syncMarquee(getEnabled());
+
+    window.addEventListener('edutech-animations-changed', (e: any) => {
+      syncMarquee(e.detail.enabled);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMarqueeSync);
+  } else {
+    initMarqueeSync();
+  }
+</script>
