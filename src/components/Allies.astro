@@ -1,0 +1,119 @@
+---
+// src/components/Allies.astro
+---
+
+<section class="allies" id="aliados">
+    <div class="container">
+        <div class="allies-hdr reveal">
+            <span class="section-label">Red de Apoyo</span>
+            <h2 class="section-title">Aliados Estratégicos</h2>
+            <p class="section-desc">Instituciones que impulsan la innovación aportando mentorías, capacitaciones y premios.</p>
+        </div>
+
+        <div class="allies-grid">
+            <div class="card ally-card reveal rd1">
+                <div class="ally-img-wrapper dark-bg">
+                    <img src="/img/allies/fundacion-undercode.webp" alt="Fundación Undercode" class="ally-logo" />
+                </div>
+                <h3>Fundación Undercode</h3>
+            </div>
+
+            <div class="card ally-card reveal rd2">
+                <div class="ally-img-wrapper light-bg">
+                    <img src="/img/allies/google-for-education.webp" alt="Google for Education" class="ally-logo" />
+                </div>
+                <h3>Google for Education</h3>
+            </div>
+
+            <div class="card ally-card reveal rd3">
+                <div class="ally-img-wrapper light-bg">
+                    <img src="/img/allies/pmi-andes-patagonia.webp" alt="PMI Andes Patagonia" class="ally-logo" />
+                </div>
+                <h3>PMI Andes Patagonia</h3>
+            </div>
+
+            <div class="card ally-card reveal rd4">
+                <div class="ally-img-wrapper light-bg">
+                    <img src="/img/allies/universidad-siglo-21.webp" alt="Universidad Siglo 21" class="ally-logo" />
+                </div>
+                <h3>Universidad Siglo 21</h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .allies {
+        padding: 8rem 0;
+    }
+
+    .allies-hdr {
+        margin-bottom: 6rem;
+    }
+
+    .allies-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .ally-card {
+        padding: 2.5rem;
+        text-align: center;
+        transition: transform var(--ease) 0.3s, box-shadow var(--ease) 0.3s, border-color var(--ease) 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .ally-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--c1);
+    }
+
+    .ally-img-wrapper {
+        width: 100%;
+        height: 120px;
+        border-radius: var(--r-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+    }
+
+    .light-bg {
+        background-color: #ffffff;
+    }
+
+    .dark-bg {
+        background-color: #111111;
+    }
+
+    .ally-logo {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .ally-card h3 {
+        font-family: var(--font-heading);
+        font-size: 1.1rem;
+        color: var(--txt-1);
+        margin: 0;
+    }
+
+    @media (min-width: 500px) {
+        .allies-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 900px) {
+        .allies-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+</style>

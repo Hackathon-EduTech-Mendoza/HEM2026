@@ -4,7 +4,7 @@
 /* ✨ CONFIGURACIÓN MANUAL DE LA FECHA DEL EVENTO ✨ */
 // Modifica esta variable para ajustar el cronómetro manualmente
 // Formato: AAAA-MM-DDTHH:MM:SS-03:00 (El -03:00 es la zona horaria de Argentina)
-const EVENT_START_DATE = '2026-08-19T21:30:00-03:00';
+const EVENT_START_DATE = '2026-08-26T21:30:00-03:00';
 
 // Opcional: Fetch de la fecha del evento desde Supabase (actualmente deshabilitado para priorizar la configuración manual)
 // import { supabase } from '../lib/supabase';
@@ -54,9 +54,9 @@ const eventDate = EVENT_START_DATE;
     </div>
 
     <div class="hero-dates">
-      <div class="date-chip"><strong>19 Ago</strong> &mdash; Virtual</div>
+      <div class="date-chip"><strong>26 Ago</strong> &mdash; Virtual</div>
       <div class="date-chip">
-        <strong>21-22 Ago</strong> &mdash; Presencial
+        <strong>28-29 Ago</strong> &mdash; Presencial
       </div>
     </div>
 
@@ -355,7 +355,7 @@ const eventDate = EVENT_START_DATE;
 
   function updateCD() {
     const countdownEl = document.getElementById("countdown");
-    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-08-19T21:30:00-03:00";
+    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-08-26T21:30:00-03:00";
     const target = new Date(targetDateStr).getTime();
     const now = new Date().getTime();
     const diff = target - now;
