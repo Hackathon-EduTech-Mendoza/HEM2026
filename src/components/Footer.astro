@@ -51,15 +51,18 @@ import { Image } from 'astro:assets';
             </div>
         </div>
         <div class="ftr-bot">
-            <span class="ftr-copy">&copy; 2026 HACKATHON EDUTECH. Todos los derechos reservados.</span>
-            <span class="ftr-copy">Diseñado con fines educativos</span>
+            <div class="ftr-copy ftr-credits">
+                <span>&copy; 2026 Hackathon EduTech Mendoza. Todos los derechos reservados.</span>
+                <span>Plataforma diseñada y desarrollada por <a href="https://www.linkedin.com/in/nahuel-ghilardi/" target="_blank" rel="noopener noreferrer" class="author-link">Matías Nahuel Ghilardi</a>.</span>
+                <span>Testing y QA por el Equipo EduTech.</span>
+            </div>
         </div>
     </div>
 </footer>
 
 <style>
     .site-footer {
-        padding: 6rem 0 2.5rem;
+        padding: 1.5rem 0 1rem;
         border-top: 1px solid var(--brd);
         position: relative;
         z-index: 1;
@@ -73,7 +76,7 @@ import { Image } from 'astro:assets';
         align-items: flex-start;
         flex-wrap: wrap;
         gap: 3rem;
-        margin-bottom: 3rem;
+        margin-bottom: 1.5rem;
     }
 
     .ftr-brand {
@@ -176,12 +179,31 @@ import { Image } from 'astro:assets';
 
     .ftr-bot {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        padding-top: 1.5rem;
+        padding-top: 1rem;
         border-top: 1px solid var(--brd-s);
         flex-wrap: wrap;
         gap: 1rem;
+    }
+
+    .ftr-credits {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: center;
+        color: var(--txt-2);
+        margin: 0;
+    }
+
+    .author-link {
+        color: var(--c1);
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity var(--t-fast);
+    }
+    .author-link:hover {
+        opacity: 0.8;
     }
 
     .ftr-copy {
@@ -219,5 +241,6 @@ import { Image } from 'astro:assets';
     .ftr-instagram-link:hover {
         color: var(--c1);
         transform: scale(1.15) translateY(-1px);
+    }
     }
 </style>
