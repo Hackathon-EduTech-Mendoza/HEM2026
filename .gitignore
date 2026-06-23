@@ -193,3 +193,6 @@ DESIGN.md
 
 # Documentación y reportes de auditoría (excluidos del repo)
 docs/
+
+# Auiditoria
+.unlighthouse
