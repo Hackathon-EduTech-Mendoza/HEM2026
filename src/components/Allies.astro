@@ -1,5 +1,64 @@
 ---
 // src/components/Allies.astro
+
+const allies = [
+  {
+    name: "Fundación Undercode",
+    href: "https://www.underc0de.org/",
+    logoLight: "/img/allies/fundacion-underc0de-negro.webp",
+    logoDark: "/img/allies/fundacion-underc0de-blanco.webp",
+    isDoubleLogo: true,
+    height: "90px"
+  },
+  {
+    name: "Google Partner",
+    href: "https://edu.google.com/intl/es-419_ALL/",
+    logoLight: "/img/allies/Google_Partner.webp",
+    height: "90px"
+  },
+  {
+    name: "DGE Mendoza",
+    href: "https://www.mendoza.edu.ar/",
+    logoLight: "/img/allies/DGE-Mendoza.webp",
+    height: "90px"
+  },
+  {
+    name: "EMESA",
+    href: "https://emesa.com.ar/",
+    logoLight: "/img/allies/EMESA.webp",
+    height: "90px"
+  },
+  {
+    name: "Gobierno de Mendoza",
+    href: "https://www.mendoza.gob.ar/",
+    logoLight: "/img/allies/Gobierno_Mendoza.webp",
+    height: "90px"
+  },
+  {
+    name: "City Pooling",
+    href: "https://citypooling.com/",
+    logoLight: "/img/allies/City_Pooling.webp",
+    height: "90px"
+  },
+  {
+    name: "Pronectis",
+    href: "https://pronectis.com/",
+    logoLight: "/img/allies/Pronectis.webp",
+    height: "90px"
+  },
+  {
+    name: "PMI Andes Patagonia",
+    href: "https://www.pmiandespatagonia.org/",
+    logoLight: "/img/allies/pmi-andes-patagonia.webp",
+    height: "90px"
+  },
+  {
+    name: "Universidad Siglo 21",
+    href: "https://21.edu.ar/",
+    logoLight: "/img/allies/universidad-siglo-21.webp",
+    height: "90px"
+  }
+];
 ---
 
 <section class="allies" id="aliados">
@@ -17,185 +76,41 @@
   <!-- Infinite Marquee Section (Full width, outside container for edge-to-edge scroll) -->
   <div class="allies-marquee reveal rd2">
     <div class="marquee-track">
-      <!-- Set 1 -->
-      <a
-        href="https://www.underc0de.org/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/fundacion-underc0de-negro.webp"
-          alt="Fundación Undercode"
-          class="marquee-logo logo-light-theme"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-        <img
-          src="/img/allies/fundacion-underc0de-blanco.webp"
-          alt="Fundación Undercode"
-          class="marquee-logo logo-undercode logo-dark-theme"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://edu.google.com/intl/es-419_ALL/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/google-for-education.webp"
-          alt="Google for Education"
-          class="marquee-logo"
-          style="height: 125px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://www.pmiandespatagonia.org/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/pmi-andes-patagonia.webp"
-          alt="PMI Andes Patagonia"
-          class="marquee-logo"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://21.edu.ar/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/universidad-siglo-21.webp"
-          alt="Universidad Siglo 21"
-          class="marquee-logo"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
-
-      <!-- Set 2 -->
-      <a
-        href="https://www.underc0de.org/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/fundacion-underc0de-negro.webp"
-          alt="Fundación Undercode"
-          class="marquee-logo logo-light-theme"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-        <img
-          src="/img/allies/fundacion-underc0de-blanco.webp"
-          alt="Fundación Undercode"
-          class="marquee-logo logo-undercode logo-dark-theme"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://edu.google.com/intl/es-419_ALL/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/google-for-education.webp"
-          alt="Google for Education"
-          class="marquee-logo"
-          style="height: 125px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://www.pmiandespatagonia.org/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/pmi-andes-patagonia.webp"
-          alt="PMI Andes Patagonia"
-          class="marquee-logo"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://21.edu.ar/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/universidad-siglo-21.webp"
-          alt="Universidad Siglo 21"
-          class="marquee-logo"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
-
-      <!-- Set 3 -->
-      <a
-        href="https://www.underc0de.org/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/fundacion-underc0de-negro.webp"
-          alt="Fundación Undercode"
-          class="marquee-logo logo-light-theme"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-        <img
-          src="/img/allies/fundacion-underc0de-blanco.webp"
-          alt="Fundación Undercode"
-          class="marquee-logo logo-undercode logo-dark-theme"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://edu.google.com/intl/es-419_ALL/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/google-for-education.webp"
-          alt="Google for Education"
-          class="marquee-logo"
-          style="height: 125px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://www.pmiandespatagonia.org/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/pmi-andes-patagonia.webp"
-          alt="PMI Andes Patagonia"
-          class="marquee-logo"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
-      <a
-        href="https://21.edu.ar/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="marquee-item"
-      >
-        <img
-          src="/img/allies/universidad-siglo-21.webp"
-          alt="Universidad Siglo 21"
-          class="marquee-logo"
-          style="height: 90px; width: auto; object-fit: contain;"
-        />
-      </a>
+      {/* Render 3 identical sets for infinite loop logic */}
+      {[1, 2, 3].map(() => (
+        allies.map(ally => (
+          <a
+            href={ally.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="marquee-item"
+          >
+            {ally.isDoubleLogo ? (
+              <>
+                <img
+                  src={ally.logoLight}
+                  alt={ally.name}
+                  class="marquee-logo logo-light-theme"
+                  style={`height: ${ally.height}; width: auto; object-fit: contain;`}
+                />
+                <img
+                  src={ally.logoDark}
+                  alt={ally.name}
+                  class="marquee-logo logo-undercode logo-dark-theme"
+                  style={`height: ${ally.height}; width: auto; object-fit: contain;`}
+                />
+              </>
+            ) : (
+              <img
+                src={ally.logoLight}
+                alt={ally.name}
+                class="marquee-logo"
+                style={`height: ${ally.height}; width: auto; object-fit: contain;`}
+              />
+            )}
+          </a>
+        ))
+      ))}
     </div>
   </div>
 </section>
