@@ -8,8 +8,8 @@ interface Props {
 
 const { 
 	title, 
-	description = 'Participá de la Hackathon EduTech Mendoza 2026. Un espacio de co-creación donde estudiantes de nivel superior diseñan soluciones tecnológicas innovadoras para transformar el futuro de la educación.',
-	image = '/img/brand/MARCA_COMPLETA_COLOR_SIN_FONDO.png',
+	description = 'Participá de la Hackathon EduTech Mendoza 2026. Estudiantes de nivel superior diseñan soluciones tecnológicas para transformar la educación. ¡Inscribite!',
+	image = '/img/og-image.jpg',
 	canonical
 } = Astro.props;
 
@@ -38,7 +38,10 @@ import Analytics from '@vercel/analytics/astro';
 		<meta name="robots" content="index, follow" />
 		<meta name="theme-color" content="#7c3aed" />
 		<link rel="canonical" href={canonicalUrl} />
-		<link rel="icon" type="image/png" href="/favicon.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+		<link rel="manifest" href="/site.webmanifest" />
 		<title>{title}</title>
 
 		<!-- Open Graph -->

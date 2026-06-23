@@ -167,13 +167,13 @@ export const ALL: APIRoute = async (context) => {
 </head>
 <body style="background-color: #0f172a; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px; margin: 0;">
   <table cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #334155;">
-    <!-- Header with fuchsia to violet gradient -->
+    <!-- Header with brand gradient -->
     <tr>
-      <td style="background: linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%); padding: 35px 20px; text-align: center;">
+      <td style="background: linear-gradient(135deg, #88007b 0%, #9fc637 100%); padding: 35px 20px; text-align: center;">
         <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
           HEM 2026
         </h1>
-        <p style="color: #e9d5ff; margin: 6px 0 0 0; font-size: 14px; font-weight: 500; letter-spacing: 0.02em;">
+        <p style="color: #f1f5f9; margin: 6px 0 0 0; font-size: 14px; font-weight: 500; letter-spacing: 0.02em;">
           Hackathon EduTech Mendoza
         </p>
       </td>
