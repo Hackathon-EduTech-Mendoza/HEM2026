@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /onboarding
+Disallow: /evaluacion
+Disallow: /mentoria
+Disallow: /actualizar-password
+Disallow: /api/
+
+Sitemap: https://www.hackathonedutech.com.ar/sitemap-index.xml

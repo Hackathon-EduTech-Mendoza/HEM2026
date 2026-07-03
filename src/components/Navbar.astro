@@ -112,7 +112,7 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
                 </div>
             </div>
 
-            <button class="nav-toggle" id="navToggle" aria-label="Menú">
+            <button class="nav-toggle" id="navToggle" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
         </div>
@@ -577,13 +577,18 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         navToggle.addEventListener('click', () => {
             navToggle.classList.toggle('active');
             navMenu.classList.toggle('active');
-            document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+            const isOpen = navMenu.classList.contains('active');
+            navToggle.setAttribute('aria-expanded', String(isOpen));
+            navToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+            document.body.style.overflow = isOpen ? 'hidden' : '';
         });
 
         navMenu.querySelectorAll('a').forEach(a => {
             a.addEventListener('click', () => {
                 navToggle.classList.remove('active');
                 navMenu.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
+                navToggle.setAttribute('aria-label', 'Abrir menú de navegación');
                 document.body.style.overflow = '';
             });
         });

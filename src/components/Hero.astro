@@ -31,7 +31,8 @@ const eventDate = EVENT_START_DATE;
     </p>
 
     <!-- Countdown -->
-    <div class="countdown" id="countdown" data-target-date={eventDate} aria-live="polite">
+    <!-- Sin aria-live: se actualiza cada segundo y saturaría a los lectores de pantalla -->
+    <div class="countdown" id="countdown" data-target-date={eventDate} role="timer" aria-label="Cuenta regresiva para el inicio del evento">
       <div class="countdown-item">
         <span class="countdown-val" id="cdD">---</span><span
           class="countdown-label">Días</span>

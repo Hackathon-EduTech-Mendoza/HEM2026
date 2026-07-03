@@ -21,6 +21,15 @@ const AUTH_ROUTES = ['/login', '/registro'];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { request, cookies, locals, redirect } = context;
+
+  // Páginas prerenderizadas (landing, ediciones, bases, 404): no hay request real
+  // ni cookies en build time; el estado de sesión lo resuelve el cliente.
+  if (context.isPrerendered) {
+    locals.user = null;
+    locals.profile = null;
+    return next();
+  }
+
   const url = new URL(request.url);
   const pathname = url.pathname;
 

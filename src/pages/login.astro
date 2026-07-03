@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Iniciar sesión | HEM2026">
-  <main class="auth-page">
+  <div class="auth-page">
     <div class="container">
       <div class="auth-card card">
         <div class="auth-header">
@@ -57,7 +57,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <style>
@@ -191,7 +191,7 @@ import Layout from '../layouts/Layout.astro';
   .form-success {
     background: rgba(var(--c2r), 0.15);
     border: 1px solid rgba(var(--c2r), 0.3);
-    color: var(--c2);
+    color: var(--c2-text);
     padding: 0.75rem 1rem;
     border-radius: var(--r-md);
     font-size: 0.9rem;
@@ -302,7 +302,8 @@ import Layout from '../layouts/Layout.astro';
   togglePassword?.addEventListener('click', () => {
     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
     passwordInput.setAttribute('type', type);
-    
+    togglePassword.setAttribute('aria-label', type === 'text' ? 'Ocultar contraseña' : 'Mostrar contraseña');
+
     // Optional: update icon based on state
     if (type === 'text') {
       togglePassword.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';

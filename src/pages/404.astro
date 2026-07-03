@@ -4,8 +4,8 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Página No Encontrada | HEM2026">
-  <main class="error-page">
+<Layout title="Página No Encontrada | HEM2026" noindex>
+  <div class="error-page">
     <div class="container">
       <div class="error-card card text-center">
         <div class="error-code">404</div>
@@ -16,7 +16,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <style>

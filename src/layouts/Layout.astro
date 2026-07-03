@@ -4,13 +4,16 @@ interface Props {
 	description?: string;
 	image?: string;
 	canonical?: string;
+	/** Páginas privadas (dashboard, admin, etc.): evita que los buscadores las indexen */
+	noindex?: boolean;
 }
 
-const { 
-	title, 
+const {
+	title,
 	description = 'Participá de la Hackathon EduTech Mendoza 2026. Estudiantes de nivel superior diseñan soluciones tecnológicas para transformar la educación. ¡Inscribite!',
 	image = '/img/og-image.jpg',
-	canonical
+	canonical,
+	noindex = false
 } = Astro.props;
 
 const siteUrl = 'https://www.hackathonedutech.com.ar';
@@ -37,8 +40,8 @@ import Analytics from '@vercel/analytics/astro';
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content={description} />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="robots" content="index, follow" />
-		<meta name="theme-color" content="#7c3aed" />
+		<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+		<meta name="theme-color" content="#88007b" />
 		<link rel="canonical" href={canonicalUrl} />
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
