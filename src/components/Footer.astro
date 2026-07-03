@@ -1,6 +1,8 @@
 ---
 // src/components/Footer.astro
 import { Image } from 'astro:assets';
+import logoLight from '../assets/brand/Logo_Tema_Claro.png';
+import logoDark from '../assets/brand/Logo_Tema_Oscuro.png';
 ---
 
 <footer class="site-footer">
@@ -8,8 +10,8 @@ import { Image } from 'astro:assets';
         <div class="ftr-top">
             <div class="ftr-brand">
                 <a href="/#inicio" class="nav-logo" style="margin-bottom: 0.5rem;">
-                    <Image src="/img/brand/Logo_Tema_Claro.png" alt="Hackathon EduTech" width={240} height={64} format="webp" class="brand-logo logo-light" />
-                    <Image src="/img/brand/Logo_Tema_Oscuro.png" alt="Hackathon EduTech" width={240} height={64} format="webp" class="brand-logo logo-dark" />
+                    <Image src={logoLight} alt="Hackathon EduTech" width={240} height={64} densities={[1, 2]} format="webp" class="brand-logo logo-light" loading="lazy" />
+                    <Image src={logoDark} alt="Hackathon EduTech" width={240} height={64} densities={[1, 2]} format="webp" class="brand-logo logo-dark" loading="lazy" />
                 </a>
                 <p>HACKATHON EDUTECH 2026 - Segunda Edición. Organizada por el IES 9-023 de Maipú y el IES Tomás Alva Edison.</p>
             </div>

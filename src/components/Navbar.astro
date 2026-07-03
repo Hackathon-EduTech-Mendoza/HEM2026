@@ -3,6 +3,8 @@
 import ThemeToggle from './ThemeToggle.astro';
 import AnimToggle from './AnimToggle.astro';
 import { Image } from 'astro:assets';
+import logoLight from '../assets/brand/Logo_Tema_Claro.png';
+import logoDark from '../assets/brand/Logo_Tema_Oscuro.png';
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
 
@@ -28,8 +30,8 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
 <nav class="navbar" id="navbar">
     <div class="container nav-c">
         <a href="/#inicio" class="nav-logo">
-            <Image src="/img/brand/Logo_Tema_Claro.png" alt="Hackathon EduTech" width={240} height={64} format="webp" class="brand-logo logo-light" />
-            <Image src="/img/brand/Logo_Tema_Oscuro.png" alt="Hackathon EduTech" width={240} height={64} format="webp" class="brand-logo logo-dark" />
+            <Image src={logoLight} alt="Hackathon EduTech" width={240} height={64} densities={[1, 2]} format="webp" class="brand-logo logo-light" />
+            <Image src={logoDark} alt="Hackathon EduTech" width={240} height={64} densities={[1, 2]} format="webp" class="brand-logo logo-dark" />
         </a>
         
         <div class="nav-menu" id="navMenu">

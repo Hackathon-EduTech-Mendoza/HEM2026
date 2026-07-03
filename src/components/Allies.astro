@@ -91,12 +91,16 @@ const allies = [
                   src={ally.logoLight}
                   alt={ally.name}
                   class="marquee-logo logo-light-theme"
+                  loading="lazy"
+                  decoding="async"
                   style={`height: ${ally.height}; width: auto; object-fit: contain;`}
                 />
                 <img
                   src={ally.logoDark}
                   alt={ally.name}
                   class="marquee-logo logo-undercode logo-dark-theme"
+                  loading="lazy"
+                  decoding="async"
                   style={`height: ${ally.height}; width: auto; object-fit: contain;`}
                 />
               </>
@@ -105,6 +109,8 @@ const allies = [
                 src={ally.logoLight}
                 alt={ally.name}
                 class="marquee-logo"
+                loading="lazy"
+                decoding="async"
                 style={`height: ${ally.height}; width: auto; object-fit: contain;`}
               />
             )}
