@@ -196,3 +196,6 @@ docs/
 
 # Auiditoria
 .unlighthouse
+
+# Configuración local de MCP (Claude Code)
+.mcp.json

@@ -12,8 +12,8 @@ if (!user) {
 const email = user.email || '';
 ---
 
-<Layout title="Completar Perfil | HEM2026">
-  <main class="onboarding-page" id="onboarding-main" data-current-role={profile?.role || 'usuario'}>
+<Layout title="Completar Perfil | HEM2026" noindex>
+  <div class="onboarding-page" id="onboarding-main" data-current-role={profile?.role || 'usuario'}>
     <div class="container">
       <div class="onboarding-card card">
         <!-- Steps Indicator -->
@@ -178,7 +178,7 @@ const email = user.email || '';
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <style>

@@ -14,8 +14,10 @@
     <div class="vibe-grid">
       <!-- Slot 1: Video Destacado (Vertical Bento, 1x2) -->
       <div class="vibe-item vibe-video-slot">
-        <video autoplay loop muted playsinline class="vibe-video" id="vibe-player">
-          <!-- El source se inyectará dinámicamente -->
+        <video loop muted playsinline preload="none"
+          poster="/img/gallery/vibe-poster.webp"
+          class="vibe-video" id="vibe-player">
+          <!-- El source se inyecta al acercarse la sección al viewport -->
         </video>
       </div>
 
@@ -59,7 +61,7 @@
 
 <style>
   .vibe-section {
-    padding: 6rem 0;
+    padding: var(--section-pad-y) 0;
     position: relative;
     overflow: hidden;
   }
@@ -295,12 +297,27 @@
 
   function initGallery() {
     // 1. Lógica Aleatoria de Video Nativo (1 de 5)
+    // La descarga (1-2MB) se difiere hasta que la sección entra al viewport:
+    // con autoplay el navegador bajaba el MP4 completo al abrir la landing.
     const videoPool = Array.from({ length: 5 }, (_, i) => `/videos/vibe-${i + 1}.mp4`);
     const selectedVideo = videoPool[Math.floor(Math.random() * videoPool.length)];
     const videoPlayer = document.getElementById('vibe-player') as HTMLVideoElement;
-    if (videoPlayer) {
-      videoPlayer.src = selectedVideo;
-      videoPlayer.load(); // Cargar la fuente de video asignada
+    if (videoPlayer && !videoPlayer.dataset.observed) {
+      videoPlayer.dataset.observed = 'true';
+      const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            if (!videoPlayer.src) {
+              videoPlayer.src = selectedVideo;
+              videoPlayer.load();
+            }
+            videoPlayer.play().catch(() => {});
+          } else if (videoPlayer.src) {
+            videoPlayer.pause();
+          }
+        });
+      }, { rootMargin: '200px' });
+      videoObserver.observe(videoPlayer);
     }
 
     // 2. Lógica Aleatoria de Fotos WebP (5 de 37)

@@ -119,6 +119,8 @@ export const ALL: APIRoute = async (context) => {
       } else if (r.full_name && r.full_name.trim() !== '') {
         name = r.full_name.trim().split(' ')[0];
       }
+      // El nombre lo define el usuario y Brevo lo inserta sin escapar en el HTML del email
+      name = name.replace(/[<>&"']/g, '');
       return {
         email: r.email.trim(),
         name: name

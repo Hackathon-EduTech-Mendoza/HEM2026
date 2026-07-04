@@ -115,6 +115,7 @@
 
     let metaballs: Metaball[] = [];
     let animationFrameId: number;
+    let lastFrameTime = 0;
     let animationsEnabled = localStorage.getItem("edutech-animations") !== "false";
 
     // Respetar OS sin sobrescribir localStorage: el toggle mantiene la decision final
@@ -175,9 +176,10 @@
       });
 
       // Reducir intensidad del blur SVG en pantallas pequeñas para mejor rendimiento
+      // Tres niveles: teléfonos (5), tablets (8), desktop (15) — a opacity ~0.03 la diferencia es invisible
       const blurElement = document.querySelector('#gooey-effect feGaussianBlur');
       if (blurElement) {
-        blurElement.setAttribute('stdDeviation', width < 768 ? '10' : '15');
+        blurElement.setAttribute('stdDeviation', width < 480 ? '5' : width < 768 ? '8' : '15');
       }
     }
 
@@ -220,9 +222,21 @@
       });
     }
 
-    // Bucle de animación principal
+    // Bucle de animación principal (30fps en móvil: mitad de GPU, visualmente indistinguible)
     function animate() {
       if (!ctx) return;
+
+      const fps = width < 768 ? 30 : 60;
+      const frameInterval = 1000 / fps;
+      const now = performance.now();
+      const delta = now - lastFrameTime;
+
+      if (delta < frameInterval) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+      lastFrameTime = now - (delta % frameInterval);
+
       ctx.clearRect(0, 0, width, height);
 
       // Actualizar y dibujar las metaballs flotantes

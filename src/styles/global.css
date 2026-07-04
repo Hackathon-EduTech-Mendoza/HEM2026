@@ -9,6 +9,8 @@
     --nav-h: 72px;
     --max-w: 1200px;
     --pad: 1.5rem;
+    /* Padding vertical fluido entre secciones: 52px en 375px → 128px en desktop */
+    --section-pad-y: clamp(3.5rem, 6vw, 8rem);
     --r-sm: 6px;
     --r-md: 12px;
     --r-lg: 20px;
@@ -26,6 +28,9 @@
     --txt-1: #222220; --txt-2: #555555; --txt-m: #707070;
     --c1: #88007b; --c2: #9fc637; --c3: #222220;
     --c1r: 136,0,123; --c2r: 159,198,55; --c3r: 34,34,32;
+    /* Variante del verde de marca para TEXTO sobre fondos claros (el #9fc637 da ~2:1 de contraste, ilegible).
+       Solo para texto: fondos, bordes y gradientes siguen usando --c2. */
+    --c2-text: #5c7a10;
     --brd: #d0cdd0; --brd-s: #e2dee2;
     --danger: #dc2626; --danger-r: 220,38,38;
     --sh-sm: 0 2px 8px rgba(0,0,0,.05);
@@ -41,6 +46,8 @@
     --txt-1: #eae7ea; --txt-2: #9a9a9a; --txt-m: #707070;
     --c1: #88007b; --c2: #9fc637; --c3: #eae7ea;
     --c1r: 136,0,123; --c2r: 159,198,55; --c3r: 234,231,234;
+    /* En tema oscuro el verde de marca ya cumple contraste como texto (8.8:1) */
+    --c2-text: #9fc637;
     --brd: #3a3a38; --brd-s: #2a2a28;
     --danger: #ef4444; --danger-r: 239,68,68;
     --sh-sm: 0 2px 8px rgba(0,0,0,.4);
@@ -221,7 +228,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .btn-outline-c2:hover {
     border-color: var(--c2);
-    color: var(--c2);
+    color: var(--c2-text);
     background: rgba(var(--c2r), 0.05);
 }
 
