@@ -52,8 +52,8 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
                     </div>
                 ) : (
                     <>
-                        <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
                         <a href="/registro" class="btn btn-primary">Registro</a>
+                        <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
                     </>
                 )}
             </div>
@@ -459,8 +459,18 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         }
         .nav-act {
             flex-direction: column;
-            align-items: center;
-            gap: 0;
+            align-items: stretch;
+            gap: 0.75rem;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        /* Botones de auth deslogueado: mismo ancho, mismo alto, jerarquía por relleno.
+           Scopeado con '>' para no afectar los links de .nav-act-logged (usuario logueado). */
+        .nav-act > .btn {
+            width: 100%;
+            font-size: 1rem;
+            padding: 0.85rem 1.25rem;
         }
         .nav-act-logged {
             flex-direction: column;
