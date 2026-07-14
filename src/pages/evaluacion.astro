@@ -28,26 +28,35 @@ const supabase = createServerClient(
   }
 );
 
-// Obtener configuración de evaluación
+// Obtener la fase de evaluación activa: cerrada | preclasificacion | deliberacion | final
 const { data: configData } = await supabase
   .from('event_config')
   .select('value')
-  .eq('key', 'evaluation_enabled')
+  .eq('key', 'evaluation_phase')
   .single();
 
-const isEvaluationEnabled = configData?.value === 'true';
+const evaluationPhase = configData?.value || 'cerrada';
+const isVotingOpen = evaluationPhase === 'preclasificacion' || evaluationPhase === 'final';
+const phaseLabel = evaluationPhase === 'preclasificacion' ? 'Preclasificación' : 'Ronda Final';
 
-// Obtener todos los proyectos enviados
-const { data: projectsData, error: projectsError } = await supabase
+// Obtener los proyectos a evaluar (en fase final, solo los finalistas)
+let projectsQuery = supabase
   .from('projects')
   .select('*, teams(name)')
   .order('created_at', { ascending: true });
 
-// Obtener las evaluaciones hechas por ESTE juez
+if (evaluationPhase === 'final') {
+  projectsQuery = projectsQuery.eq('is_finalist', true);
+}
+
+const { data: projectsData, error: projectsError } = await projectsQuery;
+
+// Obtener las evaluaciones hechas por ESTE juez en la fase activa
 const { data: evaluationsData } = await supabase
   .from('evaluations')
   .select('*')
-  .eq('judge_id', user.id);
+  .eq('judge_id', user.id)
+  .eq('phase', evaluationPhase);
 
 const projects = projectsData || [];
 const evaluations = evaluationsData || [];
@@ -69,13 +78,22 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
       <div class="eval-header">
         <h1>Panel de Evaluación</h1>
         <p class="eval-subtitle">Bienvenido, {profile?.full_name || 'Juez'}.</p>
+        {isVotingOpen && (
+          <span class={`phase-badge ${evaluationPhase === 'final' ? 'phase-final' : 'phase-pre'}`}>
+            Fase activa: {phaseLabel}
+          </span>
+        )}
       </div>
 
-      {!isEvaluationEnabled && profile?.role === 'juez' ? (
+      {!isVotingOpen && profile?.role === 'juez' ? (
         <div class="card warning-card">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c1); margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
           <h3>Evaluaciones Cerradas</h3>
-          <p>El administrador aún no ha habilitado la etapa de evaluación.</p>
+          {evaluationPhase === 'deliberacion' ? (
+            <p>La preclasificación finalizó. El jurado está deliberando la selección de finalistas; la votación final se habilitará pronto.</p>
+          ) : (
+            <p>El administrador aún no ha habilitado la etapa de evaluación.</p>
+          )}
         </div>
       ) : projects.length === 0 ? (
         <div class="card empty-state">
@@ -110,7 +128,10 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
             <div class="projects-grid">
               {completedProjects.map(project => {
                 const ev = evaluationsMap[project.id];
-                const totalScore = ev.score_innovation + ev.score_viability + ev.score_ux + ev.score_pitch;
+                const totalScore =
+                  ev.score_problem + ev.score_solution + ev.score_innovation +
+                  ev.score_validation + ev.score_feasibility + ev.score_impact +
+                  ev.score_communication;
                 return (
                   <div class="project-card card completed">
                     <div class="project-header">
@@ -120,7 +141,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
                     <div class="project-footer score-footer">
                       <div class="score-display">
                         <span class="score-label">Tu puntuación:</span>
-                        <span class="score-value">{totalScore}/40</span>
+                        <span class="score-value">{totalScore}/70</span>
                       </div>
                       <span class="badge badge-yes">Completado</span>
                     </div>
@@ -165,46 +186,77 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
           <form id="evaluation-form" class="evaluation-form">
             <input type="hidden" id="form-project-id" name="project_id" />
             <input type="hidden" id="form-judge-id" name="judge_id" value={user?.id || ''} />
+            <input type="hidden" id="form-phase" name="phase" value={evaluationPhase} />
 
             <div class="rubric-grid">
+              <!-- Problema u Oportunidad -->
+              <div class="form-group rubric-item">
+                <div class="rubric-header">
+                  <label for="score_problem">Identificación del Problema u Oportunidad</label>
+                  <span class="score-output" id="out-problem">5</span>
+                </div>
+                <p class="rubric-desc">¿El equipo identifica con claridad el problema u oportunidad que aborda?</p>
+                <input type="range" id="score_problem" name="score_problem" min="1" max="10" value="5" class="score-slider" />
+              </div>
+
+              <!-- Solución y Valor -->
+              <div class="form-group rubric-item">
+                <div class="rubric-header">
+                  <label for="score_solution">Propuesta de Solución y Generación de Valor</label>
+                  <span class="score-output" id="out-solution">5</span>
+                </div>
+                <p class="rubric-desc">¿La solución propuesta responde al problema y genera valor real?</p>
+                <input type="range" id="score_solution" name="score_solution" min="1" max="10" value="5" class="score-slider" />
+              </div>
+
               <!-- Innovación -->
               <div class="form-group rubric-item">
                 <div class="rubric-header">
-                  <label for="score_innovation">Innovación & Creatividad</label>
+                  <label for="score_innovation">Nivel de Innovación</label>
                   <span class="score-output" id="out-innovation">5</span>
                 </div>
-                <p class="rubric-desc">¿Es la solución original? ¿Aborda el problema de una manera nueva?</p>
+                <p class="rubric-desc">¿Es la propuesta original? ¿Aborda el problema de una manera nueva?</p>
                 <input type="range" id="score_innovation" name="score_innovation" min="1" max="10" value="5" class="score-slider" />
               </div>
 
-              <!-- Viabilidad -->
+              <!-- Validación -->
               <div class="form-group rubric-item">
                 <div class="rubric-header">
-                  <label for="score_viability">Viabilidad Técnica & Negocio</label>
-                  <span class="score-output" id="out-viability">5</span>
+                  <label for="score_validation">Validación Realizada</label>
+                  <span class="score-output" id="out-validation">5</span>
                 </div>
-                <p class="rubric-desc">¿Es realista implementarlo? ¿Tiene sentido desde el punto de vista tecnológico?</p>
-                <input type="range" id="score_viability" name="score_viability" min="1" max="10" value="5" class="score-slider" />
+                <p class="rubric-desc">¿El equipo validó la propuesta con usuarios, clientes o el mercado?</p>
+                <input type="range" id="score_validation" name="score_validation" min="1" max="10" value="5" class="score-slider" />
               </div>
 
-              <!-- UX -->
+              <!-- Factibilidad -->
               <div class="form-group rubric-item">
                 <div class="rubric-header">
-                  <label for="score_ux">Experiencia de Usuario (UX)</label>
-                  <span class="score-output" id="out-ux">5</span>
+                  <label for="score_feasibility">Factibilidad Técnica, Económica y Operativa</label>
+                  <span class="score-output" id="out-feasibility">5</span>
                 </div>
-                <p class="rubric-desc">¿Es fácil de usar? ¿El diseño está centrado en el usuario?</p>
-                <input type="range" id="score_ux" name="score_ux" min="1" max="10" value="5" class="score-slider" />
+                <p class="rubric-desc">¿Es realista implementarlo desde lo técnico, lo económico y lo operativo?</p>
+                <input type="range" id="score_feasibility" name="score_feasibility" min="1" max="10" value="5" class="score-slider" />
               </div>
 
-              <!-- Pitch -->
+              <!-- Impacto -->
               <div class="form-group rubric-item">
                 <div class="rubric-header">
-                  <label for="score_pitch">Presentación (Pitch)</label>
-                  <span class="score-output" id="out-pitch">5</span>
+                  <label for="score_impact">Impacto Potencial</label>
+                  <span class="score-output" id="out-impact">5</span>
                 </div>
-                <p class="rubric-desc">¿Fueron claros al explicar el problema y la solución? ¿Transmiten pasión?</p>
-                <input type="range" id="score_pitch" name="score_pitch" min="1" max="10" value="5" class="score-slider" />
+                <p class="rubric-desc">¿Qué alcance e impacto (social, económico, ambiental) puede lograr la propuesta?</p>
+                <input type="range" id="score_impact" name="score_impact" min="1" max="10" value="5" class="score-slider" />
+              </div>
+
+              <!-- Comunicación -->
+              <div class="form-group rubric-item">
+                <div class="rubric-header">
+                  <label for="score_communication">Comunicación y Presentación</label>
+                  <span class="score-output" id="out-communication">5</span>
+                </div>
+                <p class="rubric-desc">¿El equipo comunica con claridad? ¿La presentación es sólida y transmite convicción?</p>
+                <input type="range" id="score_communication" name="score_communication" min="1" max="10" value="5" class="score-slider" />
               </div>
             </div>
 
@@ -253,6 +305,17 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     color: var(--txt-2);
     font-size: 1.1rem;
   }
+
+  .phase-badge {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .phase-pre { background: rgba(var(--c1r), 0.15); color: var(--c1); }
+  .phase-final { background: rgba(var(--c2r), 0.15); color: var(--c2); }
 
   .empty-state {
     padding: 4rem 2rem;
@@ -610,7 +673,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
   });
 
   // --- Sliders Sync Logic ---
-  const sliders = ['innovation', 'viability', 'ux', 'pitch'];
+  const sliders = ['problem', 'solution', 'innovation', 'validation', 'feasibility', 'impact', 'communication'];
   sliders.forEach(key => {
     const slider = document.getElementById(`score_${key}`) as HTMLInputElement;
     const output = document.getElementById(`out-${key}`);
@@ -647,10 +710,14 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     const evaluationData = {
       project_id: formData.get('project_id'),
       judge_id: formData.get('judge_id'),
+      phase: formData.get('phase'),
+      score_problem: parseInt(formData.get('score_problem') as string, 10),
+      score_solution: parseInt(formData.get('score_solution') as string, 10),
       score_innovation: parseInt(formData.get('score_innovation') as string, 10),
-      score_viability: parseInt(formData.get('score_viability') as string, 10),
-      score_ux: parseInt(formData.get('score_ux') as string, 10),
-      score_pitch: parseInt(formData.get('score_pitch') as string, 10),
+      score_validation: parseInt(formData.get('score_validation') as string, 10),
+      score_feasibility: parseInt(formData.get('score_feasibility') as string, 10),
+      score_impact: parseInt(formData.get('score_impact') as string, 10),
+      score_communication: parseInt(formData.get('score_communication') as string, 10),
       feedback: formData.get('feedback')
     };
 
