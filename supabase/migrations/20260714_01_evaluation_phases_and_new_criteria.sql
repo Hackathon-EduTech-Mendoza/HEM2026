@@ -44,6 +44,8 @@ ALTER TABLE public.projects
 --    finalists_count: cupo de finalistas (default 10)
 -- =========================================================
 DELETE FROM public.event_config WHERE key = 'evaluation_enabled';
+-- Clave huérfana con nombre viejo (el código usa finalists_count)
+DELETE FROM public.event_config WHERE key = 'finalist_count';
 
 INSERT INTO public.event_config (key, value)
 VALUES ('evaluation_phase', 'cerrada')
@@ -128,3 +130,6 @@ GROUP BY
     p.id, p.title, t.name, p.is_finalist, ph.phase
 ORDER BY
     final_score DESC;
+
+-- La vista debe respetar RLS del consultante (ver migración views_security_invoker)
+ALTER VIEW public.project_leaderboard SET (security_invoker = true);
