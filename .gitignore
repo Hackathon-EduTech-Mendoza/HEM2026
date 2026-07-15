@@ -196,3 +196,7 @@ docs/
 
 # Auiditoria
 .unlighthouse
+
+# Playwright
+test-results/
+playwright-report/
