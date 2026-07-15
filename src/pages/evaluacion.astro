@@ -11,6 +11,9 @@ if (!user || (profile?.role !== 'juez' && profile?.role !== 'admin' && profile?.
   return Astro.redirect('/dashboard');
 }
 
+// Un juez sin inscripción aprobada no puede ver ni evaluar proyectos
+const isApprovedJudge = profile.role !== 'juez' || profile.registration_status === 'aprobado';
+
 const supabase = createServerClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
   import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
@@ -85,7 +88,13 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
         )}
       </div>
 
-      {!isVotingOpen && profile?.role === 'juez' ? (
+      {!isApprovedJudge ? (
+        <div class="card warning-card">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c1); margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <h3>Tu solicitud está en revisión</h3>
+          <p>El equipo organizador está revisando tu perfil como Juez. Vas a poder evaluar proyectos cuando tu registro sea aprobado.</p>
+        </div>
+      ) : !isVotingOpen && profile?.role === 'juez' ? (
         <div class="card warning-card">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c1); margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
           <h3>Evaluaciones Cerradas</h3>
