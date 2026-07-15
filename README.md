@@ -119,11 +119,42 @@ El módulo de entrega de proyectos finales permite a los equipos subir su soluci
 
 ---
 
+## Tests End-to-End (Playwright)
+
+La suite automatizada cubre el flujo completo de la app con todos los roles:
+registro y onboarding de participante, creación de equipo y unión por código,
+entrega de proyecto, aprobación de juez, votación en dos fases
+(preclasificación → finalistas → ronda final) y controles de seguridad
+(redirecciones del middleware, escalación de roles y RLS por fase).
+
+```bash
+npm run test:e2e          # corre los 14 tests (levanta el dev server solo)
+npx playwright show-report # ver el reporte HTML de la última corrida
+```
+
+Notas importantes:
+- Corre contra la **base real de Supabase** (no hay entorno local de DB). Los
+  usuarios de prueba usan emails `e2e.*@hem2026.test` y equipos `Equipo E2E *`
+  para poder identificarlos y limpiarlos después.
+- Requiere el usuario admin de prueba `e2e.admin@hem2026.test` ya creado en la
+  base (bootstrapeado por única vez; ver `tests/e2e/utils.ts`).
+- Los tests son **seriales** (comparten estado del run) y cada corrida genera
+  usuarios nuevos con sufijo único.
+- Limpieza de datos de prueba (SQL): borrar `evaluations`/`projects`/`teams`
+  asociados y luego `auth.users` con email `e2e.%@hem2026.test` (conservando
+  el admin e2e).
+
+Las mejoras pendientes detectadas por la suite están en [BACKLOG.md](./BACKLOG.md).
+
+---
+
 ## Documentación del Proyecto
 
 | Documento | Descripción |
 |-----------|-------------|
 | [README.md](./README.md) | Visión general del proyecto (este archivo) |
+| [ESTADO_ACTUAL.md](./ESTADO_ACTUAL.md) | Estado de la rama de trabajo y pendientes de la última sesión |
+| [BACKLOG.md](./BACKLOG.md) | Mejoras pendientes de aprobación o implementación |
 | [Playbook_de_QA.md](./Playbook_de_QA.md) | Plan de pruebas E2E manual para Beta Testers |
 | [GIT_GUIDELINES.md](./GIT_GUIDELINES.md) | Convenciones de ramas, commits y Pull Requests |
 | [BEST_PRACTICES.md](./BEST_PRACTICES.md) | Estándares de calidad, testing y uso responsable de IA |
