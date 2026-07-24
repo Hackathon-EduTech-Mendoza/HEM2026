@@ -12,6 +12,7 @@ import {
   newApiClient,
   TestUser,
 } from './utils';
+import { CRITERIA, MAX_RAW_SCORE, rawScore, weightedScore } from '../../src/lib/rubric';
 
 /**
  * Flujo completo de la app con todos los roles:
@@ -26,10 +27,12 @@ test.describe.configure({ mode: 'serial' });
 // ── Estado compartido del run ──
 const TEAM_NAME = `Equipo E2E ${RUN_ID}`;
 const PROJECT_TITLE = `Proyecto E2E ${RUN_ID}`;
-const PRE_SCORES = { problem: 8, solution: 7, innovation: 9, validation: 6, feasibility: 8, impact: 7, communication: 9 }; // total 54
-const FINAL_SCORES = { problem: 9, solution: 9, innovation: 9, validation: 8, feasibility: 9, impact: 9, communication: 10 }; // total 63
-const PRE_TOTAL = Object.values(PRE_SCORES).reduce((a, b) => a + b, 0);
-const FINAL_TOTAL = Object.values(FINAL_SCORES).reduce((a, b) => a + b, 0);
+// Rúbrica 1 a 5 sin criterio de validación (ver src/lib/rubric.ts)
+const PRE_SCORES = { problem: 4, solution: 3, innovation: 5, feasibility: 4, impact: 3, communication: 5 };
+const FINAL_SCORES = { problem: 5, solution: 5, innovation: 4, feasibility: 5, impact: 4, communication: 5 };
+const PRE_TOTAL = rawScore(PRE_SCORES);
+const FINAL_TOTAL = rawScore(FINAL_SCORES);
+const PRE_WEIGHTED = weightedScore(PRE_SCORES);
 
 let participantB: TestUser;
 let participantC: TestUser;
@@ -44,23 +47,13 @@ async function newPage(browser: Browser): Promise<Page> {
   return context.newPage();
 }
 
-async function setSlider(page: Page, id: string, value: number) {
-  await page.locator(`#${id}`).evaluate((el, v) => {
-    const input = el as HTMLInputElement;
-    input.value = String(v);
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-  }, value);
-}
-
-async function fillEvaluation(page: Page, scores: typeof PRE_SCORES) {
-  await setSlider(page, 'score_problem', scores.problem);
-  await setSlider(page, 'score_solution', scores.solution);
-  await setSlider(page, 'score_innovation', scores.innovation);
-  await setSlider(page, 'score_validation', scores.validation);
-  await setSlider(page, 'score_feasibility', scores.feasibility);
-  await setSlider(page, 'score_impact', scores.impact);
-  await setSlider(page, 'score_communication', scores.communication);
+/** Puntúa cada criterio clickeando la opción 1-5 correspondiente. */
+async function fillEvaluation(page: Page, scores: Record<string, number>) {
+  for (const c of CRITERIA) {
+    await page
+      .locator(`label.scale-option:has(input[name="score_${c.key}"][value="${scores[c.key]}"])`)
+      .click();
+  }
 }
 
 async function adminSetPhase(page: Page, phase: 'cerrada' | 'preclasificacion' | 'deliberacion' | 'final') {
@@ -214,12 +207,27 @@ test('juez: registro por UI queda en revisión', async ({ browser }) => {
   await page.fill('#last_name', `Juez ${RUN_ID}`);
   await page.fill('#dni', `6${String(Date.now()).slice(-7)}`);
   await page.fill('#phone_whatsapp', '2612222222');
+  // "Otra institución" despliega un campo obligatorio para escribir el nombre
   await page.selectOption('#institution', 'otra');
+  await expect(page.locator('#institution_other')).toBeVisible();
+  await page.fill('#institution_other', `Instituto E2E ${RUN_ID}`);
   await page.selectOption('#disciplinary_profile', 'otro');
   await page.click('#submit-btn');
 
   // El juez con perfil completo va a /evaluacion; con estado pendiente ve el aviso de revisión
   await page.waitForURL(/\/(dashboard|evaluacion)/, { timeout: 20_000 });
+
+  // El nombre libre de la institución quedó guardado en el perfil
+  const perfilClient = newApiClient();
+  await perfilClient.auth.signInWithPassword({ email: juezEmail, password: E2E_PASSWORD });
+  const { data: perfil } = await perfilClient
+    .from('profiles')
+    .select('institution, institution_other')
+    .eq('email', juezEmail)
+    .single();
+  expect(perfil?.institution).toBe('otra');
+  expect(perfil?.institution_other).toBe(`Instituto E2E ${RUN_ID}`);
+
   await page.goto('/evaluacion');
   await expect(page.locator('body')).toContainText('revisión');
   // Y no debe ver proyectos
@@ -234,7 +242,7 @@ test('juez: registro por UI queda en revisión', async ({ browser }) => {
     project_id: projects![0].id,
     judge_id: auth!.user!.id,
     phase: 'preclasificacion',
-    score_problem: 5, score_solution: 5, score_innovation: 5, score_validation: 5,
+    score_problem: 5, score_solution: 5, score_innovation: 5,
     score_feasibility: 5, score_impact: 5, score_communication: 5,
   });
   expect(rlsError).not.toBeNull();
@@ -286,7 +294,7 @@ test('juez vota el proyecto en preclasificación', async ({ browser }) => {
   await page.waitForLoadState('load');
   const completedCard = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
   await expect(completedCard).toBeVisible({ timeout: 20_000 });
-  await expect(completedCard.locator('.score-value')).toContainText(`${PRE_TOTAL}/70`);
+  await expect(completedCard.locator('.score-value')).toContainText(`${PRE_TOTAL}/${MAX_RAW_SCORE}`);
   await page.context().close();
 });
 
@@ -303,7 +311,9 @@ test('admin ve el puntaje, marca finalista y habilita la ronda final', async ({ 
   // El proyecto aparece en el ranking de preclasificación con 1 evaluación y el puntaje esperado
   const row = page.locator('#tab-resultados table').first().locator('tr', { hasText: PROJECT_TITLE });
   await expect(row).toHaveCount(1);
-  await expect(row).toContainText(`${PRE_TOTAL}.00`);
+  // El ranking ordena por el puntaje ponderado; también muestra la suma directa
+  await expect(row).toContainText(PRE_WEIGHTED.toFixed(2));
+  await expect(row).toContainText(`${PRE_TOTAL.toFixed(1)}/${MAX_RAW_SCORE}`);
 
   // Marcar finalista y guardar
   await row.locator('.finalist-checkbox').check();
@@ -342,7 +352,7 @@ test('juez vota al finalista en la ronda final', async ({ browser }) => {
   await expect(page.locator('#toast-msg')).toContainText('guardada con éxito', { timeout: 15_000 });
   const completedCard = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
   await expect(completedCard).toBeVisible({ timeout: 20_000 });
-  await expect(completedCard.locator('.score-value')).toContainText(`${FINAL_TOTAL}/70`);
+  await expect(completedCard.locator('.score-value')).toContainText(`${FINAL_TOTAL}/${MAX_RAW_SCORE}`);
   await page.context().close();
 });
 
@@ -387,7 +397,7 @@ test('seguridad: nadie puede votar fuera de la fase activa (RLS)', async () => {
     project_id: projectId,
     judge_id: auth!.user!.id,
     phase: 'preclasificacion',
-    score_problem: 5, score_solution: 5, score_innovation: 5, score_validation: 5,
+    score_problem: 5, score_solution: 5, score_innovation: 5,
     score_feasibility: 5, score_impact: 5, score_communication: 5,
   });
   expect(error).not.toBeNull();

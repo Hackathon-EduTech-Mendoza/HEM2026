@@ -18,23 +18,45 @@
 ## Estado de la base (Supabase `cotwhywqcocutrkmrpiw`)
 
 - Migraciones `20260714_01` (fases + criterios) y `20260714_02` (juez aprobado) **aplicadas**.
+- `20260724_01` (rúbrica EduTech 1–5 ponderada) y `20260724_02` (`profiles.institution_other`)
+  **aplicadas el 2026-07-24**. Verificado: `evaluations` sin `score_validation` y con CHECK 1–5,
+  vista `project_leaderboard` con `raw_score` + `final_score` y `security_invoker=true`.
 - `evaluation_phase = cerrada`, `finalists_count = 10`.
+
+### ⚠️ Historial de migraciones desincronizado
+
+Las migraciones se aplicaron siempre por MCP/dashboard, así que en
+`supabase_migrations.schema_migrations` figuran con timestamps propios que **no coinciden
+con los nombres de archivo locales**. Para el CLI, ninguna migración local está aplicada:
+**`supabase db push` intentaría reaplicar todo desde mayo y rompería la base.**
+
+Para aplicar migraciones nuevas, ejecutar el SQL directo contra la conexión
+(`SUPABASE_DB_URL` en `.env`, por el pooler) o seguir usando el MCP. Ordenar esto con
+`supabase migration repair` es un pendiente aparte.
+
+### Conexión a la base
+
+El host directo `db.<ref>.supabase.co` **solo resuelve a IPv6** y no es alcanzable desde
+la red del equipo. Hay que usar el pooler:
+`postgresql://postgres.<ref>:<password>@aws-1-us-east-2.pooler.supabase.com:5432/postgres`
+(ojo: por el pooler el usuario es `postgres.<project_ref>`, y los caracteres especiales de
+la contraseña van percent-encodeados — el `#` como `%23`).
 - Usuario admin de prueba para la suite E2E: `e2e.admin@hem2026.test` (no borrar; lo usa `npm run test:e2e`).
 - Datos e2e de las corridas ya limpiados.
 
 ## Pendientes para la próxima sesión
 
 1. **Push** de los commits de `Nahuel_Develop` (y PR a `develop` cuando corresponda).
-2. **Borrar perfiles de test viejos** — falta confirmar la lista. Candidatos claros:
-   `test@gmail.com`, `test2@`, `test3@`, `test5@`, `juez@gmail.com`, `mentor@gmail.com`,
-   `pepito@`, `pepe@gmail.com`, `pepe@gmail.c`, `seb@gm.c`, `sebadevalbornoz@` ("1234 1234"),
-   `adminnahuelito@`, `betagamer345@`, y el equipo **"Los Vengadores"** con su proyecto "Guidia".
-   ⚠️ Hay perfiles reales mezclados (admins del evento y participantes de junio):
-   Martin Pérez Millán, Denia Gomez, Priscila Vitto, María Jesús Italiani,
-   Gustavo García, Mauro Lizarraga, Brian Juan, magalyalvarez234, seba266@yahoo — NO tocar sin confirmar.
+2. ~~Borrar perfiles de test viejos~~ **HECHO el 2026-07-24** (lista confirmada por Martín).
+   Se borraron 13 perfiles con sus cuentas de `auth.users`, el equipo **"Los Vengadores"**
+   y el proyecto **"Guidia"**. Quedaron 16 perfiles, 0 equipos y 0 proyectos.
+   Se **conservó** `e2e.admin@hem2026.test` porque lo necesita `npm run test:e2e`.
+   `adminnahuelito@` y `betagamer345@` (cuentas admin propias) tampoco estaban en la lista.
 3. **Aprobación visual del rediseño de "Mi Perfil"** (probar en `/dashboard` con `npm run dev`).
-4. **Rúbrica oficial**: esperando que el administrador del concurso confirme escala y pesos
-   de los 7 criterios (ver `BACKLOG.md` punto 1). Hoy: 1–10 sin pesos, total /70.
+4. **Rúbrica EduTech**: ya implementada y aplicada (6 criterios, escala 1–5, puntaje
+   ponderado + suma directa, instructivo para el jurado en `/evaluacion`). Queda definir
+   con el administrador si el resultado oficial sale del ponderado o de la suma directa
+   (ver `BACKLOG.md` punto 1).
 5. Ítems restantes del `BACKLOG.md`: normalizar Instagram, validar teléfono,
    carrera de "Cargando..." en `ProjectSubmission.astro`.
 
