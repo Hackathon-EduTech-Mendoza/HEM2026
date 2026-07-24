@@ -1,9 +1,12 @@
 # Estado actual — rama `Nahuel_Develop`
 
-> Última sesión: 2026-07-14/15. Este archivo resume qué quedó hecho y qué
+> Última sesión: 2026-07-24. Este archivo resume qué quedó hecho y qué
 > falta para retomar el trabajo sin perder contexto.
+>
+> Todo lo listado abajo está **pusheado** a `origin/Nahuel_Develop` (merge `1d81eef`).
+> Falta el PR a `develop`.
 
-## Hecho en esta sesión (commits locales, SIN pushear)
+## Commits de las sesiones 2026-07-14/15 y 2026-07-24
 
 | Commit | Qué es |
 |--------|--------|
@@ -46,7 +49,23 @@ la contraseña van percent-encodeados — el `#` como `%23`).
 
 ## Pendientes para la próxima sesión
 
-1. **Push** de los commits de `Nahuel_Develop` (y PR a `develop` cuando corresponda).
+1. ~~Push de los commits~~ **HECHO el 2026-07-24**. Falta el **PR a `develop`**.
+   Nota: el `origin` local apunta a `Nahuelito22/HEM2026`, que redirige a
+   `Hackathon-EduTech-Mendoza/HEM2026`. Conviene actualizar la URL del remoto.
+
+### Hallazgos abiertos de la auditoría (2026-07-24)
+
+- **El jurado no puede corregir un voto ya guardado.** La UI de `/evaluacion` sólo
+  hace `insert`, y el `UNIQUE(project_id, judge_id, phase)` impide volver a votar.
+  La política RLS de UPDATE ya existe, así que falta sólo el camino en la interfaz.
+  Riesgo real durante el evento: un juez que se equivoca queda trabado.
+- **Admin en `/evaluacion` con la fase cerrada** ve la lista de proyectos y el botón
+  "Evaluar", pero guardar falla porque `phase` sería `cerrada` y el CHECK sólo admite
+  `preclasificacion`/`final`. Los jueces no lo sufren (ven el aviso de cerrado).
+- **`event_config` tiene fechas viejas**: `event_start_datetime` (2026-06-03) y
+  `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
+  (el countdown del Hero tiene la fecha hardcodeada, 2026-08-26), pero si alguien
+  reactiva el fetch comentado en `Hero.astro` el contador queda mal.
 2. ~~Borrar perfiles de test viejos~~ **HECHO el 2026-07-24** (lista confirmada por Martín).
    Se borraron 13 perfiles con sus cuentas de `auth.users`, el equipo **"Los Vengadores"**
    y el proyecto **"Guidia"**. Quedaron 16 perfiles, 0 equipos y 0 proyectos.
