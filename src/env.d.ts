@@ -14,6 +14,8 @@ interface UserProfile {
   email: string;
   role: UserRole;
   institution: string | null;
+  /** Nombre libre de la institución cuando `institution` es 'otra'. */
+  institution_other: string | null;
   dni: string | null;
   phone_whatsapp: string | null;
   instagram_handle: string | null;

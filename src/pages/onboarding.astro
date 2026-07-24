@@ -128,6 +128,19 @@ const email = user.email || '';
               </select>
             </div>
 
+            <!-- Nombre de la institución (solo si eligió "Otra institución") -->
+            <div class="form-group" id="institution-other-group" style="display: none;">
+              <label for="institution_other">¿Cuál es tu institución?</label>
+              <input
+                type="text"
+                id="institution_other"
+                name="institution_other"
+                placeholder="Ej: Escuela Técnica N° 4-115 Pedro Vargas"
+                maxlength="120"
+                disabled
+              />
+            </div>
+
             <!-- Perfil Disciplinar -->
             <div class="form-group">
               <label for="disciplinary_profile">Perfil disciplinar</label>
@@ -603,6 +616,30 @@ const email = user.email || '';
     yearOfStudySelect.addEventListener('change', handleYearOfStudyChange);
   }
 
+  // Institución: si elige "Otra", pedirle el nombre
+  const institutionSelect = document.getElementById('institution') as HTMLSelectElement;
+  const institutionOtherGroup = document.getElementById('institution-other-group') as HTMLDivElement;
+  const institutionOtherInput = document.getElementById('institution_other') as HTMLInputElement;
+
+  function handleInstitutionChange() {
+    if (!institutionOtherGroup || !institutionOtherInput) return;
+    if (institutionSelect?.value === 'otra') {
+      institutionOtherGroup.style.display = 'flex';
+      institutionOtherInput.disabled = false;
+      institutionOtherInput.setAttribute('required', 'true');
+    } else {
+      institutionOtherGroup.style.display = 'none';
+      institutionOtherInput.disabled = true;
+      institutionOtherInput.removeAttribute('required');
+      institutionOtherInput.value = '';
+    }
+  }
+
+  if (institutionSelect) {
+    institutionSelect.addEventListener('change', handleInstitutionChange);
+    handleInstitutionChange();
+  }
+
   // Transición al Paso 2
   btnToStep2.addEventListener('click', () => {
     if (!selectedRole) return;
@@ -651,8 +688,16 @@ const email = user.email || '';
     const institution = (document.getElementById('institution') as HTMLSelectElement).value;
     const disciplinary_profile = (document.getElementById('disciplinary_profile') as HTMLSelectElement).value;
 
+    const institution_other = institutionOtherInput?.value.trim() || '';
+
     if (!first_name || !last_name || !dni || !phone_whatsapp || !institution || !disciplinary_profile) {
       errorDiv.textContent = 'Por favor, completá todos los campos obligatorios.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    if (institution === 'otra' && !institution_other) {
+      errorDiv.textContent = 'Contanos el nombre de tu institución.';
       errorDiv.style.display = 'block';
       return;
     }
@@ -674,6 +719,7 @@ const email = user.email || '';
       dni,
       phone_whatsapp,
       institution,
+      institution_other: institution === 'otra' ? institution_other : null,
       disciplinary_profile,
       role: selectedRole
     };

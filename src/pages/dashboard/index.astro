@@ -39,7 +39,7 @@ const institutionLabel = profile.institution === 'ies_9023_maipu'
   ? 'IES 9-023 Maipú'
   : profile.institution === 'ies_edison'
   ? 'IES Tomás Alva Edison'
-  : 'Otra institución';
+  : profile.institution_other || 'Otra institución';
 const roleLabels: Record<string, string> = {
   participante: 'Participante',
   juez: 'Juez',
@@ -151,6 +151,22 @@ if (profile.team_id && helpEnabled) {
                   <option value="ies_edison">IES Tomás Alva Edison</option>
                   <option value="otra">Otra institución</option>
                 </select>
+              </div>
+            </div>
+
+            <!-- Nombre de la institución (solo si eligió "Otra institución") -->
+            <div class="form-row" id="institution-other-row" style="display: none;">
+              <div class="form-group">
+                <label for="institution_other">¿Cuál es tu institución?</label>
+                <input
+                  type="text"
+                  id="institution_other"
+                  name="institution_other"
+                  placeholder="Ej: Escuela Técnica N° 4-115 Pedro Vargas"
+                  maxlength="120"
+                  value={profile.institution_other || ''}
+                  disabled
+                />
               </div>
             </div>
 
@@ -1656,6 +1672,30 @@ if (profile.team_id && helpEnabled) {
   const errorDiv = document.getElementById('form-error') as HTMLDivElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
 
+  // Institución: si elige "Otra", pedirle el nombre
+  const institutionSelect = form?.querySelector('#institution') as HTMLSelectElement | null;
+  const institutionOtherRow = document.getElementById('institution-other-row') as HTMLDivElement | null;
+  const institutionOtherInput = form?.querySelector('#institution_other') as HTMLInputElement | null;
+
+  function handleInstitutionChange() {
+    if (!institutionOtherRow || !institutionOtherInput) return;
+    if (institutionSelect?.value === 'otra') {
+      institutionOtherRow.style.display = '';
+      institutionOtherInput.disabled = false;
+      institutionOtherInput.setAttribute('required', 'true');
+    } else {
+      institutionOtherRow.style.display = 'none';
+      institutionOtherInput.disabled = true;
+      institutionOtherInput.removeAttribute('required');
+      institutionOtherInput.value = '';
+    }
+  }
+
+  if (institutionSelect) {
+    institutionSelect.addEventListener('change', handleInstitutionChange);
+    handleInstitutionChange();
+  }
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     errorDiv.style.display = 'none';
@@ -1663,12 +1703,19 @@ if (profile.team_id && helpEnabled) {
     // Obtener los valores del formulario
     const dni = (form.querySelector('#dni') as HTMLInputElement).value.trim();
     const institution = (form.querySelector('#institution') as HTMLSelectElement).value;
+    const institution_other = institutionOtherInput?.value.trim() || '';
     const year_of_study = (form.querySelector('#year_of_study') as HTMLSelectElement).value;
     const disciplinary_profile = (form.querySelector('#disciplinary_profile') as HTMLSelectElement).value;
     const is_egresado = (form.querySelector('#is_egresado') as HTMLInputElement).checked;
 
     if (!dni || !institution || !year_of_study || !disciplinary_profile) {
       errorDiv.textContent = 'Por favor, completá todos los campos obligatorios.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    if (institution === 'otra' && !institution_other) {
+      errorDiv.textContent = 'Contanos el nombre de tu institución.';
       errorDiv.style.display = 'block';
       return;
     }
@@ -1695,6 +1742,7 @@ if (profile.team_id && helpEnabled) {
       .update({
         dni,
         institution,
+        institution_other: institution === 'otra' ? institution_other : null,
         year_of_study,
         disciplinary_profile,
         is_egresado,
