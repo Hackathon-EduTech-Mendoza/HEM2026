@@ -1162,6 +1162,9 @@ const projects = allProjects || [];
             <p>
               Podés usar la barra de búsqueda superior para filtrar por nombre o DNI. Para asignar o modificar un rol o estado de inscripción, simplemente usá los desplegables de la tabla. Los cambios se guardan al instante.
             </p>
+            <p>
+              En la columna <strong>Institución</strong>, quienes eligieron "Otra institución" al registrarse aparecen con el nombre que escribieron, no con un genérico.
+            </p>
           </div>
 
           <div class="help-section">
@@ -1170,7 +1173,36 @@ const projects = allProjects || [];
               Los límites para <strong>egresados, técnicos y docentes</strong> controlan en tiempo real quiénes y cuántos perfiles pueden unirse a cada equipo. Si un equipo excede el límite de un rol específico, el sistema bloqueará nuevas incorporaciones con dicho perfil.
             </p>
             <p>
-              Los toggles te permiten habilitar o deshabilitar dinámicamente fases clave como la creación de equipos, la entrega de proyectos en el Día D, el sistema de evaluación de jurados y los tickets SOS de ayuda en tiempo real.
+              Los toggles habilitan o deshabilitan al instante la <strong>formación de equipos</strong> y la <strong>recepción de proyectos</strong> (el Día D). La evaluación no se maneja con un toggle sino con el selector de fases que se explica abajo.
+            </p>
+          </div>
+
+          <div class="help-section">
+            <h3>⚖️ Evaluación: fases y finalistas</h3>
+            <p>
+              El selector <strong>Fase de Evaluación</strong> define qué puede hacer el jurado en cada momento. Se avanza manualmente, en este orden:
+            </p>
+            <ol>
+              <li><strong>Cerrada:</strong> el jurado no puede votar. Es el estado por defecto.</li>
+              <li><strong>Preclasificación:</strong> el jurado evalúa a <em>todos</em> los equipos.</li>
+              <li><strong>Deliberación:</strong> pausa la votación para revisar el ranking y definir los finalistas sin que sigan entrando votos.</li>
+              <li><strong>Ronda Final:</strong> el jurado vuelve a evaluar, pero <em>sólo</em> a los equipos marcados como finalistas.</li>
+            </ol>
+            <p>
+              En la pestaña <strong>Resultados</strong> vas a ver dos rankings separados, uno por fase. En el de preclasificación se eligen los finalistas: el botón <strong>"Marcar Top N"</strong> tilda automáticamente a los mejores según el cupo configurado en <em>Cupo de Finalistas</em>, y podés ajustar las tildes a mano antes de presionar <strong>"Guardar Finalistas"</strong>. Sin ese paso, la ronda final queda vacía.
+            </p>
+          </div>
+
+          <div class="help-section">
+            <h3>🏆 Cómo se calcula el puntaje</h3>
+            <p>
+              Cada jurado puntúa <strong>6 criterios del 1 al 5</strong> (Problema, Solución, Innovación, Factibilidad, Impacto y Comunicación). El ranking muestra dos totales para poder compararlos:
+            </p>
+            <p>
+              <strong>Suma directa</strong> es el promedio de los 6 criterios sumados sin pesos, sobre 30. <strong>Puntaje Ponderado</strong> aplica el peso de cada criterio y lo normaliza a 100 — Solución y Factibilidad pesan 20% cada uno, y los otros cuatro 15%. <strong>El ranking se ordena por el ponderado.</strong>
+            </p>
+            <p>
+              La columna <em>Desglose</em> muestra el promedio de cada criterio por separado, en el orden de los encabezados, para ver dónde se hizo la diferencia entre dos proyectos parejos.
             </p>
           </div>
 
@@ -1307,6 +1339,18 @@ const projects = allProjects || [];
     font-size: 0.95rem;
     line-height: 1.5;
     color: var(--txt-2);
+  }
+
+  .help-section ol {
+    margin: 0 0 0.75rem 0;
+    padding-left: 1.25rem;
+  }
+
+  .help-section li {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--txt-2);
+    margin-bottom: 0.35rem;
   }
 
   .help-section p:last-child {
