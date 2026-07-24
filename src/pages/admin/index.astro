@@ -2,6 +2,7 @@
 // src/pages/admin/index.astro
 import Layout from "../../layouts/Layout.astro";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import { CRITERIA, MAX_RAW_SCORE } from "../../lib/rubric";
 
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -33,7 +34,7 @@ const supabase = createServerClient(
 const { data: allProfiles, error } = await supabase
   .from("profiles")
   .select(
-    "id, full_name, email, dni, institution, is_egresado, role, registration_status, created_at",
+    "id, full_name, email, dni, institution, institution_other, is_egresado, role, registration_status, created_at",
   )
   .order("created_at", { ascending: false });
 
@@ -56,7 +57,8 @@ const { data: configData } = await supabase
   .in("key", [
     "teams_enabled",
     "project_submission_enabled",
-    "evaluation_enabled",
+    "evaluation_phase",
+    "finalists_count",
     "help_enabled",
     "mentor_session_duration",
     "help_cooldown_minutes",
@@ -70,8 +72,12 @@ const teamsEnabled =
 const projectsEnabled =
   configData?.find((c) => c.key === "project_submission_enabled")?.value ===
   "true";
-const evaluationEnabled =
-  configData?.find((c) => c.key === "evaluation_enabled")?.value === "true";
+const evaluationPhase =
+  configData?.find((c) => c.key === "evaluation_phase")?.value || "cerrada";
+const finalistsCount = parseInt(
+  configData?.find((c) => c.key === "finalists_count")?.value || "10",
+  10,
+);
 const helpEnabled =
   configData?.find((c) => c.key === "help_enabled")?.value === "true";
 const mentorSessionDuration =
@@ -85,7 +91,7 @@ const maxTecnicosPerTeam =
 const maxDocentesPerTeam =
   configData?.find((c) => c.key === "max_docentes_per_team")?.value || "2";
 
-// Obtener datos del Leaderboard
+// Obtener datos del Leaderboard (una fila por proyecto y fase)
 const { data: leaderboardData, error: leaderboardError } = await supabase
   .from("project_leaderboard")
   .select("*")
@@ -95,7 +101,12 @@ if (leaderboardError) {
   console.error("Error fetching leaderboard:", leaderboardError);
 }
 
-const leaderboard = leaderboardData || [];
+const leaderboardPre = (leaderboardData || []).filter(
+  (row) => row.phase === "preclasificacion",
+);
+const leaderboardFinal = (leaderboardData || []).filter(
+  (row) => row.phase === "final" && row.is_finalist,
+);
 
 // Obtener mentores aprobados con datos de contacto
 const { data: allMentors } = await supabase
@@ -277,7 +288,7 @@ const projects = allProjects || [];
                             : p.institution === "ies_edison"
                               ? "Edison"
                               : p.institution === "otra"
-                                ? "Otra"
+                                ? p.institution_other || "Otra"
                                 : "-"}
                         </td>
                         <td data-label="Egresado">
@@ -405,27 +416,45 @@ const projects = allProjects || [];
         </div>
       </div>
 
-      <div class="config-card card">
+      <div class="config-card config-card--stack card">
         <div class="config-info">
-          <h3>Evaluación de Jurados</h3>
+          <h3>Fase de Evaluación</h3>
           <p>
-            Permite a los jueces calificar los proyectos entregados según sus
-            rúbricas.
+            Controla qué votación está habilitada para el jurado:
+            preclasificación (todos los proyectos) o ronda final (solo finalistas).
           </p>
         </div>
         <div class="config-action">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              id="evaluation-enabled-toggle"
-              checked={evaluationEnabled}
-            />
-            <span class="toggle-slider"></span>
-          </label>
+          <select id="evaluation-phase-select" class="filter-select" data-original-val={evaluationPhase}>
+            <option value="cerrada" selected={evaluationPhase === "cerrada"}>Cerrada</option>
+            <option value="preclasificacion" selected={evaluationPhase === "preclasificacion"}>Preclasificación</option>
+            <option value="deliberacion" selected={evaluationPhase === "deliberacion"}>Deliberación (votación pausada)</option>
+            <option value="final" selected={evaluationPhase === "final"}>Ronda Final</option>
+          </select>
         </div>
       </div>
 
       <div class="config-card card">
+        <div class="config-info">
+          <h3>Cupo de Finalistas</h3>
+          <p>Cantidad de proyectos que pasan a la ronda final (Top N de la preclasificación).</p>
+        </div>
+        <div class="config-action">
+		<input
+			type="number"
+			id="finalists-count-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={finalistsCount}
+			min="1"
+			max="50"
+			step="1"
+		/>
+        </div>
+      </div>
+
+      <!-- Oculto temporalmente: el sistema SOS no se usa en esta edición. Quitar display:none para reactivar. -->
+      <div class="config-card card" style="display: none;">
         <div class="config-info">
           <h3>Pedidos de Ayuda SOS</h3>
           <p>
@@ -444,7 +473,7 @@ const projects = allProjects || [];
         </div>
       </div>
 
-      <div class="config-card card">
+      <div class="config-card card" style="display: none;">
         <div class="config-info">
           <h3>Duración de Sesión (Minutos)</h3>
           <p>Tiempo estimado de atención por cada ticket SOS.</p>
@@ -463,7 +492,7 @@ const projects = allProjects || [];
         </div>
       </div>
 
-      <div class="config-card card">
+      <div class="config-card card" style="display: none;">
         <div class="config-info">
           <h3>Cooldown SOS (Minutos)</h3>
           <p>Tiempo de espera entre pedidos de ayuda de un mismo equipo.</p>
@@ -724,7 +753,29 @@ const projects = allProjects || [];
       </button>
     </div>
 
-    <div class="admin-card card">
+    <p style="margin: 0 0 1.5rem; font-size: 0.9rem; color: var(--txt-2); line-height: 1.6;">
+      Cada criterio se puntúa de 1 a 5. Se muestran los dos formatos para poder compararlos:
+      <strong>Suma directa</strong> es el promedio de los {CRITERIA.length} criterios sumados sin pesos
+      (sobre {MAX_RAW_SCORE}), y <strong>Puntaje Ponderado</strong> aplica el peso de cada criterio
+      normalizado a 100 ({CRITERIA.map((c) => `${c.short} ${Math.round(c.weight * 100)}%`).join(" · ")}).
+      El ranking se ordena por el puntaje ponderado.
+    </p>
+
+    <!-- Fase 1: Preclasificación -->
+    <div class="admin-card card" style="margin-bottom: 2rem;">
+      <div class="admin-actions" style="justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+        <h3 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.15rem;">
+          Fase 1: Preclasificación
+        </h3>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button id="autoselect-finalists-btn" class="btn btn-outline">
+            Marcar Top {finalistsCount}
+          </button>
+          <button id="save-finalists-btn" class="btn btn-primary">
+            Guardar Finalistas
+          </button>
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="admin-table leaderboard-table">
           <thead>
@@ -733,23 +784,24 @@ const projects = allProjects || [];
               <th>Proyecto</th>
               <th>Equipo</th>
               <th>Evaluaciones</th>
-              <th class="desktop-only">Desglose (Inn / Via / UX / Pit)</th>
-              <th>Puntaje Final</th>
+              <th class="desktop-only">Desglose ({CRITERIA.map((c) => c.short).join(" / ")})</th>
+              <th>Suma directa</th>
+              <th>Puntaje Ponderado</th>
+              <th>Finalista</th>
             </tr>
           </thead>
           <tbody>
             {
-              leaderboard.length === 0 ? (
+              leaderboardPre.length === 0 ? (
                 <tr>
-                  <td colspan="6" class="empty-state">
-                    Aún no hay proyectos evaluados.
+                  <td colspan="8" class="empty-state">
+                    Aún no hay proyectos para evaluar.
                   </td>
                 </tr>
               ) : (
-                leaderboard.map((row, index) => {
+                leaderboardPre.map((row, index) => {
                   const pos = index + 1;
                   let rowClass = "user-row";
-                  let rankBadge = pos.toString();
 
                   if (pos === 1) {
                     rowClass += " podium-1";
@@ -780,13 +832,109 @@ const projects = allProjects || [];
                       <td data-label="Evaluaciones">{row.evaluations_count}</td>
                       <td data-label="Desglose" class="desktop-only">
                         <div style="font-size: 0.85rem; color: var(--txt-2);">
-                          {Number(row.avg_innovation).toFixed(1)} /
-                          {Number(row.avg_viability).toFixed(1)} /
-                          {Number(row.avg_ux).toFixed(1)} /
-                          {Number(row.avg_pitch).toFixed(1)}
+                          {CRITERIA.map((c) => Number(row[`avg_${c.key}`]).toFixed(1)).join(" / ")}
                         </div>
                       </td>
-                      <td data-label="Puntaje Final">
+                      <td data-label="Suma directa">
+                        <span style="color: var(--txt-2);">
+                          {Number(row.raw_score).toFixed(1)}/{MAX_RAW_SCORE}
+                        </span>
+                      </td>
+                      <td data-label="Puntaje Ponderado">
+                        <strong style="font-size: 1.2rem; color: var(--txt-1);">
+                          {Number(row.final_score).toFixed(2)}
+                        </strong>
+                      </td>
+                      <td data-label="Finalista">
+                        <input
+                          type="checkbox"
+                          class="finalist-checkbox"
+                          data-project-id={row.project_id}
+                          checked={row.is_finalist}
+                          style="width: 18px; height: 18px; accent-color: var(--c1); cursor: pointer;"
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              )
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Fase 2: Ronda Final -->
+    <div class="admin-card card">
+      <div class="admin-actions">
+        <h3 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.15rem;">
+          Fase 2: Ronda Final
+        </h3>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table leaderboard-table">
+          <thead>
+            <tr>
+              <th style="width: 60px;">Posición</th>
+              <th>Proyecto</th>
+              <th>Equipo</th>
+              <th>Evaluaciones</th>
+              <th class="desktop-only">Desglose ({CRITERIA.map((c) => c.short).join(" / ")})</th>
+              <th>Suma directa</th>
+              <th>Puntaje Ponderado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              leaderboardFinal.length === 0 ? (
+                <tr>
+                  <td colspan="7" class="empty-state">
+                    Aún no hay finalistas seleccionados. Marcalos y guardalos en la tabla de preclasificación.
+                  </td>
+                </tr>
+              ) : (
+                leaderboardFinal.map((row, index) => {
+                  const pos = index + 1;
+                  let rowClass = "user-row";
+
+                  if (pos === 1) {
+                    rowClass += " podium-1";
+                  } else if (pos === 2) {
+                    rowClass += " podium-2";
+                  } else if (pos === 3) {
+                    rowClass += " podium-3";
+                  }
+
+                  return (
+                    <tr class={rowClass}>
+                      <td data-label="Posición">
+                        <span class={`rank-badge rank-${pos}`}>
+                          {pos === 1 && (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right: 2px;"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
+                          )}
+                          {pos}
+                        </span>
+                      </td>
+                      <td data-label="Proyecto">
+                        <strong>{row.title}</strong>
+                      </td>
+                      <td data-label="Equipo">
+                        <span style="color: var(--c1); font-weight: 500;">
+                          {row.team_name}
+                        </span>
+                      </td>
+                      <td data-label="Evaluaciones">{row.evaluations_count}</td>
+                      <td data-label="Desglose" class="desktop-only">
+                        <div style="font-size: 0.85rem; color: var(--txt-2);">
+                          {CRITERIA.map((c) => Number(row[`avg_${c.key}`]).toFixed(1)).join(" / ")}
+                        </div>
+                      </td>
+                      <td data-label="Suma directa">
+                        <span style="color: var(--txt-2);">
+                          {Number(row.raw_score).toFixed(1)}/{MAX_RAW_SCORE}
+                        </span>
+                      </td>
+                      <td data-label="Puntaje Ponderado">
                         <strong style="font-size: 1.2rem; color: var(--txt-1);">
                           {Number(row.final_score).toFixed(2)}
                         </strong>
@@ -1257,6 +1405,9 @@ const projects = allProjects || [];
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    /* Cada card ocupa solo su alto: sin esto, la card más alta de la fila
+       (ej. Fase de Evaluación) estiraba a las de al lado. */
+    align-items: start;
   }
   @media (min-width: 768px) {
     .config-grid {
@@ -1270,6 +1421,17 @@ const projects = allProjects || [];
     justify-content: space-between;
     align-items: flex-start;
     gap: 1rem;
+  }
+  /* Variante para controles anchos (selects): el control va debajo del texto,
+     así la descripción usa todo el ancho de la card en vez de una columna angosta. */
+  .config-card--stack {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+  .config-card--stack .config-action,
+  .config-card--stack .config-action .filter-select {
+    width: 100%;
   }
   .config-info h3 {
     margin: 0 0 0.5rem 0;
@@ -2318,30 +2480,34 @@ const projects = allProjects || [];
     target.disabled = false;
   });
 
-  // Lógica del Toggle de Evaluaciones
-  const evaluationToggle = document.getElementById(
-    "evaluation-enabled-toggle",
-  ) as HTMLInputElement;
-  evaluationToggle?.addEventListener("change", async (e) => {
-    const target = e.target as HTMLInputElement;
-    const newValue = target.checked ? "true" : "false";
+  // Lógica del Selector de Fase de Evaluación
+  const phaseSelect = document.getElementById(
+    "evaluation-phase-select",
+  ) as HTMLSelectElement;
+  const phaseLabels: Record<string, string> = {
+    cerrada: "Evaluación cerrada",
+    preclasificacion: "Fase de Preclasificación habilitada",
+    deliberacion: "Votación pausada (deliberación)",
+    final: "Ronda Final habilitada",
+  };
+  phaseSelect?.addEventListener("change", async (e) => {
+    const target = e.target as HTMLSelectElement;
+    const previousValue = target.getAttribute("data-original-val") || target.value;
+    const newValue = target.value;
     target.disabled = true;
 
     const { error } = await supabase
       .from("event_config")
       .update({ value: newValue })
-      .eq("key", "evaluation_enabled");
+      .eq("key", "evaluation_phase");
 
     if (error) {
       console.error("Update config error:", error);
       showToast("Error al actualizar configuración.", true);
-      target.checked = !target.checked; // Revertir visualmente
+      target.value = previousValue; // Revertir visualmente
     } else {
-      showToast(
-        newValue === "true"
-          ? "Evaluación de jurados habilitada"
-          : "Evaluación de jurados deshabilitada",
-      );
+      target.setAttribute("data-original-val", newValue);
+      showToast(phaseLabels[newValue] || "Fase actualizada");
     }
     target.disabled = false;
   });
@@ -2380,16 +2546,18 @@ const projects = allProjects || [];
   const maxEgresadosInput = document.getElementById("max-egresados-input") as HTMLInputElement;
   const maxTecnicosInput = document.getElementById("max-tecnicos-input") as HTMLInputElement;
   const maxDocentesInput = document.getElementById("max-docentes-input") as HTMLInputElement;
+  const finalistsCountInput = document.getElementById("finalists-count-input") as HTMLInputElement;
 
   const keyMap: Record<string, string> = {
     "mentor-duration-input": "mentor_session_duration",
     "help-cooldown-input": "help_cooldown_minutes",
     "max-egresados-input": "max_egresados_per_team",
     "max-tecnicos-input": "max_tecnicos_per_team",
-    "max-docentes-input": "max_docentes_per_team"
+    "max-docentes-input": "max_docentes_per_team",
+    "finalists-count-input": "finalists_count"
   };
 
-  [durationInput, cooldownInput, maxEgresadosInput, maxTecnicosInput, maxDocentesInput].forEach(input => {
+  [durationInput, cooldownInput, maxEgresadosInput, maxTecnicosInput, maxDocentesInput, finalistsCountInput].forEach(input => {
     input?.addEventListener("change", async () => {
       const key = keyMap[input.id];
       if (!key) return;
@@ -2409,6 +2577,65 @@ const projects = allProjects || [];
       }
       input.disabled = false;
     });
+  });
+
+  // Lógica de selección de finalistas (ranking de preclasificación)
+  const autoselectBtn = document.getElementById("autoselect-finalists-btn") as HTMLButtonElement;
+  const saveFinalistsBtn = document.getElementById("save-finalists-btn") as HTMLButtonElement;
+  const finalistCheckboxes = () =>
+    Array.from(document.querySelectorAll<HTMLInputElement>(".finalist-checkbox"));
+
+  // Marca los primeros N del ranking (las filas ya vienen ordenadas por puntaje)
+  autoselectBtn?.addEventListener("click", async () => {
+    const { data: countData } = await supabase
+      .from("event_config")
+      .select("value")
+      .eq("key", "finalists_count")
+      .single();
+    const count = parseInt(countData?.value || "10", 10);
+
+    finalistCheckboxes().forEach((cb, index) => {
+      cb.checked = index < count;
+    });
+    showToast(`Top ${count} marcado. Ajustá si hace falta y guardá.`);
+  });
+
+  saveFinalistsBtn?.addEventListener("click", async () => {
+    const checkboxes = finalistCheckboxes();
+    if (checkboxes.length === 0) return;
+
+    const selectedIds = checkboxes.filter((cb) => cb.checked).map((cb) => cb.dataset.projectId);
+    const unselectedIds = checkboxes.filter((cb) => !cb.checked).map((cb) => cb.dataset.projectId);
+
+    saveFinalistsBtn.disabled = true;
+    saveFinalistsBtn.textContent = "Guardando...";
+
+    let hadError = false;
+
+    if (selectedIds.length > 0) {
+      const { error } = await supabase
+        .from("projects")
+        .update({ is_finalist: true })
+        .in("id", selectedIds);
+      if (error) hadError = true;
+    }
+
+    if (unselectedIds.length > 0) {
+      const { error } = await supabase
+        .from("projects")
+        .update({ is_finalist: false })
+        .in("id", unselectedIds);
+      if (error) hadError = true;
+    }
+
+    if (hadError) {
+      showToast("Error al guardar finalistas.", true);
+      saveFinalistsBtn.disabled = false;
+      saveFinalistsBtn.textContent = "Guardar Finalistas";
+    } else {
+      showToast(`Finalistas guardados: ${selectedIds.length} proyectos.`);
+      setTimeout(() => window.location.reload(), 1000);
+    }
   });
 
   // Lógica de guardado de asignaciones manuales de mentores

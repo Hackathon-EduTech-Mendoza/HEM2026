@@ -32,6 +32,24 @@ if (!user || !profile) {
 // Lógica para determinar si el perfil está completo
 const isProfileComplete = !!(profile.first_name && profile.last_name);
 
+// Datos derivados para la credencial del participante
+const displayName = profile.first_name || profile.full_name;
+const initials = ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '') || profile.full_name?.slice(0, 2) || '?').toUpperCase();
+const institutionLabel = profile.institution === 'ies_9023_maipu'
+  ? 'IES 9-023 Maipú'
+  : profile.institution === 'ies_edison'
+  ? 'IES Tomás Alva Edison'
+  : profile.institution_other || 'Otra institución';
+const roleLabels: Record<string, string> = {
+  participante: 'Participante',
+  juez: 'Juez',
+  mentor: 'Mentor',
+  admin: 'Administración',
+  superadmin: 'Administración'
+};
+const roleLabel = roleLabels[profile.role] || 'Participante';
+const isParticipant = !['juez', 'mentor', 'admin', 'superadmin'].includes(profile.role);
+
 // Fetch teams_enabled and team config from event_config
 let teamsEnabled = false;
 let projectsEnabled = false;
@@ -67,12 +85,15 @@ if (isProfileComplete && profile.registration_status === 'aprobado') {
 
 // Fetch assigned mentor if user has a team
 let mentor = null;
+let teamName = null;
 if (profile.team_id) {
   const { data: teamData } = await supabase
     .from('teams')
-    .select('mentor_id')
+    .select('name, mentor_id')
     .eq('id', profile.team_id)
     .single();
+
+  teamName = teamData?.name || null;
   
   if (teamData?.mentor_id) {
     const { data: mentorData } = await supabase
@@ -130,6 +151,22 @@ if (profile.team_id && helpEnabled) {
                   <option value="ies_edison">IES Tomás Alva Edison</option>
                   <option value="otra">Otra institución</option>
                 </select>
+              </div>
+            </div>
+
+            <!-- Nombre de la institución (solo si eligió "Otra institución") -->
+            <div class="form-row" id="institution-other-row" style="display: none;">
+              <div class="form-group">
+                <label for="institution_other">¿Cuál es tu institución?</label>
+                <input
+                  type="text"
+                  id="institution_other"
+                  name="institution_other"
+                  placeholder="Ej: Escuela Técnica N° 4-115 Pedro Vargas"
+                  maxlength="120"
+                  value={profile.institution_other || ''}
+                  disabled
+                />
               </div>
             </div>
 
@@ -221,66 +258,119 @@ if (profile.team_id && helpEnabled) {
 
           <!-- Tab 1: Perfil -->
           <div class="tab-content active" id="tab-perfil" role="tabpanel">
-            <div class="tab-profile-layout">
-              <div class="welcome-card card">
-                <h2>¡Hola, {profile.first_name || profile.full_name}!</h2>
-                <p class="welcome-intro">Te damos la bienvenida a la <strong>Hackathon EduTech Mendoza 2026</strong>. Tu inscripción está confirmada.</p>
-                
-                <div class="quick-links">
-                  <h3>Enlaces rápidos:</h3>
-                  <ul>
-                    <li><a href="/#faq" class="quick-link">&rarr; Preguntas Frecuentes (FAQ)</a></li>
-                    <li><a href="/#bases" class="quick-link">&rarr; Bases y Condiciones</a></li>
-                    <li><a href="/#schedule" class="quick-link">&rarr; Cronograma del Evento</a></li>
-                  </ul>
-                </div>
+            <header class="profile-header">
+              <div class="profile-greeting">
+                <h2>¡Hola, {displayName}!</h2>
+                <p>Te damos la bienvenida a la <strong>Hackathon EduTech Mendoza 2026</strong>.</p>
               </div>
+              {profile.registration_status === 'aprobado' ? (
+                <span class="status-badge status-aprobado profile-status">✓ Inscripción confirmada</span>
+              ) : (
+                <span class="status-badge status-pendiente profile-status">Inscripción en revisión</span>
+              )}
+            </header>
 
-              <details class="profile-details-collapsible">
-                <summary class="details-summary-btn btn btn-outline">Editar datos de contacto</summary>
-                <div class="dashboard-card card profile-card" style="margin-top: 1rem;">
-                  <form id="update-contact-form" class="dash-form">
-                    <h3 class="section-label">Tus Datos Fijos</h3>
-                    <div class="form-row">
-                      <div class="form-group">
-                        <label for="display_dni">DNI</label>
-                        <input type="text" id="display_dni" value={profile.dni} disabled />
-                      </div>
-                      <div class="form-group">
-                        <label for="display_inst">Institución</label>
-                        <input type="text" id="display_inst" value={profile.institution === 'ies_9023_maipu' ? 'IES 9-023 Maipú' : profile.institution === 'ies_edison' ? 'IES Tomás Alva Edison' : 'Otra'} disabled />
-                      </div>
-                    </div>
-                    <div class="form-group checkbox-group">
-                      <label class="checkbox-label" style="opacity: 0.7; cursor: default;">
-                        <input type="checkbox" checked={profile.is_egresado} disabled />
-                        <span class="custom-checkbox"></span>
-                        Egresado/a
-                      </label>
-                    </div>
-                    
-                    <h3 class="section-label" style="margin-top: 1rem;">Datos de Contacto (Editables)</h3>
-                    <div class="form-row">
-                      <div class="form-group">
-                        <label for="phone_whatsapp">Teléfono (WhatsApp)</label>
-                        <input type="text" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: 2611234567" value={profile.phone_whatsapp || ''} />
-                      </div>
-                      <div class="form-group">
-                        <label for="instagram_handle">Instagram</label>
-                        <input type="text" id="instagram_handle" name="instagram_handle" placeholder="Ej: @usuario" value={profile.instagram_handle || ''} />
-                      </div>
-                    </div>
+            <div class="profile-grid">
+              <section class="profile-main">
+                {isParticipant && teamsEnabled && (
+                  teamName ? (
+                    <button type="button" class="team-strip" data-goto-tab="equipo">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                      <span>Tu equipo: <strong>{teamName}</strong></span>
+                      <span class="team-strip-cta">Ver equipo &rarr;</span>
+                    </button>
+                  ) : (
+                    <button type="button" class="team-strip team-strip-empty" data-goto-tab="equipo">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+                      <span>Todavía no tenés equipo.</span>
+                      <span class="team-strip-cta">Armalo acá &rarr;</span>
+                    </button>
+                  )
+                )}
 
-                    <div id="update-error" class="form-error" style="display: none;"></div>
-                    
-                    <div class="form-actions" style="margin-top: 0.5rem; justify-content: flex-start;">
-                      <button type="submit" class="btn btn-outline" id="update-btn">
-                        Actualizar Contacto
-                      </button>
-                    </div>
-                  </form>
+                <h3 class="section-label">Enlaces rápidos</h3>
+                <div class="quick-tiles">
+                  <a href="/#faq" class="quick-tile">
+                    <span class="quick-tile-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    </span>
+                    <span class="quick-tile-body">
+                      <strong>Preguntas Frecuentes</strong>
+                      <small>Dudas comunes sobre el evento</small>
+                    </span>
+                  </a>
+                  <a href="/bases-y-condiciones" class="quick-tile">
+                    <span class="quick-tile-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    </span>
+                    <span class="quick-tile-body">
+                      <strong>Bases y Condiciones</strong>
+                      <small>Reglamento de la competencia</small>
+                    </span>
+                  </a>
+                  <a href="/#cronograma" class="quick-tile">
+                    <span class="quick-tile-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    </span>
+                    <span class="quick-tile-body">
+                      <strong>Cronograma</strong>
+                      <small>Fechas y horarios del evento</small>
+                    </span>
+                  </a>
                 </div>
-              </details>
+              </section>
+
+              <aside class="credential-card card">
+                <div class="credential-top">
+                  <div class="credential-avatar">{initials}</div>
+                  <div class="credential-identity">
+                    <p class="credential-name">{profile.full_name}</p>
+                    <p class="credential-role">{roleLabel}{profile.is_egresado ? ' · Egresado/a' : ''}</p>
+                  </div>
+                </div>
+
+                <dl class="credential-data">
+                  <div class="credential-field">
+                    <dt>DNI</dt>
+                    <dd>{profile.dni || '—'}</dd>
+                  </div>
+                  <div class="credential-field">
+                    <dt>Institución</dt>
+                    <dd>{institutionLabel}</dd>
+                  </div>
+                  <div class="credential-field">
+                    <dt>WhatsApp</dt>
+                    <dd id="view-phone">{profile.phone_whatsapp || '—'}</dd>
+                  </div>
+                  <div class="credential-field">
+                    <dt>Instagram</dt>
+                    <dd id="view-instagram">{profile.instagram_handle || '—'}</dd>
+                  </div>
+                </dl>
+
+                <button type="button" class="btn btn-outline credential-edit-btn" id="edit-contact-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+                  Editar contacto
+                </button>
+
+                <form id="update-contact-form" class="dash-form contact-edit-form" hidden>
+                  <div class="form-group">
+                    <label for="phone_whatsapp">Teléfono (WhatsApp)</label>
+                    <input type="text" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: 2611234567" value={profile.phone_whatsapp || ''} />
+                  </div>
+                  <div class="form-group">
+                    <label for="instagram_handle">Instagram</label>
+                    <input type="text" id="instagram_handle" name="instagram_handle" placeholder="Ej: @usuario" value={profile.instagram_handle || ''} />
+                  </div>
+
+                  <div id="update-error" class="form-error" style="display: none;"></div>
+
+                  <div class="contact-edit-actions">
+                    <button type="submit" class="btn btn-primary" id="update-btn">Guardar</button>
+                    <button type="button" class="btn btn-outline" id="cancel-contact-btn">Cancelar</button>
+                  </div>
+                </form>
+              </aside>
             </div>
           </div>
 
@@ -785,19 +875,306 @@ if (profile.team_id && helpEnabled) {
   }
 
   /* Success Layout / Tab Styles */
-  .tab-profile-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    max-width: 900px;
-    margin: 0 auto;
+  .profile-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
   }
 
-  @media (min-width: 768px) {
-    .tab-profile-layout {
-      grid-template-columns: 1fr 1.2fr;
-      align-items: start;
+  @media (min-width: 640px) {
+    .profile-header {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
     }
+  }
+
+  .profile-greeting h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+    font-weight: 900;
+    color: var(--txt-1);
+    margin: 0;
+  }
+
+  .profile-greeting p {
+    color: var(--txt-2);
+    margin: 0.35rem 0 0;
+    font-size: 1rem;
+  }
+
+  .profile-status {
+    flex-shrink: 0;
+    align-self: flex-start;
+    font-weight: 600;
+  }
+
+  @media (min-width: 640px) {
+    .profile-status {
+      align-self: center;
+    }
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: "main" "aside";
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  @media (min-width: 820px) {
+    .profile-grid {
+      grid-template-columns: 1.4fr minmax(300px, 1fr);
+      grid-template-areas: "main aside";
+      gap: 2rem;
+    }
+  }
+
+  .profile-main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+  }
+
+  /* Franja de estado de equipo */
+  .team-strip {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.9rem 1.25rem;
+    background: rgba(var(--c1r), 0.07);
+    border: 1px solid rgba(var(--c1r), 0.2);
+    border-radius: var(--r-md);
+    color: var(--txt-1);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color var(--t-fast), background var(--t-fast);
+  }
+
+  .team-strip:hover {
+    border-color: rgba(var(--c1r), 0.45);
+    background: rgba(var(--c1r), 0.12);
+  }
+
+  .team-strip svg {
+    color: var(--c1);
+    flex-shrink: 0;
+  }
+
+  .team-strip-cta {
+    margin-left: auto;
+    color: var(--c1);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .team-strip-empty {
+    background: rgba(var(--c2r), 0.06);
+    border-color: rgba(var(--c2r), 0.2);
+  }
+
+  .team-strip-empty svg,
+  .team-strip-empty .team-strip-cta {
+    color: var(--c2);
+  }
+
+  .team-strip-empty:hover {
+    border-color: rgba(var(--c2r), 0.45);
+    background: rgba(var(--c2r), 0.1);
+  }
+
+  /* Enlaces rápidos como tiles */
+  .quick-tiles {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  @media (min-width: 480px) and (max-width: 819px) {
+    .quick-tiles {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .quick-tile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    text-decoration: none;
+    transition: border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+  }
+
+  .quick-tile:hover {
+    border-color: rgba(var(--c1r), 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .quick-tile-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--r-sm);
+    background: rgba(var(--c1r), 0.1);
+    color: var(--c1);
+  }
+
+  .quick-tile:nth-child(even) .quick-tile-icon {
+    background: rgba(var(--c2r), 0.1);
+    color: var(--c2);
+  }
+
+  .quick-tile-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .quick-tile-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .quick-tile-body strong {
+    color: var(--txt-1);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .quick-tile-body small {
+    color: var(--txt-2);
+    font-size: 0.82rem;
+  }
+
+  @media (min-width: 480px) and (max-width: 819px) {
+    .quick-tile {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.6rem;
+      padding: 1rem 0.75rem;
+    }
+  }
+
+  /* Credencial del participante */
+  .credential-card {
+    grid-area: aside;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-lg);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .credential-top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .credential-avatar {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--c1), var(--c2));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+  }
+
+  .credential-identity {
+    min-width: 0;
+  }
+
+  .credential-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--txt-1);
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .credential-role {
+    color: var(--txt-2);
+    font-size: 0.85rem;
+    margin: 0.15rem 0 0;
+  }
+
+  .credential-data {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--brd-s);
+    margin: 0;
+  }
+
+  .credential-field dt {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--txt-m);
+    margin-bottom: 0.2rem;
+  }
+
+  .credential-field dd {
+    color: var(--txt-1);
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .credential-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .contact-edit-form {
+    gap: 1rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--brd-s);
+  }
+
+  .contact-edit-form[hidden] {
+    display: none;
+  }
+
+  .contact-edit-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .contact-edit-actions .btn {
+    flex: 1;
   }
 
   .success-info {
@@ -864,83 +1241,6 @@ if (profile.team_id && helpEnabled) {
   color: var(--danger, #dc2626);
   border-color: rgba(var(--danger-r, 220, 38, 38), 0.2);
 }
-
-  /* Welcome Card & Pending Card Styles */
-  .welcome-card {
-    background: var(--bg-card);
-    border: 1px solid var(--brd);
-    border-radius: var(--r-lg);
-    padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .welcome-card h2 {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--txt-1);
-    margin: 0;
-  }
-
-  .welcome-intro {
-    color: var(--txt-2);
-    font-size: 1.1rem;
-    line-height: 1.6;
-    max-width: 100%;
-  }
-
-  .quick-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--brd-s);
-  }
-
-  .quick-links h3 {
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--txt-2);
-    margin-bottom: 0.25rem;
-  }
-
-  .quick-links ul {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .quick-link {
-    color: var(--c1);
-    font-weight: 600;
-    transition: color var(--t-fast), transform var(--t-fast);
-    display: inline-block;
-  }
-
-  .quick-link:hover {
-    color: var(--c2);
-    transform: translateX(4px);
-  }
-
-  .profile-details-collapsible {
-    margin-top: 1rem;
-    width: 100%;
-  }
-
-  .details-summary-btn {
-    list-style: none; /* remove default arrow */
-    outline: none;
-    display: inline-flex;
-    user-select: none;
-  }
-
-  .details-summary-btn::-webkit-details-marker {
-    display: none; /* remove default arrow in Safari */
-  }
 
   /* Pending Review Card Styles */
   .pending-container {
@@ -1372,6 +1672,30 @@ if (profile.team_id && helpEnabled) {
   const errorDiv = document.getElementById('form-error') as HTMLDivElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
 
+  // Institución: si elige "Otra", pedirle el nombre
+  const institutionSelect = form?.querySelector('#institution') as HTMLSelectElement | null;
+  const institutionOtherRow = document.getElementById('institution-other-row') as HTMLDivElement | null;
+  const institutionOtherInput = form?.querySelector('#institution_other') as HTMLInputElement | null;
+
+  function handleInstitutionChange() {
+    if (!institutionOtherRow || !institutionOtherInput) return;
+    if (institutionSelect?.value === 'otra') {
+      institutionOtherRow.style.display = '';
+      institutionOtherInput.disabled = false;
+      institutionOtherInput.setAttribute('required', 'true');
+    } else {
+      institutionOtherRow.style.display = 'none';
+      institutionOtherInput.disabled = true;
+      institutionOtherInput.removeAttribute('required');
+      institutionOtherInput.value = '';
+    }
+  }
+
+  if (institutionSelect) {
+    institutionSelect.addEventListener('change', handleInstitutionChange);
+    handleInstitutionChange();
+  }
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     errorDiv.style.display = 'none';
@@ -1379,12 +1703,19 @@ if (profile.team_id && helpEnabled) {
     // Obtener los valores del formulario
     const dni = (form.querySelector('#dni') as HTMLInputElement).value.trim();
     const institution = (form.querySelector('#institution') as HTMLSelectElement).value;
+    const institution_other = institutionOtherInput?.value.trim() || '';
     const year_of_study = (form.querySelector('#year_of_study') as HTMLSelectElement).value;
     const disciplinary_profile = (form.querySelector('#disciplinary_profile') as HTMLSelectElement).value;
     const is_egresado = (form.querySelector('#is_egresado') as HTMLInputElement).checked;
 
     if (!dni || !institution || !year_of_study || !disciplinary_profile) {
       errorDiv.textContent = 'Por favor, completá todos los campos obligatorios.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    if (institution === 'otra' && !institution_other) {
+      errorDiv.textContent = 'Contanos el nombre de tu institución.';
       errorDiv.style.display = 'block';
       return;
     }
@@ -1411,6 +1742,7 @@ if (profile.team_id && helpEnabled) {
       .update({
         dni,
         institution,
+        institution_other: institution === 'otra' ? institution_other : null,
         year_of_study,
         disciplinary_profile,
         is_egresado,
@@ -1437,6 +1769,23 @@ if (profile.team_id && helpEnabled) {
   const updateForm = document.getElementById('update-contact-form') as HTMLFormElement;
   const updateErrorDiv = document.getElementById('update-error') as HTMLDivElement;
   const updateBtn = document.getElementById('update-btn') as HTMLButtonElement;
+  const editContactBtn = document.getElementById('edit-contact-btn') as HTMLButtonElement;
+  const cancelContactBtn = document.getElementById('cancel-contact-btn') as HTMLButtonElement;
+  const viewPhone = document.getElementById('view-phone');
+  const viewInstagram = document.getElementById('view-instagram');
+
+  function setContactEditMode(editing: boolean) {
+    if (!updateForm || !editContactBtn) return;
+    updateForm.hidden = !editing;
+    editContactBtn.hidden = editing;
+    if (updateErrorDiv) updateErrorDiv.style.display = 'none';
+    if (editing) {
+      (updateForm.querySelector('#phone_whatsapp') as HTMLInputElement)?.focus();
+    }
+  }
+
+  editContactBtn?.addEventListener('click', () => setContactEditMode(true));
+  cancelContactBtn?.addEventListener('click', () => setContactEditMode(false));
 
   updateForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1446,10 +1795,14 @@ if (profile.team_id && helpEnabled) {
     const instagram_handle = (updateForm.querySelector('#instagram_handle') as HTMLInputElement).value.trim();
 
     updateBtn.disabled = true;
-    updateBtn.textContent = 'Actualizando...';
+    updateBtn.textContent = 'Guardando...';
 
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) {
+      updateBtn.disabled = false;
+      updateBtn.textContent = 'Guardar';
+      return;
+    }
 
     const { error: updateError } = await supabase
       .from('profiles')
@@ -1461,20 +1814,16 @@ if (profile.team_id && helpEnabled) {
       updateErrorDiv.textContent = 'Hubo un error al actualizar tus datos.';
       updateErrorDiv.style.display = 'block';
       updateBtn.disabled = false;
-      updateBtn.textContent = 'Actualizar Contacto';
+      updateBtn.textContent = 'Guardar';
       return;
     }
 
-    updateBtn.textContent = '¡Actualizado!';
-    updateBtn.classList.remove('btn-outline');
-    updateBtn.classList.add('btn-primary');
-    
-    setTimeout(() => {
-      updateBtn.disabled = false;
-      updateBtn.textContent = 'Actualizar Contacto';
-      updateBtn.classList.remove('btn-primary');
-      updateBtn.classList.add('btn-outline');
-    }, 3000);
+    // Reflejar los nuevos valores en la credencial y volver al modo lectura
+    if (viewPhone) viewPhone.textContent = phone_whatsapp || '—';
+    if (viewInstagram) viewInstagram.textContent = instagram_handle || '—';
+    updateBtn.disabled = false;
+    updateBtn.textContent = 'Guardar';
+    setContactEditMode(false);
   });
 
 // --- SOS Logic (T5.3) ---
@@ -1671,6 +2020,15 @@ tabButtons.forEach(btn => {
     if (targetContent) {
       targetContent.classList.add('active');
     }
+  });
+});
+
+// Atajos que saltan a otra pestaña (ej: franja de equipo en Mi Perfil)
+document.querySelectorAll('[data-goto-tab]').forEach(el => {
+  el.addEventListener('click', () => {
+    const target = el.getAttribute('data-goto-tab');
+    const tabBtn = document.querySelector(`.tab-btn[data-tab="${target}"]`) as HTMLButtonElement | null;
+    tabBtn?.click();
   });
 });
 </script>
