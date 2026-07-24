@@ -1,4 +1,8 @@
 ---
+// Página pública sin datos de servidor: se prerenderiza y se sirve estática desde el CDN.
+// El estado de sesión del navbar lo resuelve checkAuth() en el cliente.
+export const prerender = true;
+
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 import InfoCards from '../components/InfoCards.astro';
@@ -61,7 +65,7 @@ const jsonLd = {
 ---
 
 <Layout title="HEM2026 | Hackathon EduTech Mendoza">
-	<main>
+	<div>
 		<Hero />
 		<InfoCards />
 		<Prizes />
@@ -71,6 +75,6 @@ const jsonLd = {
 		<Allies />
 		<VibeCheck />
 		<FAQ />
-	</main>
+	</div>
 	<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Layout>

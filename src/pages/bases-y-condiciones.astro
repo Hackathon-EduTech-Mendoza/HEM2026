@@ -1,10 +1,11 @@
 ---
 // src/pages/bases-y-condiciones.astro
+export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Bases y Condiciones | HEM2026">
-  <main class="legal-page">
+  <div class="legal-page">
     <div class="container">
       <div class="legal-card card">
         <a href="/" class="legal-back">&larr; Volver al inicio</a>
@@ -86,7 +87,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <style>

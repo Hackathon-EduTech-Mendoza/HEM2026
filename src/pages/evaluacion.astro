@@ -76,8 +76,8 @@ const pendingProjects = projects.filter(p => !evaluationsMap[p.id]);
 const completedProjects = projects.filter(p => evaluationsMap[p.id]);
 ---
 
-<Layout title="Panel de Evaluación | HEM2026">
-  <main class="eval-page">
+<Layout title="Panel de Evaluación | HEM2026" noindex>
+  <div class="eval-page">
     <div class="container eval-container">
       <div class="eval-header">
         <h1>Panel de Evaluación</h1>
@@ -321,7 +321,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
       <span id="toast-msg"></span>
     </div>
 
-  </main>
+  </div>
 </Layout>
 
 <style>

@@ -3,6 +3,8 @@
 import ThemeToggle from './ThemeToggle.astro';
 import AnimToggle from './AnimToggle.astro';
 import { Image } from 'astro:assets';
+import logoLight from '../assets/brand/Logo_Tema_Claro.png';
+import logoDark from '../assets/brand/Logo_Tema_Oscuro.png';
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
 
@@ -28,8 +30,8 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
 <nav class="navbar" id="navbar">
     <div class="container nav-c">
         <a href="/#inicio" class="nav-logo">
-            <Image src="/img/brand/Logo_Tema_Claro.png" alt="Hackathon EduTech" width={240} height={64} format="webp" class="brand-logo logo-light" />
-            <Image src="/img/brand/Logo_Tema_Oscuro.png" alt="Hackathon EduTech" width={240} height={64} format="webp" class="brand-logo logo-dark" />
+            <Image src={logoLight} alt="Hackathon EduTech" width={240} height={64} densities={[1, 2]} format="webp" class="brand-logo logo-light" />
+            <Image src={logoDark} alt="Hackathon EduTech" width={240} height={64} densities={[1, 2]} format="webp" class="brand-logo logo-dark" />
         </a>
         
         <div class="nav-menu" id="navMenu">
@@ -50,8 +52,8 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
                     </div>
                 ) : (
                     <>
-                        <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
                         <a href="/registro" class="btn btn-primary">Registro</a>
+                        <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
                     </>
                 )}
             </div>
@@ -110,7 +112,7 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
                 </div>
             </div>
 
-            <button class="nav-toggle" id="navToggle" aria-label="Menú">
+            <button class="nav-toggle" id="navToggle" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
         </div>
@@ -457,8 +459,18 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         }
         .nav-act {
             flex-direction: column;
-            align-items: center;
-            gap: 0;
+            align-items: stretch;
+            gap: 0.75rem;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        /* Botones de auth deslogueado: mismo ancho, mismo alto, jerarquía por relleno.
+           Scopeado con '>' para no afectar los links de .nav-act-logged (usuario logueado). */
+        .nav-act > .btn {
+            width: 100%;
+            font-size: 1rem;
+            padding: 0.85rem 1.25rem;
         }
         .nav-act-logged {
             flex-direction: column;
@@ -575,13 +587,18 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         navToggle.addEventListener('click', () => {
             navToggle.classList.toggle('active');
             navMenu.classList.toggle('active');
-            document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+            const isOpen = navMenu.classList.contains('active');
+            navToggle.setAttribute('aria-expanded', String(isOpen));
+            navToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+            document.body.style.overflow = isOpen ? 'hidden' : '';
         });
 
         navMenu.querySelectorAll('a').forEach(a => {
             a.addEventListener('click', () => {
                 navToggle.classList.remove('active');
                 navMenu.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
+                navToggle.setAttribute('aria-label', 'Abrir menú de navegación');
                 document.body.style.overflow = '';
             });
         });

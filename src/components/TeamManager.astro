@@ -489,19 +489,32 @@ import ProjectSubmission from './ProjectSubmission.astro';
       const initials = (m.full_name || '??').split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
       const li = document.createElement('li');
       li.className = 'team-member-item';
-      let badges = '';
-      if (isLeader) badges += '<span class="member-badge badge-leader">Líder</span>';
-      if (m.is_egresado) badges += '<span class="member-badge badge-egresado">Egresado</span>';
+
+      // Construcción segura del DOM: full_name es contenido de usuario (riesgo XSS con innerHTML)
+      const avatarEl = document.createElement('span');
+      avatarEl.className = 'member-avatar';
+      avatarEl.textContent = initials;
+
+      const nameEl = document.createElement('span');
+      nameEl.className = 'member-name';
+      nameEl.textContent = m.full_name || 'Sin nombre';
+
+      const badgesEl = document.createElement('div');
+      badgesEl.className = 'member-badges-container';
+      const addBadge = (className: string, label: string) => {
+        const badge = document.createElement('span');
+        badge.className = className;
+        badge.textContent = label;
+        badgesEl.appendChild(badge);
+      };
+      if (isLeader) addBadge('member-badge badge-leader', 'Líder');
+      if (m.is_egresado) addBadge('member-badge badge-egresado', 'Egresado');
       if (m.disciplinary_profile) {
-        const profileClass = `badge-profile badge-profile-${m.disciplinary_profile}`;
         const profileLabel = m.disciplinary_profile === 'tecnico' ? 'Técnico' : m.disciplinary_profile === 'docente' ? 'Docente' : 'Otro';
-        badges += `<span class="${profileClass}">${profileLabel}</span>`;
+        addBadge(`badge-profile badge-profile-${m.disciplinary_profile}`, profileLabel);
       }
-      li.innerHTML = `
-        <span class="member-avatar">${initials}</span>
-        <span class="member-name">${m.full_name || 'Sin nombre'}</span>
-        <div class="member-badges-container">${badges}</div>
-      `;
+
+      li.append(avatarEl, nameEl, badgesEl);
       membersList.appendChild(li);
     });
     membersCount.textContent = `${members.length}/${maxSize}`;
@@ -544,16 +557,30 @@ import ProjectSubmission from './ProjectSubmission.astro';
 
       const li = document.createElement('li');
       li.className = 'team-member-item mentor-item';
-      li.innerHTML = `
-        <span class="member-avatar">${initials}</span>
-        <div style="display: flex; flex-direction: column; gap: 0.15rem;">
-          <span class="member-name">${displayName}</span>
-          <span style="font-size: 0.75rem; color: var(--txt-m); font-weight: 500;">${slotLabel}</span>
-        </div>
-        <div class="member-badges-container">
-          <span class="${profileClass}">${profileLabel}</span>
-        </div>
-      `;
+
+      // Construcción segura del DOM: displayName es contenido de usuario (riesgo XSS con innerHTML)
+      const avatarEl = document.createElement('span');
+      avatarEl.className = 'member-avatar';
+      avatarEl.textContent = initials;
+
+      const infoEl = document.createElement('div');
+      infoEl.style.cssText = 'display: flex; flex-direction: column; gap: 0.15rem;';
+      const nameEl = document.createElement('span');
+      nameEl.className = 'member-name';
+      nameEl.textContent = displayName;
+      const slotEl = document.createElement('span');
+      slotEl.style.cssText = 'font-size: 0.75rem; color: var(--txt-m); font-weight: 500;';
+      slotEl.textContent = slotLabel;
+      infoEl.append(nameEl, slotEl);
+
+      const badgesEl = document.createElement('div');
+      badgesEl.className = 'member-badges-container';
+      const profileEl = document.createElement('span');
+      profileEl.className = profileClass;
+      profileEl.textContent = profileLabel;
+      badgesEl.appendChild(profileEl);
+
+      li.append(avatarEl, infoEl, badgesEl);
       mentorsList.appendChild(li);
     });
   }

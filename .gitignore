@@ -200,3 +200,6 @@ docs/
 # Playwright
 test-results/
 playwright-report/
+
+# Configuración local de MCP (Claude Code)
+.mcp.json
