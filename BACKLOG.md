@@ -4,14 +4,17 @@ Mejoras identificadas pendientes de aprobación / información externa.
 
 ## Bloqueado por información externa
 
-### 1. Rúbrica oficial de evaluación (esperando al administrador del concurso)
-El instructivo PDF solo lista los nombres de los 7 criterios; falta confirmar:
-- **Escala** por criterio (hoy: 1–10).
-- **Pesos** por criterio (hoy: todos iguales, puntaje final = suma directa, máx. 70).
+### 1. Definir el formato final del puntaje con el administrador del concurso
+La rúbrica ya está implementada (6 criterios, escala 1–5, pesos definidos en
+`src/lib/rubric.ts`), pero queda **una decisión abierta**: si el resultado oficial
+se toma del **puntaje ponderado** o de la **suma directa**. El panel de resultados
+muestra las dos columnas justamente para poder compararlas con datos reales antes
+de decidir. Hoy el ranking se ordena por el ponderado.
 
-Si hay pesos, solo cambia la fórmula de `final_score` en la vista `project_leaderboard`
-y el total mostrado en `/evaluacion`. Si cambia la escala, además cambian los
-`CHECK` de la tabla `evaluations` y los sliders del form.
+Si se opta por la suma directa, solo cambia el `ORDER BY` de la vista
+`project_leaderboard` y el `.order()` de `/admin`. Si se ajusta algún peso, hay que
+cambiarlo en `src/lib/rubric.ts` **y** en la vista SQL (están duplicados a propósito,
+con comentarios cruzados).
 
 ## Aprobadas a la espera de implementación
 

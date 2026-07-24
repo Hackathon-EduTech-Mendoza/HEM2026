@@ -40,8 +40,12 @@ Este documento contiene misiones de pruebas manuales End-to-End para verificar e
 **Objetivo**: Validar sistema de evaluación y rúbricas.
 - [ ] Iniciar sesión como Juez y entrar a `/evaluacion`.
 - [ ] Verificar la sección "Pendientes de Evaluación". Seleccionar un proyecto haciendo clic en "Evaluar Proyecto".
-- [ ] En el modal, interactuar con los sliders de puntuación (Innovación, Viabilidad, UX, Pitch).
-- [ ] Validar que se puedan crear, leer, actualizar y eliminar las evaluaciones (CRUD de **votos**).
-- [ ] Dejar un feedback escrito y guardar. Validar SweetAlert2 (`showSuccess`).
+- [ ] Desplegar el **instructivo para el jurado** y verificar que se lean los 6 criterios con su peso.
+- [ ] En el modal, puntuar los 6 criterios con los botones del 1 al 5 (Problema, Solución,
+      Innovación, Factibilidad, Impacto, Comunicación).
+- [ ] Intentar guardar con criterios sin puntuar: debe avisar cuáles faltan y no guardar.
+- [ ] Verificar que los totales en vivo (suma directa /30 y ponderado /100) se actualicen al puntuar.
+- [ ] Dejar un feedback escrito y guardar.
 - [ ] Comprobar que el proyecto se mueve automáticamente a la sección "Evaluados".
-- [ ] En la sección "Evaluados", editar la evaluación existente y luego eliminarla (validar CRUD de votos).
+- [ ] Abrir otro proyecto y confirmar que el formulario arranca **en blanco** (no arrastra la puntuación anterior).
+- [ ] ⚠️ Conocido: hoy **no se puede editar ni borrar** una evaluación ya guardada desde la UI.

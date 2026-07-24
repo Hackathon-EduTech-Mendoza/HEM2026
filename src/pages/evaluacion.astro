@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
+import { CRITERIA, SCALE, MAX_RAW_SCORE, rawScore, weightedScore } from '../lib/rubric';
 
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -34,11 +35,11 @@ const supabase = createServerClient(
 // Obtener la fase de evaluación activa: cerrada | preclasificacion | deliberacion | final
 const { data: configData } = await supabase
   .from('event_config')
-  .select('value')
-  .eq('key', 'evaluation_phase')
-  .single();
+  .select('key, value')
+  .in('key', ['evaluation_phase', 'finalists_count']);
 
-const evaluationPhase = configData?.value || 'cerrada';
+const evaluationPhase = configData?.find(c => c.key === 'evaluation_phase')?.value || 'cerrada';
+const finalistsCount = configData?.find(c => c.key === 'finalists_count')?.value || '10';
 const isVotingOpen = evaluationPhase === 'preclasificacion' || evaluationPhase === 'final';
 const phaseLabel = evaluationPhase === 'preclasificacion' ? 'Preclasificación' : 'Ronda Final';
 
@@ -104,7 +105,67 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
             <p>El administrador aún no ha habilitado la etapa de evaluación.</p>
           )}
         </div>
-      ) : projects.length === 0 ? (
+      ) : (
+        <>
+        <details class="card instructivo" open={completedProjects.length === 0}>
+          <summary>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>Instructivo para el jurado: cómo evaluar</span>
+          </summary>
+
+          <div class="instructivo-body">
+            <section>
+              <h3>1. Cuándo y cómo se evalúa</h3>
+              <ul>
+                <li><strong>Preclasificación:</strong> recorrés los stands de todos los equipos. Podés escuchar la explicación del proyecto, hacer preguntas, pedir aclaraciones y ver la demo o prototipo. Cargás la evaluación desde este panel, con el celular o la notebook, apenas terminás de visitar cada stand.</li>
+                <li><strong>Deliberación:</strong> la votación se pausa. El jurado se reúne con la organización, revisa el orden de mérito y se confirman los {finalistsCount} equipos finalistas.</li>
+                <li><strong>Ronda final:</strong> los finalistas presentan su pitch en el escenario y volvés a evaluarlos, esta vez solo a ellos, con los mismos criterios.</li>
+              </ul>
+              <p class="instructivo-note">Evaluá cada proyecto <strong>ni bien lo visitás</strong>, no al final de todo: la impresión fresca es más justa que la memoria. Podés recorrer en conjunto con el resto del jurado o a tu propio ritmo, pero cada proyecto debe recibir la totalidad de las evaluaciones previstas.</p>
+            </section>
+
+            <section>
+              <h3>2. Los {CRITERIA.length} criterios y qué mirar en cada uno</h3>
+              <p class="instructivo-note">Cada criterio se puntúa de <strong>1 a 5</strong>, donde 1 es insuficiente y 5 es excelente. No todos pesan igual: el peso indica cuánto influye ese criterio en el puntaje final.</p>
+              <div class="criteria-guide">
+                {CRITERIA.map(c => (
+                  <div class="criteria-guide-item">
+                    <div class="criteria-guide-head">
+                      <h4>{c.label}</h4>
+                      <span class="weight-pill">{Math.round(c.weight * 100)}%</span>
+                    </div>
+                    <p class="criteria-guide-q">{c.question}</p>
+                    <ul>
+                      {c.lookFor.map(item => <li>{item}</li>)}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h3>3. Qué significa cada puntaje</h3>
+              <ul class="scale-guide">
+                {SCALE.map(s => (
+                  <li><strong>{s.value} — {s.label}:</strong> {s.hint}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section>
+              <h3>4. Criterios de justicia</h3>
+              <ul>
+                <li>Usá <strong>toda la escala</strong>. Si todos los proyectos reciben 4 y 5, el ranking no distingue nada.</li>
+                <li>Evaluá lo que el equipo <strong>muestra y explica</strong>, no lo que suponés que quiso hacer.</li>
+                <li>Recordá que son 3 días de trabajo: se valora el avance real logrado en la hackathon, no un producto terminado.</li>
+                <li>Si conocés personalmente a un equipo o tenés relación con la institución, avisale a la organización antes de evaluarlo.</li>
+                <li>El <strong>feedback</strong> es opcional pero muy valioso: es lo que se llevan los equipos que no ganan.</li>
+              </ul>
+            </section>
+          </div>
+        </details>
+
+        {projects.length === 0 ? (
         <div class="card empty-state">
           <p>Aún no hay proyectos entregados para evaluar.</p>
         </div>
@@ -137,10 +198,11 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
             <div class="projects-grid">
               {completedProjects.map(project => {
                 const ev = evaluationsMap[project.id];
-                const totalScore =
-                  ev.score_problem + ev.score_solution + ev.score_innovation +
-                  ev.score_validation + ev.score_feasibility + ev.score_impact +
-                  ev.score_communication;
+                const scores = Object.fromEntries(
+                  CRITERIA.map(c => [c.key, ev[`score_${c.key}`]])
+                );
+                const totalScore = rawScore(scores);
+                const weighted = weightedScore(scores);
                 return (
                   <div class="project-card card completed">
                     <div class="project-header">
@@ -150,7 +212,8 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
                     <div class="project-footer score-footer">
                       <div class="score-display">
                         <span class="score-label">Tu puntuación:</span>
-                        <span class="score-value">{totalScore}/70</span>
+                        <span class="score-value">{totalScore}/{MAX_RAW_SCORE}</span>
+                        <span class="score-weighted">({weighted.toFixed(1)} pts ponderados)</span>
                       </div>
                       <span class="badge badge-yes">Completado</span>
                     </div>
@@ -161,6 +224,8 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
           </div>
 
         </div>
+        )}
+        </>
       )}
     </div>
 
@@ -198,75 +263,46 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
             <input type="hidden" id="form-phase" name="phase" value={evaluationPhase} />
 
             <div class="rubric-grid">
-              <!-- Problema u Oportunidad -->
-              <div class="form-group rubric-item">
-                <div class="rubric-header">
-                  <label for="score_problem">Identificación del Problema u Oportunidad</label>
-                  <span class="score-output" id="out-problem">5</span>
+              {CRITERIA.map(c => (
+                <div class="rubric-item">
+                  <div class="rubric-header">
+                    <span class="rubric-legend" id={`label-${c.key}`}>{c.label}</span>
+                    <span class="weight-pill" title="Peso de este criterio en el puntaje final">
+                      {Math.round(c.weight * 100)}%
+                    </span>
+                  </div>
+                  <p class="rubric-desc">{c.question}</p>
+                  <div class="scale-group" role="radiogroup" aria-labelledby={`label-${c.key}`}>
+                    {SCALE.map(s => (
+                      <label class="scale-option" title={`${s.value} · ${s.label}: ${s.hint}`}>
+                        <input
+                          type="radio"
+                          name={`score_${c.key}`}
+                          value={s.value}
+                          data-criterion={c.key}
+                        />
+                        <span class="scale-box">{s.value}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div class="scale-legend">
+                    <span>1 · Insuficiente</span>
+                    <span>5 · Excelente</span>
+                  </div>
                 </div>
-                <p class="rubric-desc">¿El equipo identifica con claridad el problema u oportunidad que aborda?</p>
-                <input type="range" id="score_problem" name="score_problem" min="1" max="10" value="5" class="score-slider" />
-              </div>
+              ))}
+            </div>
 
-              <!-- Solución y Valor -->
-              <div class="form-group rubric-item">
-                <div class="rubric-header">
-                  <label for="score_solution">Propuesta de Solución y Generación de Valor</label>
-                  <span class="score-output" id="out-solution">5</span>
-                </div>
-                <p class="rubric-desc">¿La solución propuesta responde al problema y genera valor real?</p>
-                <input type="range" id="score_solution" name="score_solution" min="1" max="10" value="5" class="score-slider" />
+            <div class="running-total" id="running-total" aria-live="polite">
+              <div class="running-total-item">
+                <span class="running-total-label">Suma directa</span>
+                <span class="running-total-value"><span id="total-raw">—</span>/{MAX_RAW_SCORE}</span>
               </div>
-
-              <!-- Innovación -->
-              <div class="form-group rubric-item">
-                <div class="rubric-header">
-                  <label for="score_innovation">Nivel de Innovación</label>
-                  <span class="score-output" id="out-innovation">5</span>
-                </div>
-                <p class="rubric-desc">¿Es la propuesta original? ¿Aborda el problema de una manera nueva?</p>
-                <input type="range" id="score_innovation" name="score_innovation" min="1" max="10" value="5" class="score-slider" />
+              <div class="running-total-item">
+                <span class="running-total-label">Puntaje ponderado</span>
+                <span class="running-total-value"><span id="total-weighted">—</span>/100</span>
               </div>
-
-              <!-- Validación -->
-              <div class="form-group rubric-item">
-                <div class="rubric-header">
-                  <label for="score_validation">Validación Realizada</label>
-                  <span class="score-output" id="out-validation">5</span>
-                </div>
-                <p class="rubric-desc">¿El equipo validó la propuesta con usuarios, clientes o el mercado?</p>
-                <input type="range" id="score_validation" name="score_validation" min="1" max="10" value="5" class="score-slider" />
-              </div>
-
-              <!-- Factibilidad -->
-              <div class="form-group rubric-item">
-                <div class="rubric-header">
-                  <label for="score_feasibility">Factibilidad Técnica, Económica y Operativa</label>
-                  <span class="score-output" id="out-feasibility">5</span>
-                </div>
-                <p class="rubric-desc">¿Es realista implementarlo desde lo técnico, lo económico y lo operativo?</p>
-                <input type="range" id="score_feasibility" name="score_feasibility" min="1" max="10" value="5" class="score-slider" />
-              </div>
-
-              <!-- Impacto -->
-              <div class="form-group rubric-item">
-                <div class="rubric-header">
-                  <label for="score_impact">Impacto Potencial</label>
-                  <span class="score-output" id="out-impact">5</span>
-                </div>
-                <p class="rubric-desc">¿Qué alcance e impacto (social, económico, ambiental) puede lograr la propuesta?</p>
-                <input type="range" id="score_impact" name="score_impact" min="1" max="10" value="5" class="score-slider" />
-              </div>
-
-              <!-- Comunicación -->
-              <div class="form-group rubric-item">
-                <div class="rubric-header">
-                  <label for="score_communication">Comunicación y Presentación</label>
-                  <span class="score-output" id="out-communication">5</span>
-                </div>
-                <p class="rubric-desc">¿El equipo comunica con claridad? ¿La presentación es sólida y transmite convicción?</p>
-                <input type="range" id="score_communication" name="score_communication" min="1" max="10" value="5" class="score-slider" />
-              </div>
+              <p class="running-total-hint" id="total-hint">Faltan criterios por puntuar.</p>
             </div>
 
             <div class="form-group">
@@ -543,34 +579,178 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
   }
   
   .rubric-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 0.75rem; margin-bottom: 0.5rem;
   }
-  .rubric-header label { font-weight: 600; color: var(--txt-1); margin: 0; }
-  .score-output { 
-    background: rgba(var(--c1r), 0.1); color: var(--c1); 
-    font-weight: 700; padding: 0.25rem 0.75rem; border-radius: var(--r-sm);
+  .rubric-legend {
+    font-weight: 600; color: var(--txt-1);
+    font-size: 1rem; line-height: 1.3;
+  }
+  .weight-pill {
+    background: rgba(var(--c1r), 0.1); color: var(--c1);
+    font-weight: 700; font-size: 0.8rem;
+    padding: 0.2rem 0.6rem; border-radius: 999px;
+    flex-shrink: 0;
   }
 
-  .rubric-desc { font-size: 0.85rem; color: var(--txt-m); margin-bottom: 1rem; line-height: 1.4; }
+  .rubric-desc { font-size: 0.85rem; color: var(--txt-m); margin-bottom: 1rem; line-height: 1.4; clear: both; }
 
-  .score-slider {
-    width: 100%;
-    accent-color: var(--c1);
-    height: 6px;
-    background: var(--brd);
-    border-radius: 3px;
-    outline: none;
-    appearance: none;
+  /* Escala 1 a 5 */
+  .scale-group {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
   }
-  .score-slider::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: var(--c1);
+  .scale-option {
+    margin: 0;
     cursor: pointer;
-    border: 2px solid var(--bg-card);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
+  .scale-option input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .scale-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border: 1px solid var(--brd);
+    border-radius: var(--r-sm);
+    background: var(--bg-input);
+    color: var(--txt-2);
+    font-weight: 700;
+    font-size: 1.05rem;
+    transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  }
+  .scale-option:hover .scale-box { border-color: var(--c1); color: var(--c1); }
+  .scale-option input:checked + .scale-box {
+    background: var(--c1);
+    border-color: var(--c1);
+    color: #fff;
+  }
+  .scale-option input:focus-visible + .scale-box {
+    outline: 2px solid var(--c1);
+    outline-offset: 2px;
+  }
+  .scale-legend {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--txt-m);
+  }
+
+  /* Totales en vivo */
+  .running-total {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    background: var(--bg-input);
+    border-radius: var(--r-md);
+  }
+  .running-total-item { display: flex; flex-direction: column; gap: 0.25rem; }
+  .running-total-label { font-size: 0.85rem; color: var(--txt-2); }
+  .running-total-value { font-size: 1.5rem; font-weight: 700; color: var(--txt-1); }
+  .running-total-hint {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--txt-m);
+  }
+
+  .score-weighted { font-size: 0.8rem; color: var(--txt-m); }
+
+  /* Instructivo del jurado */
+  .instructivo {
+    padding: 0;
+    margin-bottom: 2.5rem;
+    border: 1px solid var(--brd);
+    overflow: hidden;
+  }
+  .instructivo summary {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--txt-1);
+    list-style: none;
+  }
+  .instructivo summary::-webkit-details-marker { display: none; }
+  .instructivo summary::after {
+    content: '';
+    margin-left: auto;
+    width: 8px; height: 8px;
+    border-right: 2px solid var(--txt-2);
+    border-bottom: 2px solid var(--txt-2);
+    transform: rotate(45deg);
+    transition: transform var(--t-fast);
+  }
+  .instructivo[open] summary::after { transform: rotate(-135deg); }
+  .instructivo summary svg { color: var(--c1); flex-shrink: 0; }
+
+  .instructivo-body {
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid var(--brd-s);
+  }
+  .instructivo-body section { margin-top: 1.75rem; }
+  .instructivo-body h3 {
+    font-size: 1.05rem;
+    color: var(--txt-1);
+    margin: 0 0 0.75rem 0;
+  }
+  .instructivo-body ul { margin: 0; padding-left: 1.25rem; }
+  .instructivo-body li {
+    color: var(--txt-2);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 0.4rem;
+  }
+  .instructivo-note {
+    color: var(--txt-2);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0.75rem 0 0;
+  }
+  .criteria-guide {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  @media (min-width: 768px) {
+    .criteria-guide { grid-template-columns: 1fr 1fr; }
+  }
+  .criteria-guide-item {
+    background: var(--bg-input);
+    border-radius: var(--r-md);
+    padding: 1rem 1.25rem;
+  }
+  .criteria-guide-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+  .criteria-guide-head h4 {
+    margin: 0;
+    font-size: 0.98rem;
+    color: var(--txt-1);
+  }
+  .criteria-guide-q {
+    margin: 0 0 0.6rem;
+    font-size: 0.88rem;
+    color: var(--txt-2);
+    line-height: 1.5;
+  }
+  .criteria-guide-item li { font-size: 0.85rem; }
+  .scale-guide { list-style: none; padding-left: 0; }
 
   .w-100 { width: 100%; }
 
@@ -615,6 +795,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
 
 <script>
   import { createBrowserClient } from '@supabase/ssr';
+  import { CRITERIA, rawScore, weightedScore } from '../lib/rubric';
 
   const supabase = createBrowserClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
@@ -635,7 +816,11 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
 
   function openModal(project: any) {
     if (!modal || !modalTitle || !modalProblem || !modalSolution || !formProjectId) return;
-    
+
+    // Limpiar la puntuación del proyecto anterior (los radios conservan estado)
+    form?.reset();
+    refreshTotals();
+
     modalTitle.textContent = project.title;
     modalProblem.textContent = project.description_problem || 'Sin descripción del problema.';
     modalSolution.textContent = project.description_solution || 'Sin descripción de la solución.';
@@ -681,16 +866,39 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     if (e.target === modal) closeModal();
   });
 
-  // --- Sliders Sync Logic ---
-  const sliders = ['problem', 'solution', 'innovation', 'validation', 'feasibility', 'impact', 'communication'];
-  sliders.forEach(key => {
-    const slider = document.getElementById(`score_${key}`) as HTMLInputElement;
-    const output = document.getElementById(`out-${key}`);
-    if (slider && output) {
-      slider.addEventListener('input', () => {
-        output.textContent = slider.value;
-      });
+  // --- Totales en vivo (suma directa y ponderado) ---
+  const totalRawEl = document.getElementById('total-raw');
+  const totalWeightedEl = document.getElementById('total-weighted');
+  const totalHintEl = document.getElementById('total-hint');
+
+  function currentScores(): Record<string, number> {
+    const scores: Record<string, number> = {};
+    CRITERIA.forEach(c => {
+      const checked = document.querySelector<HTMLInputElement>(
+        `input[name="score_${c.key}"]:checked`
+      );
+      if (checked) scores[c.key] = parseInt(checked.value, 10);
+    });
+    return scores;
+  }
+
+  function refreshTotals() {
+    const scores = currentScores();
+    const answered = Object.keys(scores).length;
+    const complete = answered === CRITERIA.length;
+
+    if (totalRawEl) totalRawEl.textContent = complete ? String(rawScore(scores)) : '—';
+    if (totalWeightedEl) totalWeightedEl.textContent = complete ? weightedScore(scores).toFixed(1) : '—';
+    if (totalHintEl) {
+      const missing = CRITERIA.length - answered;
+      totalHintEl.textContent = complete
+        ? 'Todos los criterios puntuados. Ya podés guardar.'
+        : `Falta${missing === 1 ? '' : 'n'} ${missing} criterio${missing === 1 ? '' : 's'} por puntuar.`;
     }
+  }
+
+  document.querySelectorAll('.scale-group input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', refreshTotals);
   });
 
   // --- Form Submission ---
@@ -712,23 +920,31 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     e.preventDefault();
     if (!submitBtn) return;
 
+    // Los radios están ocultos visualmente: validamos acá en lugar de con `required`,
+    // que en ese caso bloquea el submit sin mostrar ningún mensaje.
+    const missing = CRITERIA.filter(c => !document.querySelector(`input[name="score_${c.key}"]:checked`));
+    if (missing.length > 0) {
+      showToast(`Falta puntuar: ${missing.map(c => c.label).join(', ')}`, true);
+      document
+        .querySelector(`input[name="score_${missing[0].key}"]`)
+        ?.closest('.rubric-item')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Guardando...';
 
     const formData = new FormData(form);
-    const evaluationData = {
+    const evaluationData: Record<string, unknown> = {
       project_id: formData.get('project_id'),
       judge_id: formData.get('judge_id'),
       phase: formData.get('phase'),
-      score_problem: parseInt(formData.get('score_problem') as string, 10),
-      score_solution: parseInt(formData.get('score_solution') as string, 10),
-      score_innovation: parseInt(formData.get('score_innovation') as string, 10),
-      score_validation: parseInt(formData.get('score_validation') as string, 10),
-      score_feasibility: parseInt(formData.get('score_feasibility') as string, 10),
-      score_impact: parseInt(formData.get('score_impact') as string, 10),
-      score_communication: parseInt(formData.get('score_communication') as string, 10),
       feedback: formData.get('feedback')
     };
+    CRITERIA.forEach(c => {
+      evaluationData[`score_${c.key}`] = parseInt(formData.get(`score_${c.key}`) as string, 10);
+    });
 
     const { error } = await supabase
       .from('evaluations')
