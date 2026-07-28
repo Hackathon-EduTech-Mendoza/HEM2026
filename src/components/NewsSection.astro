@@ -1,29 +1,15 @@
 ---
 // src/components/NewsSection.astro
+// Bloque del home: muestra las 3 noticias más recientes.
+// Las noticias viven en src/content/noticias/ (un .md por noticia).
+// Ver src/content.config.ts para los tipos de noticia y sus campos.
+import { getNoticias } from '../utils/noticias';
+import NewsCard from './NewsCard.astro';
 
-const NOTICIAS = [
-  {
-    fecha: "24 de Mayo, 2026",
-    titulo: "Nuevas Sedes Confirmadas para la Edición 2026",
-    extracto: "Oficializamos las sedes de esta edición presencial: IES 9-023 y el Auditorio Municipal Marciano Cantero de Maipú. ¡Dos locaciones espectaculares para un evento intensivo!",
-    categoria: "Sedes",
-    color: "var(--c2)"
-  },
-  {
-    fecha: "15 de Mayo, 2026",
-    titulo: "Apertura de Inscripciones para Participantes",
-    extracto: "Ya podés registrarte y postularte para formar parte de la Hackathon. Creá tu cuenta, completá tu perfil disciplinar y preparate para idear soluciones con impacto real.",
-    categoria: "Registro",
-    color: "var(--c1)"
-  },
-  {
-    fecha: "05 de Mayo, 2026",
-    titulo: "Presentación de los Ejes Temáticos del Evento",
-    extracto: "Este año nos enfocaremos en tres ejes críticos: Inteligencia Artificial en el Aula, Gamificación para la Retención Escolar y Plataformas Inclusivas. ¡Comenzá a planear tus ideas!",
-    categoria: "Temática",
-    color: "var(--c2)"
-  }
-];
+const DESTACADAS = 3;
+const todas = await getNoticias();
+const noticias = todas.slice(0, DESTACADAS);
+const hayMas = todas.length > DESTACADAS;
 ---
 
 <section class="news" id="noticias">
@@ -35,25 +21,14 @@ const NOTICIAS = [
     </div>
 
     <div class="news-grid">
-      {NOTICIAS.map((n, idx) => (
-        <article class={`card news-card reveal rd${idx + 1}`}>
-          <div class="news-card-header">
-            <span class="news-badge" style={`background: rgba(var(--c${idx % 2 === 0 ? '2' : '1'}r), 0.08); color: ${n.color}; border: 1px solid rgba(var(--c${idx % 2 === 0 ? '2' : '1'}r), 0.15);`}>
-              {n.categoria}
-            </span>
-            <time class="news-date" datetime={n.fecha}>{n.fecha}</time>
-          </div>
-          <h3 class="news-card-title">{n.titulo}</h3>
-          <p class="news-card-excerpt">{n.extracto}</p>
-          <div class="news-card-footer">
-            <span class="news-read-more">
-              Leer más
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </span>
-          </div>
-        </article>
-      ))}
+      {noticias.map((noticia, idx) => <NewsCard noticia={noticia} idx={idx} />)}
     </div>
+
+    {hayMas && (
+      <div class="news-cta reveal">
+        <a href="/noticias" class="btn btn-outline">Ver todas las noticias</a>
+      </div>
+    )}
   </div>
 </section>
 
@@ -80,101 +55,9 @@ const NOTICIAS = [
     }
   }
 
-  .news-card {
-    padding: 2.25rem;
+  .news-cta {
+    margin-top: 3.5rem;
     display: flex;
-    flex-direction: column;
-    height: 100%;
-    transition: transform 0.4s var(--ease), border-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
-    border: 1px solid var(--brd);
-    position: relative;
-    background: var(--bg-card);
-  }
-
-  .news-card:hover {
-    transform: translateY(-6px);
-    border-color: var(--c1);
-    box-shadow: 0 12px 30px -10px rgba(var(--c1r), 0.15);
-  }
-
-  .news-card:hover:nth-child(even) {
-    border-color: var(--c2);
-    box-shadow: 0 12px 30px -10px rgba(var(--c2r), 0.15);
-  }
-
-  .news-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
-
-  .news-badge {
-    font-size: 0.72rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: var(--r-sm);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .news-date {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--txt-m);
-  }
-
-  .news-card-title {
-    font-family: var(--font-heading);
-    font-size: 1.25rem;
-    line-height: 1.4;
-    color: var(--txt-1);
-    margin: 0 0 1rem 0;
-    transition: color 0.3s ease;
-  }
-
-  .news-card:hover .news-card-title {
-    color: var(--c1);
-  }
-  .news-card:hover:nth-child(even) .news-card-title {
-    color: var(--c2);
-  }
-
-  .news-card-excerpt {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: var(--txt-2);
-    margin: 0 0 2rem 0;
-    flex-grow: 1;
-  }
-
-  .news-card-footer {
-    margin-top: auto;
-  }
-
-  .news-read-more {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-heading);
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--txt-1);
-    transition: transform 0.3s var(--ease), color 0.3s var(--ease);
-  }
-
-  .news-read-more svg {
-    transition: transform 0.3s var(--ease);
-  }
-
-  .news-card:hover .news-read-more {
-    color: var(--c1);
-  }
-  .news-card:hover:nth-child(even) .news-read-more {
-    color: var(--c2);
-  }
-
-  .news-card:hover .news-read-more svg {
-    transform: translateX(4px);
+    justify-content: center;
   }
 </style>
