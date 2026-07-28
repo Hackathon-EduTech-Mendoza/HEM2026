@@ -6,7 +6,8 @@ export const prerender = true;
 
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
-import { formatearFecha, tieneNotaInterna, idDeYoutube } from '../../utils/noticias';
+import NewsVideoPlayer from '../../components/NewsVideoPlayer.astro';
+import { formatearFecha, tieneNotaInterna } from '../../utils/noticias';
 
 export async function getStaticPaths() {
   const noticias = await getCollection('noticias');
@@ -52,32 +53,7 @@ const { titulo, fecha, categoria, extracto, imagen, imagenAlt, galeria, videos }
         <Content />
       </div>
 
-      {videos.length > 0 && (
-        <section class="nota-videos" aria-label="Videos">
-          {videos.map((video) => (
-            <figure class="nota-video">
-              {video.youtube ? (
-                <div class="video-embed">
-                  <iframe
-                    src={`https://www.youtube-nocookie.com/embed/${idDeYoutube(video.youtube)}`}
-                    title={video.titulo}
-                    loading="lazy"
-                    referrerpolicy="strict-origin-when-cross-origin"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
-                  ></iframe>
-                </div>
-              ) : (
-                <video controls preload="metadata" poster={video.poster} playsinline>
-                  <source src={video.src} type="video/mp4" />
-                  Tu navegador no puede reproducir este video.
-                </video>
-              )}
-              <figcaption>{video.titulo}</figcaption>
-            </figure>
-          ))}
-        </section>
-      )}
+      <NewsVideoPlayer videos={videos} />
 
       {galeria.length > 0 && (
         <section class="nota-galeria" aria-label="Galería de fotos">
@@ -211,52 +187,6 @@ const { titulo, fecha, categoria, extracto, imagen, imagenAlt, galeria, videos }
     margin: 0 0 1.5rem 1.25rem;
     color: var(--txt-2);
     line-height: 1.8;
-  }
-
-  .nota-videos {
-    margin: 3rem 0 0 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-  }
-
-  .nota-video {
-    margin: 0;
-  }
-
-  /* Contenedor 16:9 para que el iframe no salte al cargar */
-  .video-embed {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: var(--r-md, 12px);
-    overflow: hidden;
-    border: 1px solid var(--brd);
-    background: #000;
-  }
-
-  .video-embed iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
-
-  .nota-video video {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: var(--r-md, 12px);
-    border: 1px solid var(--brd);
-    background: #000;
-  }
-
-  .nota-video figcaption {
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-    color: var(--txt-m);
-    text-align: center;
   }
 
   .nota-galeria {

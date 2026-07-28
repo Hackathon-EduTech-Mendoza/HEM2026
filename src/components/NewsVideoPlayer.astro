@@ -1,0 +1,326 @@
+---
+// src/components/NewsVideoPlayer.astro
+// Reproductor con playlist para los videos de una nota: un escenario principal
+// y la lista al costado para saltar entre partes. Al terminar una, sigue la
+// siguiente sola.
+import { idDeYoutube } from '../utils/noticias';
+
+interface Video {
+  titulo: string;
+  youtube?: string;
+  src?: string;
+  poster?: string;
+}
+
+interface Props {
+  videos: Video[];
+}
+
+const { videos } = Astro.props;
+
+const items = videos.map((v) => ({
+  titulo: v.titulo,
+  poster: v.poster ?? '',
+  src: v.src ?? '',
+  embed: v.youtube ? `https://www.youtube-nocookie.com/embed/${idDeYoutube(v.youtube)}` : '',
+}));
+
+const primero = items[0];
+const hayPlaylist = items.length > 1;
+---
+
+{items.length > 0 && (
+  <section class="video-player" aria-label="Videos de la nota" data-video-player>
+    <div class="video-stage">
+      {primero.embed ? (
+        <iframe
+          data-stage-embed
+          src={primero.embed}
+          title={primero.titulo}
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      ) : (
+        <video
+          data-stage-video
+          controls
+          preload="metadata"
+          playsinline
+          poster={primero.poster || undefined}
+        >
+          <source src={primero.src} type="video/mp4" />
+          Tu navegador no puede reproducir este video.
+        </video>
+      )}
+    </div>
+
+    <p class="video-actual" data-stage-titulo>{primero.titulo}</p>
+
+    {hayPlaylist && (
+      <ol class="video-lista">
+        {items.map((item, idx) => (
+          <li>
+            <button
+              type="button"
+              class="video-item"
+              data-video-item
+              data-src={item.src}
+              data-embed={item.embed}
+              data-poster={item.poster}
+              data-titulo={item.titulo}
+              aria-current={idx === 0 ? 'true' : 'false'}
+            >
+              <span class="video-item-num">{idx + 1}</span>
+              <span class="video-item-txt">
+                <span class="video-item-titulo">{item.titulo}</span>
+                <span class="video-item-dur" data-dur></span>
+              </span>
+              <span class="video-item-icono" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    )}
+  </section>
+)}
+
+<style>
+  .video-player {
+    margin: 3rem 0 0 0;
+  }
+
+  .video-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-md, 12px);
+    overflow: hidden;
+    border: 1px solid var(--brd);
+    background: #000;
+  }
+
+  .video-stage :global(video),
+  .video-stage :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    /* Los verticales de celular no se recortan: se centran con banda negra */
+    object-fit: contain;
+    background: #000;
+  }
+
+  .video-actual {
+    margin: 1rem 0 0 0;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--txt-1);
+  }
+
+  .video-lista {
+    list-style: none;
+    margin: 1.5rem 0 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  @media (min-width: 720px) {
+    .video-lista {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .video-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--brd);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: border-color 0.3s var(--ease), background 0.3s var(--ease),
+      transform 0.3s var(--ease);
+  }
+
+  .video-item:hover {
+    border-color: var(--c1);
+    transform: translateY(-2px);
+  }
+
+  .video-item:focus-visible {
+    outline: 2px solid var(--c1);
+    outline-offset: 2px;
+  }
+
+  .video-item[aria-current='true'] {
+    border-color: var(--c1);
+    background: rgba(var(--c1r), 0.06);
+  }
+
+  .video-item-num {
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(var(--c1r), 0.1);
+    color: var(--c1);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .video-item[aria-current='true'] .video-item-num {
+    background: var(--c1);
+    color: #fff;
+  }
+
+  .video-item-txt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    flex-grow: 1;
+  }
+
+  .video-item-titulo {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--txt-1);
+    line-height: 1.3;
+  }
+
+  .video-item-dur {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--txt-m);
+  }
+
+  .video-item-dur:empty {
+    display: none;
+  }
+
+  .video-item-icono {
+    flex-shrink: 0;
+    color: var(--txt-m);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
+  }
+
+  .video-item:hover .video-item-icono,
+  .video-item[aria-current='true'] .video-item-icono {
+    opacity: 1;
+    color: var(--c1);
+  }
+</style>
+
+<script>
+  function initVideoPlayers() {
+    document.querySelectorAll<HTMLElement>('[data-video-player]').forEach((player) => {
+      const stage = player.querySelector<HTMLElement>('.video-stage');
+      const titulo = player.querySelector<HTMLElement>('[data-stage-titulo]');
+      const items = Array.from(player.querySelectorAll<HTMLButtonElement>('[data-video-item]'));
+      if (!stage || items.length === 0) return;
+
+      /** Muestra la duración en cada ítem sin descargar el video entero. */
+      items.forEach((item) => {
+        const src = item.dataset.src;
+        const salida = item.querySelector<HTMLElement>('[data-dur]');
+        if (!src || !salida) return;
+        const sonda = document.createElement('video');
+        sonda.preload = 'metadata';
+        sonda.addEventListener('loadedmetadata', () => {
+          const total = Math.round(sonda.duration);
+          if (!isFinite(total)) return;
+          const min = Math.floor(total / 60);
+          const seg = (total % 60).toString().padStart(2, '0');
+          salida.textContent = `${min}:${seg}`;
+          sonda.src = '';
+        });
+        sonda.src = src;
+      });
+
+      const seleccionar = (idx: number, reproducir: boolean) => {
+        const item = items[idx];
+        if (!item) return;
+
+        items.forEach((otro, i) =>
+          otro.setAttribute('aria-current', i === idx ? 'true' : 'false'),
+        );
+        if (titulo) titulo.textContent = item.dataset.titulo ?? '';
+
+        const embed = item.dataset.embed;
+        if (embed) {
+          stage.innerHTML = '';
+          const iframe = document.createElement('iframe');
+          iframe.src = reproducir ? `${embed}?autoplay=1` : embed;
+          iframe.title = item.dataset.titulo ?? '';
+          iframe.allow =
+            'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+          iframe.allowFullscreen = true;
+          iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+          stage.appendChild(iframe);
+          return;
+        }
+
+        // Reusamos el <video> si ya está en el escenario: evita el parpadeo.
+        let video = stage.querySelector<HTMLVideoElement>('video');
+        if (!video) {
+          stage.innerHTML = '';
+          video = document.createElement('video');
+          video.controls = true;
+          video.playsInline = true;
+          video.preload = 'metadata';
+          stage.appendChild(video);
+          engancharFin(video);
+        }
+        const poster = item.dataset.poster;
+        if (poster) video.poster = poster;
+        else video.removeAttribute('poster');
+        video.src = item.dataset.src ?? '';
+        video.load();
+        if (reproducir) video.play().catch(() => {});
+      };
+
+      /** Al terminar una parte, sigue la siguiente. */
+      const engancharFin = (video: HTMLVideoElement) => {
+        video.addEventListener('ended', () => {
+          const actual = items.findIndex(
+            (i) => i.getAttribute('aria-current') === 'true',
+          );
+          if (actual > -1 && actual < items.length - 1) {
+            seleccionar(actual + 1, true);
+          }
+        });
+      };
+
+      const inicial = stage.querySelector<HTMLVideoElement>('video');
+      if (inicial) engancharFin(inicial);
+
+      items.forEach((item, idx) => {
+        item.addEventListener('click', () => seleccionar(idx, true));
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVideoPlayers);
+  } else {
+    initVideoPlayers();
+  }
+</script>

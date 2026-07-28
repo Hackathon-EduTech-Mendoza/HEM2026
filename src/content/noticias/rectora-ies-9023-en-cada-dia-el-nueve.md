@@ -4,22 +4,22 @@ fecha: 2026-07-28
 categoria: "Institucional"
 color: "c2"
 extracto: "La Prof. Lic. María Virginia Hernández visitó el programa Cada Día y habló del poder transformador de la educación, del talento mendocino y de la convocatoria a la segunda edición de la Hackathon."
-# Las fotos van en public/img/noticias/rectora-ies-9023-en-cada-dia-el-nueve/
-# y los videos en YouTube (ver los README de esas carpetas).
-#
-# Portada — descomentá estas dos líneas:
-# imagen: "/img/noticias/rectora-ies-9023-en-cada-dia-el-nueve/portada.webp"
-# imagenAlt: "La rectora María Virginia Hernández durante la entrevista en el programa Cada Día"
-#
-# Resto de las fotos — una entrada por imagen:
-# galeria:
-#   - src: "/img/noticias/rectora-ies-9023-en-cada-dia-el-nueve/01.webp"
-#     alt: "Descripción de la foto"
-#
-# Videos — `youtube` acepta el link o el ID:
-# videos:
-#   - titulo: "La rectora en el programa Cada Día"
-#     youtube: "https://www.youtube.com/watch?v=XXXXXXXXXXX"
+imagen: "/img/noticias/rectora-ies-9023-en-cada-dia-el-nueve/rectora-cada-dia-portada.webp"
+imagenAlt: "La rectora María Virginia Hernández durante su visita al programa Cada Día, de El Nueve Televida"
+videos:
+  - titulo: "Parte 1: la visita al programa Cada Día"
+    src: "/video/noticias/rectora-ies-9023-en-cada-dia-el-nueve/1.mp4"
+  - titulo: "Parte 2: la invitación a la Hackathon EduTech 2026"
+    src: "/video/noticias/rectora-ies-9023-en-cada-dia-el-nueve/2.mp4"
+  - titulo: "Parte 3: cierre de la entrevista"
+    src: "/video/noticias/rectora-ies-9023-en-cada-dia-el-nueve/3.mp4"
+galeria:
+  - src: "/img/noticias/rectora-ies-9023-en-cada-dia-el-nueve/rectora-cada-dia-1.webp"
+    alt: "La rectora María Virginia Hernández en el estudio del programa Cada Día"
+  - src: "/img/noticias/rectora-ies-9023-en-cada-dia-el-nueve/rectora-cada-dia-2.webp"
+    alt: "Momento de la entrevista en el programa Cada Día de El Nueve Televida"
+  - src: "/img/noticias/rectora-ies-9023-en-cada-dia-el-nueve/rectora-cada-dia-3.webp"
+    alt: "La rectora del IES 9-023 durante su paso por el programa Cada Día"
 ---
 
 Hoy, la rectora del IES 9-023, Prof. Lic. María Virginia Hernández, visitó el programa **Cada Día**, de El Nueve Televida, donde compartió una mirada sobre el poder transformador de la educación, la importancia de valorar el talento mendocino y el compromiso de nuestras instituciones con la formación de los profesionales que construirán el futuro.
