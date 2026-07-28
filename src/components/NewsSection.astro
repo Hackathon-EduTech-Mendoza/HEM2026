@@ -1,36 +1,11 @@
 ---
 // src/components/NewsSection.astro
 
-// Cada noticia puede tener:
-//   url    -> enlace externo (prensa). La tarjeta se vuelve clickeable.
-//   fuente -> nombre del medio, se muestra en el "Leer más".
-// Sin `url`, la tarjeta es un aviso informativo y no muestra el "Leer más".
-// Ordenar siempre de más nueva a más vieja.
-const NOTICIAS = [
-  {
-    fecha: "27 de Julio, 2026",
-    titulo: "Educación: así es la inédita convocatoria que busca usar tecnología para la resolución de desafíos reales",
-    extracto: "Los Andes cubrió la Hackathon EduTech 2026: equipos interdisciplinarios de estudiantes de tecnología, educación, comunicación, matemáticas y administración trabajando tres jornadas sobre desafíos educativos reales.",
-    categoria: "Prensa",
-    color: "var(--c1)",
-    url: "https://www.losandes.com.ar/sociedad/educacion-asi-es-la-inedita-convocatoria-que-busca-usar-tecnologia-la-resolucion-desafios-reales-n6000024",
-    fuente: "Los Andes"
-  },
-  {
-    fecha: "24 de Mayo, 2026",
-    titulo: "Nuevas Sedes Confirmadas para la Edición 2026",
-    extracto: "Oficializamos las sedes de esta edición presencial: IES 9-023 y el Auditorio Municipal Marciano Cantero de Maipú. ¡Dos locaciones espectaculares para un evento intensivo!",
-    categoria: "Sedes",
-    color: "var(--c2)"
-  },
-  {
-    fecha: "15 de Mayo, 2026",
-    titulo: "Apertura de Inscripciones para Participantes",
-    extracto: "Ya podés registrarte y postularte para formar parte de la Hackathon. Creá tu cuenta, completá tu perfil disciplinar y preparate para idear soluciones con impacto real.",
-    categoria: "Registro",
-    color: "var(--c1)"
-  }
-];
+// Las noticias viven en src/content/noticias/ (un .md por noticia).
+// Ver src/content.config.ts para los tipos de noticia y sus campos.
+import { getNoticias, formatearFecha, enlaceDeNoticia } from '../utils/noticias';
+
+const NOTICIAS = await getNoticias(3);
 ---
 
 <section class="news" id="noticias">
@@ -43,28 +18,37 @@ const NOTICIAS = [
 
     <div class="news-grid">
       {NOTICIAS.map((n, idx) => {
+        const { titulo, fecha, categoria, extracto, color, url, fuente } = n.data;
+        const href = enlaceDeNoticia(n);
         // Con enlace la tarjeta entera es un <a>; sin enlace queda como <article>.
-        const Tag = n.url ? 'a' : 'article';
+        const Tag = href ? 'a' : 'article';
+        const esExterna = Boolean(url);
         return (
           <Tag
-            class={`card news-card reveal rd${idx + 1}${n.url ? ' news-card-link' : ''}`}
-            href={n.url}
-            target={n.url ? '_blank' : undefined}
-            rel={n.url ? 'noopener noreferrer' : undefined}
+            class={`card news-card reveal rd${idx + 1}${href ? ' news-card-link' : ''}`}
+            href={href}
+            target={esExterna ? '_blank' : undefined}
+            rel={esExterna ? 'noopener noreferrer' : undefined}
           >
             <div class="news-card-header">
-              <span class="news-badge" style={`background: rgba(var(--c${idx % 2 === 0 ? '2' : '1'}r), 0.08); color: ${n.color}; border: 1px solid rgba(var(--c${idx % 2 === 0 ? '2' : '1'}r), 0.15);`}>
-                {n.categoria}
+              <span class="news-badge" style={`background: rgba(var(--${color}r), 0.08); color: var(--${color}); border: 1px solid rgba(var(--${color}r), 0.15);`}>
+                {categoria}
               </span>
-              <time class="news-date" datetime={n.fecha}>{n.fecha}</time>
+              <time class="news-date" datetime={fecha.toISOString().slice(0, 10)}>
+                {formatearFecha(fecha)}
+              </time>
             </div>
-            <h3 class="news-card-title">{n.titulo}</h3>
-            <p class="news-card-excerpt">{n.extracto}</p>
-            {n.url && (
+            <h3 class="news-card-title">{titulo}</h3>
+            <p class="news-card-excerpt">{extracto}</p>
+            {href && (
               <div class="news-card-footer">
                 <span class="news-read-more">
-                  {n.fuente ? `Leer en ${n.fuente}` : 'Leer más'}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                  {esExterna ? `Leer en ${fuente ?? 'el medio'}` : 'Leer nota completa'}
+                  {esExterna ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  )}
                 </span>
               </div>
             )}

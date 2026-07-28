@@ -1,0 +1,206 @@
+---
+// src/pages/noticias/[slug].astro
+// Página de una nota interna. Solo se generan las noticias que traen cuerpo
+// en markdown: las de prensa externa apuntan al medio y no necesitan página.
+export const prerender = true;
+
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { formatearFecha, tieneNotaInterna } from '../../utils/noticias';
+
+export async function getStaticPaths() {
+  const noticias = await getCollection('noticias');
+  return noticias
+    .filter(tieneNotaInterna)
+    .map((noticia) => ({ params: { slug: noticia.id }, props: { noticia } }));
+}
+
+const { noticia } = Astro.props;
+const { Content } = await render(noticia);
+const { titulo, fecha, categoria, extracto, imagen, imagenAlt, galeria } = noticia.data;
+---
+
+<Layout
+  title={`${titulo} | HEM2026`}
+  description={extracto}
+  image={imagen ?? '/img/og-image.jpg'}
+>
+  <article class="nota">
+    <div class="container nota-container">
+      <a href="/#noticias" class="nota-back">&larr; Volver a noticias</a>
+
+      <header class="nota-hdr">
+        <div class="nota-meta">
+          <span class="nota-badge">{categoria}</span>
+          <time class="nota-fecha" datetime={fecha.toISOString().slice(0, 10)}>
+            {formatearFecha(fecha)}
+          </time>
+        </div>
+        <h1 class="nota-titulo">{titulo}</h1>
+        <p class="nota-bajada">{extracto}</p>
+      </header>
+
+      {imagen && (
+        <figure class="nota-portada">
+          <img src={imagen} alt={imagenAlt ?? titulo} loading="eager" decoding="async" />
+          {imagenAlt && <figcaption>{imagenAlt}</figcaption>}
+        </figure>
+      )}
+
+      <div class="nota-cuerpo">
+        <Content />
+      </div>
+
+      {galeria.length > 0 && (
+        <section class="nota-galeria" aria-label="Galería de fotos">
+          {galeria.map((foto) => (
+            <figure>
+              <img src={foto.src} alt={foto.alt} loading="lazy" decoding="async" />
+              <figcaption>{foto.alt}</figcaption>
+            </figure>
+          ))}
+        </section>
+      )}
+
+      <footer class="nota-footer">
+        <a href="/registro" class="btn btn-primary">Inscribirme a la Hackathon</a>
+      </footer>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .nota {
+    padding: calc(var(--section-pad-y) * 0.6) 0 var(--section-pad-y);
+  }
+
+  .nota-container {
+    max-width: 780px;
+  }
+
+  .nota-back {
+    display: inline-block;
+    margin-bottom: 2.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--txt-2);
+    text-decoration: none;
+    transition: color 0.3s var(--ease);
+  }
+
+  .nota-back:hover {
+    color: var(--c1);
+  }
+
+  .nota-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .nota-badge {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--r-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(var(--c2r), 0.08);
+    color: var(--c2);
+    border: 1px solid rgba(var(--c2r), 0.15);
+  }
+
+  .nota-fecha {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--txt-m);
+  }
+
+  .nota-titulo {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    line-height: 1.2;
+    color: var(--txt-1);
+    margin: 0 0 1.25rem 0;
+  }
+
+  .nota-bajada {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--txt-2);
+    margin: 0 0 3rem 0;
+  }
+
+  .nota-portada {
+    margin: 0 0 3rem 0;
+  }
+
+  .nota-portada img,
+  .nota-galeria img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--r-md, 12px);
+    border: 1px solid var(--brd);
+    display: block;
+  }
+
+  .nota-portada figcaption,
+  .nota-galeria figcaption {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--txt-m);
+    text-align: center;
+  }
+
+  .nota-cuerpo :global(p) {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--txt-2);
+    margin: 0 0 1.5rem 0;
+  }
+
+  .nota-cuerpo :global(strong) {
+    color: var(--txt-1);
+    font-weight: 700;
+  }
+
+  .nota-cuerpo :global(a) {
+    color: var(--c1);
+  }
+
+  .nota-cuerpo :global(h2) {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--txt-1);
+    margin: 2.5rem 0 1rem 0;
+  }
+
+  .nota-cuerpo :global(ul),
+  .nota-cuerpo :global(ol) {
+    margin: 0 0 1.5rem 1.25rem;
+    color: var(--txt-2);
+    line-height: 1.8;
+  }
+
+  .nota-galeria {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 3rem 0 0 0;
+  }
+
+  @media (min-width: 640px) {
+    .nota-galeria {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .nota-footer {
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--brd);
+  }
+</style>
