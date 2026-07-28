@@ -1,0 +1,176 @@
+---
+// src/components/NewsCard.astro
+// Tarjeta de noticia. La comparten el bloque del home y el listado /noticias.
+import { formatearFecha, enlaceDeNoticia, type Noticia } from '../utils/noticias';
+
+interface Props {
+  noticia: Noticia;
+  /** Posición en la grilla: escalona la animación de entrada. */
+  idx?: number;
+}
+
+const { noticia, idx = 0 } = Astro.props;
+const { titulo, fecha, categoria, extracto, color, url, fuente } = noticia.data;
+
+const href = enlaceDeNoticia(noticia);
+const esExterna = Boolean(url);
+// Con enlace la tarjeta entera es un <a>; sin enlace queda como <article>.
+const Tag = href ? 'a' : 'article';
+// Las clases rd1..rd3 ya existen en global.css; más allá de eso no escalona.
+const delay = idx < 3 ? ` rd${idx + 1}` : '';
+---
+
+<Tag
+  class={`card news-card reveal${delay}${href ? ' news-card-link' : ''}`}
+  href={href}
+  target={esExterna ? '_blank' : undefined}
+  rel={esExterna ? 'noopener noreferrer' : undefined}
+>
+  <div class="news-card-header">
+    <span
+      class="news-badge"
+      style={`background: rgba(var(--${color}r), 0.08); color: var(--${color}); border: 1px solid rgba(var(--${color}r), 0.15);`}
+    >
+      {categoria}
+    </span>
+    <time class="news-date" datetime={fecha.toISOString().slice(0, 10)}>
+      {formatearFecha(fecha)}
+    </time>
+  </div>
+
+  <h3 class="news-card-title">{titulo}</h3>
+  <p class="news-card-excerpt">{extracto}</p>
+
+  {href && (
+    <div class="news-card-footer">
+      <span class="news-read-more">
+        {esExterna ? `Leer en ${fuente ?? 'el medio'}` : 'Leer nota completa'}
+        {esExterna ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        )}
+      </span>
+    </div>
+  )}
+</Tag>
+
+<style>
+  .news-card {
+    padding: 2.25rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.4s var(--ease), border-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
+    border: 1px solid var(--brd);
+    position: relative;
+    background: var(--bg-card);
+  }
+
+  /* La tarjeta con enlace es un <a>: neutralizamos estilos de link */
+  .news-card-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .news-card-link:focus-visible {
+    outline: 2px solid var(--c1);
+    outline-offset: 3px;
+  }
+
+  .news-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--c1);
+    box-shadow: 0 12px 30px -10px rgba(var(--c1r), 0.15);
+  }
+
+  .news-card:hover:nth-child(even) {
+    border-color: var(--c2);
+    box-shadow: 0 12px 30px -10px rgba(var(--c2r), 0.15);
+  }
+
+  .news-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  .news-badge {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--r-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .news-date {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--txt-m);
+    white-space: nowrap;
+  }
+
+  .news-card-title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: var(--txt-1);
+    margin: 0 0 1rem 0;
+    transition: color 0.3s ease;
+  }
+
+  .news-card:hover .news-card-title {
+    color: var(--c1);
+  }
+  .news-card:hover:nth-child(even) .news-card-title {
+    color: var(--c2);
+  }
+
+  .news-card-excerpt {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--txt-2);
+    margin: 0 0 2rem 0;
+    flex-grow: 1;
+  }
+
+  /* Sin footer no hace falta el espacio inferior del extracto */
+  .news-card:not(.news-card-link) .news-card-excerpt {
+    margin-bottom: 0;
+  }
+
+  .news-card-footer {
+    margin-top: auto;
+  }
+
+  .news-read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--txt-1);
+    transition: transform 0.3s var(--ease), color 0.3s var(--ease);
+  }
+
+  .news-read-more svg {
+    transition: transform 0.3s var(--ease);
+  }
+
+  .news-card:hover .news-read-more {
+    color: var(--c1);
+  }
+  .news-card:hover:nth-child(even) .news-read-more {
+    color: var(--c2);
+  }
+
+  .news-card:hover .news-read-more svg {
+    transform: translateX(4px);
+  }
+</style>

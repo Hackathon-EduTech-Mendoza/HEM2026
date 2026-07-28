@@ -1,0 +1,81 @@
+---
+// src/pages/noticias/index.astro
+// Listado completo de noticias. Se alimenta de la misma colección que el home.
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import { getNoticias } from '../../utils/noticias';
+
+const noticias = await getNoticias();
+---
+
+<Layout
+  title="Noticias | HEM2026"
+  description="Novedades, anuncios oficiales y cobertura de prensa de la Hackathon EduTech Mendoza 2026."
+>
+  <section class="noticias-page">
+    <div class="container">
+      <a href="/" class="noticias-back">&larr; Volver al inicio</a>
+
+      <div class="noticias-hdr reveal">
+        <span class="section-label">Avisos del Evento</span>
+        <h1 class="section-title text-gradient">Noticias</h1>
+        <p class="section-desc">
+          Todas las novedades, anuncios oficiales y la cobertura de prensa de la
+          Hackathon EduTech Mendoza 2026.
+        </p>
+      </div>
+
+      {noticias.length > 0 ? (
+        <div class="news-grid">
+          {noticias.map((noticia, idx) => <NewsCard noticia={noticia} idx={idx} />)}
+        </div>
+      ) : (
+        <p class="noticias-vacio">Todavía no publicamos noticias. ¡Volvé pronto!</p>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .noticias-page {
+    padding: calc(var(--section-pad-y) * 0.6) 0 var(--section-pad-y);
+  }
+
+  .noticias-back {
+    display: inline-block;
+    margin-bottom: 2.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--txt-2);
+    text-decoration: none;
+    transition: color 0.3s var(--ease);
+  }
+
+  .noticias-back:hover {
+    color: var(--c1);
+  }
+
+  .noticias-hdr {
+    margin-bottom: 4rem;
+  }
+
+  .news-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .news-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .noticias-vacio {
+    color: var(--txt-2);
+    font-size: 1.05rem;
+  }
+</style>
