@@ -8,62 +8,62 @@ const allies = [
     logoLight: "/img/allies/fundacion-underc0de-negro.webp",
     logoDark: "/img/allies/fundacion-underc0de-blanco.webp",
     isDoubleLogo: true,
-    height: "90px"
+    height: "90px",
   },
   {
     name: "Google Partner",
     href: "https://edu.google.com/intl/es-419_ALL/",
     logoLight: "/img/allies/Google_Partner.webp",
-    height: "90px"
+    height: "90px",
   },
   {
     name: "DGE Mendoza",
     href: "https://www.mendoza.edu.ar/",
     logoLight: "/img/allies/DGE-Mendoza.webp",
-    height: "90px"
+    height: "90px",
   },
   {
     name: "EMESA",
     href: "https://emesa.com.ar/",
     logoLight: "/img/allies/EMESA.webp",
-    height: "90px"
+    height: "90px",
   },
   {
     name: "Gobierno de Mendoza",
     href: "https://www.mendoza.gob.ar/",
     logoLight: "/img/allies/Gobierno_Mendoza.webp",
-    height: "90px"
+    height: "90px",
   },
   {
     name: "City Pooling",
     href: "https://citypooling.com/",
     logoLight: "/img/allies/City_Pooling.webp",
-    height: "90px"
+    height: "90px",
   },
   {
     name: "Pronectis",
     href: "https://pronectis.com/",
     logoLight: "/img/allies/Pronectis.webp",
-    height: "90px"
+    height: "90px",
   },
   {
     name: "PMI Andes Patagonia",
     href: "https://www.pmiandespatagonia.org/",
     logoLight: "/img/allies/pmi-andes-patagonia.webp",
-    height: "90px"
+    height: "90px",
   },
   {
     name: "Universidad Siglo 21",
     href: "https://21.edu.ar/",
     logoLight: "/img/allies/universidad-siglo-21.webp",
-    height: "90px"
+    height: "90px",
   },
   {
     name: "Cuyo Connect",
     href: "https://cuyoconnect.com/",
     logoLight: "/img/allies/CuyoConnect.webp",
-    height: "90px"
-  }
+    height: "120px",
+  },
 ];
 ---
 
@@ -83,46 +83,48 @@ const allies = [
   <div class="allies-marquee reveal rd2">
     <div class="marquee-track">
       {/* Render 3 identical sets for infinite loop logic */}
-      {[1, 2, 3].map(() => (
-        allies.map(ally => (
-          <a
-            href={ally.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="marquee-item"
-          >
-            {ally.isDoubleLogo ? (
-              <>
+      {
+        [1, 2, 3].map(() =>
+          allies.map((ally) => (
+            <a
+              href={ally.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="marquee-item"
+            >
+              {ally.isDoubleLogo ? (
+                <>
+                  <img
+                    src={ally.logoLight}
+                    alt={ally.name}
+                    class="marquee-logo logo-light-theme"
+                    loading="lazy"
+                    decoding="async"
+                    style={`height: ${ally.height}; width: auto; object-fit: contain;`}
+                  />
+                  <img
+                    src={ally.logoDark}
+                    alt={ally.name}
+                    class="marquee-logo logo-undercode logo-dark-theme"
+                    loading="lazy"
+                    decoding="async"
+                    style={`height: ${ally.height}; width: auto; object-fit: contain;`}
+                  />
+                </>
+              ) : (
                 <img
                   src={ally.logoLight}
                   alt={ally.name}
-                  class="marquee-logo logo-light-theme"
+                  class="marquee-logo"
                   loading="lazy"
                   decoding="async"
                   style={`height: ${ally.height}; width: auto; object-fit: contain;`}
                 />
-                <img
-                  src={ally.logoDark}
-                  alt={ally.name}
-                  class="marquee-logo logo-undercode logo-dark-theme"
-                  loading="lazy"
-                  decoding="async"
-                  style={`height: ${ally.height}; width: auto; object-fit: contain;`}
-                />
-              </>
-            ) : (
-              <img
-                src={ally.logoLight}
-                alt={ally.name}
-                class="marquee-logo"
-                loading="lazy"
-                decoding="async"
-                style={`height: ${ally.height}; width: auto; object-fit: contain;`}
-              />
-            )}
-          </a>
-        ))
-      ))}
+              )}
+            </a>
+          )),
+        )
+      }
     </div>
   </div>
 </section>
@@ -279,24 +281,26 @@ const allies = [
 
 <script>
   function initMarqueeSync() {
-    const track = document.querySelector('.marquee-track') as HTMLElement | null;
+    const track = document.querySelector(
+      ".marquee-track",
+    ) as HTMLElement | null;
     if (!track) return;
 
-    const STORAGE_KEY = 'edutech-animations';
+    const STORAGE_KEY = "edutech-animations";
 
     function getEnabled(): boolean {
-      return localStorage.getItem(STORAGE_KEY) !== 'false';
+      return localStorage.getItem(STORAGE_KEY) !== "false";
     }
 
     function setGlobalClass(enabled: boolean) {
-      document.documentElement.classList.toggle('animations-paused', !enabled);
+      document.documentElement.classList.toggle("animations-paused", !enabled);
     }
 
     function restartMarquee() {
-      track.style.animationName = 'none';
-      track.style.animationPlayState = '';
+      track.style.animationName = "none";
+      track.style.animationPlayState = "";
       void track.offsetWidth;
-      track.style.animationName = '';
+      track.style.animationName = "";
     }
 
     function syncMarquee(enabled: boolean) {
@@ -304,19 +308,19 @@ const allies = [
       if (enabled) {
         restartMarquee();
       } else {
-        track.style.animationPlayState = 'paused';
+        track.style.animationPlayState = "paused";
       }
     }
 
     syncMarquee(getEnabled());
 
-    window.addEventListener('edutech-animations-changed', (e: any) => {
+    window.addEventListener("edutech-animations-changed", (e: any) => {
       syncMarquee(e.detail.enabled);
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMarqueeSync);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMarqueeSync);
   } else {
     initMarqueeSync();
   }
