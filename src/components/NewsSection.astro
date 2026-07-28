@@ -1,7 +1,21 @@
 ---
 // src/components/NewsSection.astro
 
+// Cada noticia puede tener:
+//   url    -> enlace externo (prensa). La tarjeta se vuelve clickeable.
+//   fuente -> nombre del medio, se muestra en el "Leer más".
+// Sin `url`, la tarjeta es un aviso informativo y no muestra el "Leer más".
+// Ordenar siempre de más nueva a más vieja.
 const NOTICIAS = [
+  {
+    fecha: "27 de Julio, 2026",
+    titulo: "Educación: así es la inédita convocatoria que busca usar tecnología para la resolución de desafíos reales",
+    extracto: "Los Andes cubrió la Hackathon EduTech 2026: equipos interdisciplinarios de estudiantes de tecnología, educación, comunicación, matemáticas y administración trabajando tres jornadas sobre desafíos educativos reales.",
+    categoria: "Prensa",
+    color: "var(--c1)",
+    url: "https://www.losandes.com.ar/sociedad/educacion-asi-es-la-inedita-convocatoria-que-busca-usar-tecnologia-la-resolucion-desafios-reales-n6000024",
+    fuente: "Los Andes"
+  },
   {
     fecha: "24 de Mayo, 2026",
     titulo: "Nuevas Sedes Confirmadas para la Edición 2026",
@@ -15,13 +29,6 @@ const NOTICIAS = [
     extracto: "Ya podés registrarte y postularte para formar parte de la Hackathon. Creá tu cuenta, completá tu perfil disciplinar y preparate para idear soluciones con impacto real.",
     categoria: "Registro",
     color: "var(--c1)"
-  },
-  {
-    fecha: "05 de Mayo, 2026",
-    titulo: "Presentación de los Ejes Temáticos del Evento",
-    extracto: "Este año nos enfocaremos en tres ejes críticos: Inteligencia Artificial en el Aula, Gamificación para la Retención Escolar y Plataformas Inclusivas. ¡Comenzá a planear tus ideas!",
-    categoria: "Temática",
-    color: "var(--c2)"
   }
 ];
 ---
@@ -35,24 +42,35 @@ const NOTICIAS = [
     </div>
 
     <div class="news-grid">
-      {NOTICIAS.map((n, idx) => (
-        <article class={`card news-card reveal rd${idx + 1}`}>
-          <div class="news-card-header">
-            <span class="news-badge" style={`background: rgba(var(--c${idx % 2 === 0 ? '2' : '1'}r), 0.08); color: ${n.color}; border: 1px solid rgba(var(--c${idx % 2 === 0 ? '2' : '1'}r), 0.15);`}>
-              {n.categoria}
-            </span>
-            <time class="news-date" datetime={n.fecha}>{n.fecha}</time>
-          </div>
-          <h3 class="news-card-title">{n.titulo}</h3>
-          <p class="news-card-excerpt">{n.extracto}</p>
-          <div class="news-card-footer">
-            <span class="news-read-more">
-              Leer más
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </span>
-          </div>
-        </article>
-      ))}
+      {NOTICIAS.map((n, idx) => {
+        // Con enlace la tarjeta entera es un <a>; sin enlace queda como <article>.
+        const Tag = n.url ? 'a' : 'article';
+        return (
+          <Tag
+            class={`card news-card reveal rd${idx + 1}${n.url ? ' news-card-link' : ''}`}
+            href={n.url}
+            target={n.url ? '_blank' : undefined}
+            rel={n.url ? 'noopener noreferrer' : undefined}
+          >
+            <div class="news-card-header">
+              <span class="news-badge" style={`background: rgba(var(--c${idx % 2 === 0 ? '2' : '1'}r), 0.08); color: ${n.color}; border: 1px solid rgba(var(--c${idx % 2 === 0 ? '2' : '1'}r), 0.15);`}>
+                {n.categoria}
+              </span>
+              <time class="news-date" datetime={n.fecha}>{n.fecha}</time>
+            </div>
+            <h3 class="news-card-title">{n.titulo}</h3>
+            <p class="news-card-excerpt">{n.extracto}</p>
+            {n.url && (
+              <div class="news-card-footer">
+                <span class="news-read-more">
+                  {n.fuente ? `Leer en ${n.fuente}` : 'Leer más'}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                </span>
+              </div>
+            )}
+          </Tag>
+        );
+      })}
     </div>
   </div>
 </section>
@@ -89,6 +107,18 @@ const NOTICIAS = [
     border: 1px solid var(--brd);
     position: relative;
     background: var(--bg-card);
+  }
+
+  /* La tarjeta con enlace externo es un <a>: neutralizamos estilos de link */
+  .news-card-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .news-card-link:focus-visible {
+    outline: 2px solid var(--c1);
+    outline-offset: 3px;
   }
 
   .news-card:hover {
@@ -146,6 +176,11 @@ const NOTICIAS = [
     color: var(--txt-2);
     margin: 0 0 2rem 0;
     flex-grow: 1;
+  }
+
+  /* Sin footer no hace falta el espacio inferior del extracto */
+  .news-card:not(.news-card-link) .news-card-excerpt {
+    margin-bottom: 0;
   }
 
   .news-card-footer {
