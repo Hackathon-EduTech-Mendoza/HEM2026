@@ -24,12 +24,34 @@ const noticias = defineCollection({
     /** Solo para prensa externa. */
     url: z.string().url().optional(),
     fuente: z.string().optional(),
-    /** Imagen de portada, relativa a /public (ej: "/img/noticias/foo.webp"). */
+    /**
+     * Portada, relativa a /public. Cada nota tiene su carpeta propia:
+     * "/img/noticias/<slug>/portada.webp"
+     */
     imagen: z.string().optional(),
     imagenAlt: z.string().optional(),
     /** Fotos adicionales que se muestran al pie de la nota interna. */
     galeria: z
       .array(z.object({ src: z.string(), alt: z.string() }))
+      .default([]),
+    /**
+     * Videos de la nota. Cada uno lleva `youtube` (recomendado: ID o URL) o
+     * `src` (archivo propio en /video/noticias/<slug>/), nunca los dos.
+     */
+    videos: z
+      .array(
+        z
+          .object({
+            titulo: z.string(),
+            youtube: z.string().optional(),
+            src: z.string().optional(),
+            /** Miniatura para el video propio, mientras no se reproduce. */
+            poster: z.string().optional(),
+          })
+          .refine((v) => Boolean(v.youtube) !== Boolean(v.src), {
+            message: 'Cada video necesita `youtube` o `src`, pero no ambos.',
+          }),
+      )
       .default([]),
   }),
 });
