@@ -1,6 +1,6 @@
 # Estado actual del repositorio
 
-> Actualizado: **2026-07-24**. Resume dónde está el código, cómo está la base y
+> Actualizado: **2026-07-28**. Resume dónde está el código, cómo está la base y
 > qué queda pendiente, para poder retomar sin reconstruir el contexto.
 
 ## Git
@@ -8,11 +8,11 @@
 | | |
 |---|---|
 | Rama de trabajo | `Nahuel_Develop` |
-| Último commit | `c39bb2d` (dentro del merge `876f161`) |
+| Último commit | `5b9826c` (merge del PR #32) |
 | Estado | Limpio, sincronizado con `origin/Nahuel_Develop` |
 
-El PR **#30 fue mergeado a `main`**, así que `origin/main`, `origin/Nahuel_Develop`
-y la copia local apuntan al mismo commit.
+El PR **#32 fue mergeado a `main` y está deployado**, así que `origin/main`,
+`origin/Nahuel_Develop` y la copia local apuntan al mismo commit.
 
 ⚠️ **`develop` NO tiene este trabajo.** Quedó en una línea divergente
 (`689ac41`, con los componentes de Seba). Si el flujo del equipo sigue usando
@@ -23,15 +23,25 @@ Otras ramas remotas activas: `Gustavo_develop` (exportar Excel/PDF en admin) y
 El `origin` local apunta a `Nahuelito22/HEM2026`, que redirige a
 `Hackathon-EduTech-Mendoza/HEM2026`. Conviene actualizar la URL del remoto.
 
-### Trabajo de la sesión 2026-07-24
+### Trabajo de la sesión 2026-07-28 (sitio público)
 
 | Commit | Qué es |
 |--------|--------|
-| `d8ee95b` | Rúbrica EduTech: 6 criterios 1–5 con puntaje ponderado, instructivo para el jurado, Bases y Condiciones alineadas, fix de las cards de configuración del admin |
-| `2d770e8` | Campo libre de institución cuando se elige "Otra" |
-| `ab8d18b` | Tests E2E de la rúbrica y del campo de institución + playbook de QA |
-| `0fe729b` | Registro de la auditoría |
-| `c39bb2d` | Guía rápida del admin actualizada con el flujo de evaluación |
+| `d17b636` | Cuyo Connect sumado a aliados estratégicos |
+| `d815d06` | Ajuste de altura del logo de Cuyo Connect |
+| `4ad3bb1` | Nota de Los Andes + el "Leer más" pasa a funcionar de verdad |
+| `4176135` | Noticias migradas a content collection + nota de la rectora |
+| `691af2e` | Listado `/noticias` y extracción de `NewsCard` |
+| `a4cbebd` | Soporte de videos y carpeta de medios por nota |
+| `070ddf6` | Fotos y videos de la nota de la rectora conectados |
+| `155a4f4` | Observación del jurado: del viernes al sábado |
+| `5db7ffd` | WhatsApp del evento publicado en FAQ y footer |
+
+### Sesión 2026-07-24 (evaluación)
+
+Rúbrica de 6 criterios 1–5 con puntaje ponderado, instructivo para el jurado,
+Bases y Condiciones alineadas, campo libre de institución, tests E2E y playbook
+de QA. Detalle en el historial (`d8ee95b`…`c39bb2d`).
 
 ## Base de datos (Supabase `cotwhywqcocutrkmrpiw`, región us-east-2)
 
@@ -94,6 +104,52 @@ manual de finalistas (botón "Marcar Top N" + "Guardar Finalistas") entre medio.
 El ranking del admin muestra **suma directa (/30)** y **ponderado (/100)**, y
 ordena por el ponderado.
 
+## Noticias (sitio público)
+
+Las noticias son una **content collection de Astro**: un `.md` por noticia en
+`src/content/noticias/`, con schema tipado en `src/content.config.ts`. Antes eran
+un array hardcodeado dentro del componente. Para publicar una noticia ahora
+alcanza con agregar un archivo: no se toca ningún componente.
+
+El **tipo de noticia sale del frontmatter**, sin flags extra:
+
+| Tipo | Cómo se define | Qué hace la tarjeta |
+|---|---|---|
+| Prensa externa | tiene `url` + `fuente` | abre el medio en pestaña nueva |
+| Nota interna | tiene cuerpo markdown | va a `/noticias/<slug>`, que se prerenderiza |
+| Aviso corto | ni `url` ni cuerpo | sin "Leer más" |
+
+Piezas: `NewsCard.astro` (tarjeta compartida), `NewsSection.astro` (bloque del
+home, muestra las 3 más recientes + "Ver todas" si hay más), `/noticias`
+(listado completo), `/noticias/[slug]` (nota interna) y `NewsVideoPlayer.astro`
+(escenario + playlist, encadena la parte siguiente al terminar una).
+`src/utils/noticias.ts` centraliza orden, formato de fecha y resolución de enlace.
+
+### Medios
+
+Una carpeta por nota, nombrada con el slug del `.md`:
+
+```
+public/img/noticias/<slug>/      fotos (.webp)
+public/video/noticias/<slug>/    videos propios (.mp4 H.264 + AAC)
+```
+
+Hay un `README.md` en cada una con el flujo. **Política de videos:** si ya está
+publicado en YouTube/redes se usa el campo `youtube` (se embebe por
+`youtube-nocookie`); solo se versionan archivos propios de menos de ~10 MB,
+porque **lo que entra al repo queda para siempre en el historial de git**. Hoy la
+nota de la rectora tiene 3 mp4 propios que suman 4,5 MB.
+
+⚠️ **`content.config.ts` no se recarga en caliente.** Si agregás una noticia y la
+sección aparece vacía en dev, reiniciá `npm run dev`. Los `.md` sí se recargan
+solos; el que no es la config de la colección.
+
+## Contacto
+
+WhatsApp del evento **+54 9 2615 36-5167** y el mail viven en
+`src/utils/contacto.ts`, y desde ahí los consumen el cierre del FAQ y el footer.
+Si cambian, se tocan en un solo lado.
+
 ## Tests
 
 `npm run test:e2e` — 14 tests seriales en `tests/e2e/full-flow.spec.ts`, **todos
@@ -130,10 +186,13 @@ a `cerrada`.
    reactiva el fetch comentado en `Hero.astro`.
 6. Ítems del `BACKLOG.md`: normalizar Instagram, validar teléfono como el DNI, y
    la carrera de "Cargando..." en `ProjectSubmission.astro`.
+7. **Textos de la nota de la rectora sin revisar**: los títulos de los tres
+   videos y los `alt` de las fotos se escribieron sin ver el material, y la fecha
+   (`2026-07-28`) se asumió porque el texto decía "Hoy". Ver `BACKLOG.md` punto 5.
 
 ### Higiene
 
-7. **Rotar la service role key y la contraseña de la base**: quedaron expuestas
+8. **Rotar la service role key y la contraseña de la base**: quedaron expuestas
    en una sesión de trabajo del 2026-07-24.
-8. Aprobación visual del rediseño del tab "Mi Perfil" (commit `663b09e`; si no
+9. Aprobación visual del rediseño del tab "Mi Perfil" (commit `663b09e`; si no
    convence, `git revert 663b09e`).
