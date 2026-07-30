@@ -52,7 +52,22 @@ que verifiqué contra prod:
 2. **Crear el usuario de pruebas** (ver las instrucciones dentro de
    `03-admin-e2e.sql`) y después correr ese archivo.
 
-3. **Apuntar el entorno a dev.** Las cuatro variables salen de
+3. **Desactivar la confirmación por mail.** Authentication → Sign In / Providers →
+   Email → **"Confirm email" en OFF**. Prod lo tiene desactivado y dev viene con el
+   toggle prendido de fábrica.
+
+   ⚠️ Sin esto **la suite muere en el primer registro**, y el error no dice por qué.
+   Con el toggle activo, el signup intenta mandar el mail de confirmación y Auth
+   valida el dominio del destinatario. La suite usa `@hem2026.test`, y `.test` es un
+   TLD reservado por la RFC 2606 que no existe en DNS: el envío falla y el signup
+   devuelve `400 email_address_invalid` sin crear la cuenta. En Playwright se ve como
+   un timeout esperando `**/onboarding`, que no apunta a nada. La pista está en
+   Logs → Auth.
+
+   (El admin del paso 2 no se ve afectado: la Admin API con `email_confirm: true`
+   no pasa por el mailer.)
+
+4. **Apuntar el entorno a dev.** Las cuatro variables salen de
    Dashboard → Settings → API y → Database:
 
    ```
@@ -67,13 +82,15 @@ que verifiqué contra prod:
 
    ⚠️ **Vercel NO se toca**: producción sigue apuntando a HEM-Prod.
 
-4. **Actualizar los secrets del CI** (Settings → Secrets and variables →
+5. **Actualizar los secrets del CI** (Settings → Secrets and variables →
    Actions) a los de dev: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY` y
-   `SUPABASE_SERVICE_ROLE_KEY`. El job `e2e-completo` escribe en la base, así que
-   es el que más importa que deje de mirar prod.
+   `SUPABASE_SERVICE_ROLE_KEY`. Los tres siguen haciendo falta: la anon key es la
+   que usa el navegador para registrarse y logearse. El job `e2e-completo` escribe
+   en la base, así que es el que más importa que deje de mirar prod.
 
-5. **Verificar.** `npm run test:e2e` completo contra dev. Si el paso 1 quedó a
-   medias, falla en el primer test de registro.
+6. **Verificar.** `npm run test:e2e` completo contra dev. Si el paso 1 quedó a
+   medias, falla en el primer test de registro; si el que falta es el paso 3, falla
+   en el mismo lugar pero por el mail de confirmación.
 
 ## Regenerar el esquema cuando prod cambie
 
