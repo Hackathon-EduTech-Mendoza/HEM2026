@@ -39,6 +39,18 @@ git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.g
 |--------|--------|
 | `05a9f3e` | Las cards de Métricas y los encabezados de fase dejan de pegarse al borde |
 | `2602895` | Los registros abandonados dejan de contar como inscriptos |
+| `47d67fe` | El admin deja de ver una pantalla de votación que no puede usar, y `var(--t-normal)` |
+
+**Solo el jurado vota.** El admin entra a `/evaluacion` (el middleware lo deja)
+pero **nunca** puede guardar: la policy RLS de INSERT de `evaluations` exige
+`role = 'juez'`. Ve una tarjeta que se lo explica, distinta según la fase esté
+cerrada o abierta, y que lo manda al Centro de Comando. Lo cubre
+`tests/e2e/admin-evaluacion.spec.ts`, escrito para valer en cualquier fase.
+
+⚠️ **Los tokens de tiempo traen la curva adentro** (`--t-base: 0.3s var(--ease)`).
+Sirven para `transition`, pero **no** para el shorthand de `animation`: quedarían
+dos timing-functions y el navegador descarta la declaración. Ahí va una duración
+literal.
 
 **`.admin-card` lleva `padding: 0` a propósito**, para que las tablas queden a
 ras del borde. Lo que no sea una tabla adentro de esa card tiene que reponer el
@@ -254,6 +266,7 @@ Tres comandos:
 | `npm run test:unit` | 34 tests de las funciones puras (`src/utils/perfil.ts`) | no |
 | `npx playwright test sitio-publico` | 9 tests del sitio público | no |
 | `npx playwright test admin-metricas` | 5 tests de la pestaña Métricas | solo lee |
+| `npx playwright test admin-evaluacion` | 1 test: el admin no ve la votación | solo lee |
 | `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** (se limpia solo) |
 
 Los unitarios usan el runner de Playwright con `playwright.unit.config.ts` (sin
@@ -262,8 +275,8 @@ navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 `tests/e2e/full-flow.spec.ts` son 19 tests **seriales** que cubren registro,
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
-contra la base real. **Los 29 tests en verde al 2026-07-30** (los 34 unitarios y
-los 14 que no tocan la base se corrieron el 2026-07-30; el flujo serial completo,
+contra la base real. **Los 30 tests en verde al 2026-07-30** (los 34 unitarios y
+los 15 que no tocan la base se corrieron el 2026-07-30; el flujo serial completo,
 el 2026-07-29).
 
 ### Datos de prueba: la suite se limpia sola
@@ -341,26 +354,16 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
 
 ### Bugs y mejoras abiertos
 
-2. **Admin en `/evaluacion` con la fase cerrada** ve el panel completo y el botón
-   "Evaluar", pero guardar falla. La causa está en `evaluacion.astro:98`: el
-   cartel de "Evaluaciones Cerradas" se muestra sólo `&& profile?.role === 'juez'`,
-   así que el admin cae en el `else` y ve la interfaz de votación. Arreglarlo es
-   sacar esa condición de rol.
-
-   **No hay riesgo de datos:** el guardado está bloqueado por dos guardas
-   independientes — el `CHECK (phase IN ('preclasificacion','final'))` rechaza
-   `cerrada`, y la policy RLS de INSERT exige `role = 'juez'`. Es solo una
-   pantalla inusable con un error incomprensible.
-3. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
+2. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-4. **7 inscripciones esperando aprobación** al 2026-07-30. La pestaña Métricas
+3. **7 inscripciones esperando aprobación** al 2026-07-30. La pestaña Métricas
    ya muestra la cola real, sin los 19 registros abandonados.
-5. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
+4. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
    validación del campo libre de institución (hay un perfil con `-`),
-   recordatorio a los registros abandonados, `var(--t-normal)` inexistente y el
-   orden del historial de migraciones.
+   recordatorio a los registros abandonados y el orden del historial de
+   migraciones.
 
 Las **estadísticas de visitas propias** quedaron **descartadas** el 2026-07-29:
 las visitas se siguen mirando en Vercel. El análisis de qué haría falta quedó en
