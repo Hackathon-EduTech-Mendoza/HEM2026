@@ -10,6 +10,7 @@ import {
   openDashboardTab,
   openAdminTab,
   newApiClient,
+  limpiarDatosE2E,
   TestUser,
 } from './utils';
 import { CRITERIA, MAX_RAW_SCORE, rawScore, weightedScore } from '../../src/lib/rubric';
@@ -23,6 +24,26 @@ import { CRITERIA, MAX_RAW_SCORE, rawScore, weightedScore } from '../../src/lib/
  * Los tests son seriales: comparten estado del run (equipo, proyecto).
  */
 test.describe.configure({ mode: 'serial' });
+
+// La suite escribe en la base real, así que se limpia sola: si no, cada corrida
+// deja 4 perfiles que la pestaña Métricas cuenta como inscripciones reales.
+// Solo borra lo de su propio RUN_ID; el admin de prueba nunca se toca.
+test.afterAll(async () => {
+  try {
+    const borrado = await limpiarDatosE2E(RUN_ID);
+    console.log(
+      `\n[limpieza ${RUN_ID}] ${borrado.perfiles} perfiles, ${borrado.cuentasAuth} cuentas de auth, ` +
+        `${borrado.equipos} equipos, ${borrado.proyectos} proyectos, ${borrado.evaluaciones} evaluaciones.`,
+    );
+  } catch (e) {
+    // No se falla la corrida por la limpieza, pero tiene que quedar a la vista:
+    // si esto pasa seguido, la base se llena de datos de prueba.
+    console.error(
+      `\n[limpieza ${RUN_ID}] FALLÓ. Hay que borrar a mano con: npm run test:e2e:limpiar\n`,
+      e,
+    );
+  }
+});
 
 // ── Estado compartido del run ──
 const TEAM_NAME = `Equipo E2E ${RUN_ID}`;

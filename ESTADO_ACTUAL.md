@@ -193,13 +193,42 @@ Tres comandos:
 Los unitarios usan el runner de Playwright con `playwright.unit.config.ts` (sin
 navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 
-`tests/e2e/full-flow.spec.ts` son 14 tests **seriales** que cubren registro,
+`tests/e2e/full-flow.spec.ts` son 18 tests **seriales** que cubren registro,
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
-contra la base real: los datos de prueba usan `e2e.*@hem2026.test` y equipos
-`Equipo E2E *`; hay que limpiarlos después y devolver `evaluation_phase` a
-`cerrada`. Estaban en verde al 2026-07-24; el test de entrega de proyecto se
-reescribió el 2026-07-29 y **todavía no se volvió a correr la suite completa**.
+contra la base real. **Los 27 tests en verde al 2026-07-29.**
+
+### Datos de prueba: la suite se limpia sola
+
+Cada corrida crea 4 perfiles, 1 equipo, 1 proyecto y 2 evaluaciones, con un
+`RUN_ID` único por corrida. Antes **no se borraba nada**, así que se acumulaban y
+la pestaña Métricas los contaba como inscripciones reales.
+
+Ahora un `afterAll` llama a `limpiarDatosE2E(RUN_ID)` y borra solo lo de su
+corrida. Si la limpieza falla no se cae la suite, pero avisa por consola.
+
+Red de seguridad para cuando una corrida se corta antes del teardown:
+
+```bash
+npm run test:e2e:limpiar          # muestra qué borraría, no borra nada
+npm run test:e2e:limpiar -- --si  # borra de verdad
+```
+
+⚠️ **`e2e.admin@hem2026.test` no se borra nunca.** Es fijo, se bootstrapeó una
+vez y hay que promoverlo a admin **por SQL a mano**: si desaparece, la suite
+entera deja de correr hasta que alguien lo recree. Tanto el teardown como el
+script lo excluyen explícitamente.
+
+El borrado necesita `SUPABASE_SERVICE_ROLE_KEY` (borrar cuentas de `auth.users`
+no se puede con la anon key) y va en un orden que **no es intercambiable**:
+
+`evaluations` → `help_requests` → `projects` → `profiles.team_id = null` →
+`teams` → `profiles` → cuentas de `auth.users`
+
+Los dos motivos: `teams.leader_id` es `NO ACTION`, así que el equipo tiene que
+morir antes que el perfil de su líder; y `profiles` no tiene FK contra
+`auth.users`, así que hay que borrar las dos puntas o queda la cuenta fantasma y
+ese email no se puede volver a registrar.
 
 `sitio-publico.spec.ts` y `admin-metricas.spec.ts` son independientes del flujo
 serial, así que se pueden correr sueltas sin ensuciar nada.
@@ -221,12 +250,15 @@ real. Se dispara a mano desde Actions → CI → *Run workflow*, marcando la cas
 Para que ese job funcione hacen falta dos **secrets** en el repo
 (Settings → Secrets and variables → Actions):
 
-| Secret | Valor |
-|---|---|
-| `PUBLIC_SUPABASE_URL` | el mismo del `.env` |
-| `PUBLIC_SUPABASE_ANON_KEY` | el mismo del `.env` |
+| Secret | Valor | Para qué |
+|---|---|---|
+| `PUBLIC_SUPABASE_URL` | el mismo del `.env` | conectarse |
+| `PUBLIC_SUPABASE_ANON_KEY` | el mismo del `.env` | conectarse |
+| `SUPABASE_SERVICE_ROLE_KEY` | el mismo del `.env` | **el teardown**: borrar cuentas de auth |
 
-Sin esos secrets los otros tres jobs igual pasan; solo falla `e2e-completo`.
+Sin esos secrets los otros tres jobs igual pasan; solo falla `e2e-completo`. Si
+falta la service role key, la suite corre pero **no limpia**, y deja datos de
+prueba en la base.
 
 ⚠️ **`tests/e2e/utils.ts` lee un archivo `.env` del disco**, no `process.env`, así
 que el workflow lo materializa desde los secrets antes de correr. Si algún día se

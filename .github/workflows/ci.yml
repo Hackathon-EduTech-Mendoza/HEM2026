@@ -123,10 +123,13 @@ jobs:
 
       # tests/e2e/utils.ts lee un archivo .env del disco (no process.env),
       # así que hay que materializarlo desde los secrets del repo.
+      # La service role key es imprescindible para el teardown: borrar cuentas
+      # de auth.users no se puede con la anon key.
       - name: Escribir .env
         run: |
           echo "PUBLIC_SUPABASE_URL=${{ secrets.PUBLIC_SUPABASE_URL }}" >> .env
           echo "PUBLIC_SUPABASE_ANON_KEY=${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}" >> .env
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
 
       - name: Correr la suite completa
         run: npm run test:e2e
@@ -141,7 +144,8 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      - name: Recordatorio de limpieza
+      # La suite se limpia sola en su afterAll. Esto barre lo que pueda haber
+      # quedado si la corrida se cortó antes de llegar al teardown.
+      - name: Limpiar sobras
         if: always()
-        run: |
-          echo "::warning::La suite dejó usuarios e2e.*@hem2026.test y equipos 'Equipo E2E *' en la base. Revisar que evaluation_phase haya quedado en 'cerrada'."
+        run: npm run test:e2e:limpiar -- --si
