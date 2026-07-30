@@ -330,7 +330,7 @@ const projects = allProjects || [];
           </div>
         </div>
 
-        <div class="admin-card card metrics-chart-card">
+        <div class="admin-card card metrics-panel metrics-chart-card">
             <h3 class="metrics-card-title">Inscripciones por día</h3>
             {totalRegistrations === 0 ? (
               <p class="empty-state">Todavía no hay inscripciones registradas.</p>
@@ -352,7 +352,7 @@ const projects = allProjects || [];
         </div>
 
         <div class="metrics-grid">
-          <div class="admin-card card">
+          <div class="admin-card card metrics-panel">
             <h3 class="metrics-card-title">Por rol</h3>
             <ul class="metrics-list">
               <li>
@@ -390,7 +390,7 @@ const projects = allProjects || [];
             </ul>
           </div>
 
-          <div class="admin-card card">
+          <div class="admin-card card metrics-panel">
             <h3 class="metrics-card-title">Por institución</h3>
             {institutionRanking.length === 0 ? (
               <p class="empty-state">Sin datos de institución.</p>
@@ -409,7 +409,7 @@ const projects = allProjects || [];
             </p>
           </div>
 
-          <div class="admin-card card">
+          <div class="admin-card card metrics-panel">
             <h3 class="metrics-card-title">Estado del evento</h3>
             <ul class="metrics-list">
               <li>
@@ -997,11 +997,9 @@ const projects = allProjects || [];
 
     <!-- Fase 1: Preclasificación -->
     <div class="admin-card card" style="margin-bottom: 2rem;">
-      <div class="admin-actions" style="justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-        <h3 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.15rem;">
-          Fase 1: Preclasificación
-        </h3>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <div class="admin-card-header">
+        <h3>Fase 1: Preclasificación</h3>
+        <div class="admin-card-header-actions">
           <button id="autoselect-finalists-btn" class="btn btn-outline">
             Marcar Top {finalistsCount}
           </button>
@@ -1100,10 +1098,8 @@ const projects = allProjects || [];
 
     <!-- Fase 2: Ronda Final -->
     <div class="admin-card card">
-      <div class="admin-actions">
-        <h3 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.15rem;">
-          Fase 2: Ronda Final
-        </h3>
+      <div class="admin-card-header">
+        <h3>Fase 2: Ronda Final</h3>
       </div>
       <div class="table-responsive">
         <table class="admin-table leaderboard-table">
@@ -1746,6 +1742,14 @@ const projects = allProjects || [];
     gap: 1.5rem;
   }
 
+  /* .admin-card viene con padding 0 para que las tablas queden a ras del borde.
+     Las cards de métricas no llevan tabla, así que se les devuelve el padding.
+     Va calificado con .admin-card porque esa regla se declara más abajo y con
+     un solo selector de clase le ganaría por orden. */
+  .admin-card.metrics-panel {
+    padding: 1.5rem;
+  }
+
   .metrics-chart-card {
     margin-bottom: 1.5rem;
   }
@@ -1912,6 +1916,45 @@ const projects = allProjects || [];
     background: var(--bg-card);
     border-radius: var(--r-md);
     overflow: hidden;
+  }
+
+  /* Encabezado dentro de una card con tabla. No usa .admin-actions porque ese
+     lleva margin-bottom y abriría un hueco entre el título y la tabla; acá la
+     separación la da el borde. El padding lateral es el mismo de las celdas
+     (1.5rem), así el título queda alineado con la primera columna. */
+  .admin-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--brd);
+  }
+
+  .admin-card-header h3 {
+    font-family: var(--font-heading);
+    color: var(--txt-1);
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .admin-card-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 640px) {
+    .admin-card.metrics-panel {
+      padding: 1.25rem;
+    }
+    .admin-card-header {
+      padding: 1rem 1.25rem;
+    }
+    .admin-card-header-actions .btn {
+      flex: 1;
+    }
   }
 
   .admin-actions {
