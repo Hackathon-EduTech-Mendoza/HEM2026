@@ -314,8 +314,12 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
 4. **22 inscripciones esperando aprobación** al 2026-07-29 (de 49 totales). Se ven
    en la pestaña Métricas del admin.
 5. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
-   estadísticas de visitas propias, validación de `institution_other`,
-   `var(--t-normal)` inexistente y el orden del historial de migraciones.
+   validación de `institution_other`, `var(--t-normal)` inexistente y el orden
+   del historial de migraciones.
+
+Las **estadísticas de visitas propias** quedaron **descartadas** el 2026-07-29:
+las visitas se siguen mirando en Vercel. El análisis de qué haría falta quedó en
+`BACKLOG.md`, en la sección "Descartado".
 
 ### Higiene
 
