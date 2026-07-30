@@ -208,6 +208,30 @@ serial, así que se pueden correr sueltas sin ensuciar nada.
 y el puerto por defecto, si había otro proyecto Astro levantado los tests corrían
 contra ese sitio y fallaban con un 404 desconcertante.
 
+### CI (GitHub Actions)
+
+`.github/workflows/ci.yml`. En **cada push y cada PR** corren tres jobs que no
+tocan la base: `unit`, `build` y `e2e-publico`. Les alcanza con credenciales
+falsas de Supabase, porque las páginas públicas se prerenderizan y el middleware
+las saltea (`context.isPrerendered`).
+
+La suite completa (`e2e-completo`) **no corre automático**: escribe en la base
+real. Se dispara a mano desde Actions → CI → *Run workflow*, marcando la casilla.
+
+Para que ese job funcione hacen falta dos **secrets** en el repo
+(Settings → Secrets and variables → Actions):
+
+| Secret | Valor |
+|---|---|
+| `PUBLIC_SUPABASE_URL` | el mismo del `.env` |
+| `PUBLIC_SUPABASE_ANON_KEY` | el mismo del `.env` |
+
+Sin esos secrets los otros tres jobs igual pasan; solo falla `e2e-completo`.
+
+⚠️ **`tests/e2e/utils.ts` lee un archivo `.env` del disco**, no `process.env`, así
+que el workflow lo materializa desde los secrets antes de correr. Si algún día se
+agrega una variable a los tests, hay que sumarla en los dos lugares.
+
 ## Pendientes
 
 ### Decisiones con la organización
