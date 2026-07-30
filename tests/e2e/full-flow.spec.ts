@@ -54,6 +54,11 @@ const FINAL_SCORES = { problem: 5, solution: 5, innovation: 4, feasibility: 5, i
 const PRE_TOTAL = rawScore(PRE_SCORES);
 const FINAL_TOTAL = rawScore(FINAL_SCORES);
 const PRE_WEIGHTED = weightedScore(PRE_SCORES);
+// Puntaje intermedio para probar la corrección de un voto ya guardado.
+// Distinto de PRE_SCORES en todos los criterios, para que no haya falsos verdes.
+const CORRECTED_SCORES = { problem: 2, solution: 5, innovation: 3, feasibility: 2, impact: 5, communication: 3 };
+const CORRECTED_TOTAL = rawScore(CORRECTED_SCORES);
+const CORRECTED_WEIGHTED = weightedScore(CORRECTED_SCORES);
 
 let participantB: TestUser;
 let participantC: TestUser;
@@ -336,6 +341,83 @@ test('juez vota el proyecto en preclasificación', async ({ browser }) => {
   const completedCard = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
   await expect(completedCard).toBeVisible({ timeout: 20_000 });
   await expect(completedCard.locator('.score-value')).toContainText(`${PRE_TOTAL}/${MAX_RAW_SCORE}`);
+  await page.context().close();
+});
+
+// ═══════════════════════════════════════════════════════════
+// 6b. JUEZ: corrige un voto ya guardado
+//
+// Antes esto era imposible: /evaluacion solo hacía insert y el
+// UNIQUE(project_id, judge_id, phase) rechazaba el segundo intento. Un jurado
+// que se equivocaba durante la jornada no tenía salida.
+//
+// El test termina restaurando PRE_SCORES para que los tests siguientes, que son
+// seriales y esperan ese puntaje, sigan valiendo.
+// ═══════════════════════════════════════════════════════════
+
+test('juez corrige su voto de preclasificación', async ({ browser }) => {
+  const page = await newPage(browser);
+  await loginUi(page, juezEmail, E2E_PASSWORD);
+  await page.goto('/evaluacion');
+
+  const completedCard = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
+  await expect(completedCard).toBeVisible({ timeout: 20_000 });
+  await completedCard.locator('.evaluate-btn').click();
+  await expect(page.locator('#eval-modal')).toBeVisible();
+
+  // Se ve que es una corrección, no un voto nuevo.
+  await expect(page.locator('#modal-editando')).toBeVisible();
+  await expect(page.locator('#submit-eval-btn')).toHaveText('Actualizar Evaluación');
+
+  // El modal llega con el voto anterior ya cargado: si no, el jurado tendría
+  // que acordarse de lo que puso y volver a completar los 6 criterios.
+  for (const c of CRITERIA) {
+    await expect(
+      page.locator(`input[name="score_${c.key}"][value="${PRE_SCORES[c.key as keyof typeof PRE_SCORES]}"]`),
+    ).toBeChecked();
+  }
+  await expect(page.locator('#feedback')).toHaveValue('Feedback E2E de preclasificación.');
+
+  // Corregir a otro puntaje
+  await fillEvaluation(page, CORRECTED_SCORES);
+  await page.fill('#feedback', 'Feedback E2E corregido.');
+  await page.click('#submit-eval-btn');
+  await expect(page.locator('#toast-msg')).toContainText('actualizada', { timeout: 15_000 });
+
+  await page.waitForLoadState('load');
+  const cardTrasCorregir = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
+  await expect(cardTrasCorregir).toHaveCount(1);
+  await expect(cardTrasCorregir.locator('.score-value')).toContainText(
+    `${CORRECTED_TOTAL}/${MAX_RAW_SCORE}`,
+  );
+  // Y no quedó pendiente además de evaluado.
+  await expect(page.locator('.project-card:not(.completed)', { hasText: PROJECT_TITLE })).toHaveCount(0);
+
+  // El admin ve el puntaje corregido, y sigue habiendo UNA sola evaluación:
+  // corregir no puede sumar un voto nuevo.
+  const adminPage = await newPage(browser);
+  await loginUi(adminPage, ADMIN_EMAIL, E2E_PASSWORD);
+  await adminPage.goto('/admin');
+  await openAdminTab(adminPage, 'tab-resultados');
+  const row = adminPage.locator('#tab-resultados table').first().locator('tr', { hasText: PROJECT_TITLE });
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText(`${CORRECTED_TOTAL.toFixed(1)}/${MAX_RAW_SCORE}`);
+  await expect(row).toContainText(CORRECTED_WEIGHTED.toFixed(2));
+  await adminPage.context().close();
+
+  // Restaurar el voto original para los tests que siguen.
+  await page.goto('/evaluacion');
+  await page.locator('.project-card.completed', { hasText: PROJECT_TITLE }).locator('.evaluate-btn').click();
+  await expect(page.locator('#eval-modal')).toBeVisible();
+  await fillEvaluation(page, PRE_SCORES);
+  await page.fill('#feedback', 'Feedback E2E de preclasificación.');
+  await page.click('#submit-eval-btn');
+  await expect(page.locator('#toast-msg')).toContainText('actualizada', { timeout: 15_000 });
+  await page.waitForLoadState('load');
+  await expect(
+    page.locator('.project-card.completed', { hasText: PROJECT_TITLE }).locator('.score-value'),
+  ).toContainText(`${PRE_TOTAL}/${MAX_RAW_SCORE}`);
+
   await page.context().close();
 });
 

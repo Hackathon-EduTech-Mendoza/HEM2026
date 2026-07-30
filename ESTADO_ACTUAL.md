@@ -9,11 +9,11 @@
 |---|---|
 | Rama de trabajo | `Nahuel_Develop` |
 | Último commit | ver la tabla de la sesión 2026-07-29, más abajo |
-| Estado | 10 commits locales **sin pushear** al 2026-07-29 |
+| Estado | pusheado y sincronizado con `origin/Nahuel_Develop` |
 
-El PR **#32 fue mergeado a `main` y está deployado**. Sobre eso están los commits
-de la sesión del 2026-07-29, todavía solo en local: falta pushear
-`Nahuel_Develop` y abrir el PR.
+El PR **#32 fue mergeado a `main` y está deployado**. Encima de eso está el
+trabajo de la sesión 2026-07-29, en el **PR #33, abierto y a la espera de
+revisión**.
 
 ⚠️ **`develop` NO tiene este trabajo.** Quedó en una línea divergente
 (`689ac41`, con los componentes de Seba). Si el flujo del equipo sigue usando
@@ -46,8 +46,12 @@ git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.g
 | `74bcff7` | `alt` reales y `poster` de los videos de la nota de la rectora |
 | `5d5a12c` | Feed RSS en `/rss.xml` |
 | `46b4bc0` | Suites de tests del sitio público y de la pestaña Métricas |
+| `be56d77` | CI en GitHub Actions (el repo no tenía `.github`) |
+| `89a1441` | La suite E2E borra sus propios datos al terminar |
+| `d042a89` | El `origin` pasa a apuntar a la organización |
 
-Se cerraron 8 de los 9 ítems que tenía el `BACKLOG.md`.
+Se cerraron 8 de los 9 ítems que tenía el `BACKLOG.md`, más el bug de corrección
+de votos del jurado, que era el pendiente más urgente de este archivo.
 
 ### Trabajo de la sesión 2026-07-28 (sitio público)
 
@@ -142,6 +146,24 @@ concurso el 2026-07-29. Es el que ordena el ranking y define posiciones. La suma
 directa (/30) se sigue mostrando al lado, marcada como referencia, pero no define
 nada. Los encabezados del ranking dicen "(oficial)" y "(referencia)".
 
+### El jurado puede corregir su voto
+
+Las tarjetas de "Evaluados" tienen un botón **Corregir** que reabre el modal con
+los puntajes y el feedback ya cargados, y un aviso de que se van a reemplazar.
+El guardado usa **`upsert` con `onConflict: 'project_id,judge_id,phase'`**: un
+solo camino para votar y para corregir, resuelto por el
+`UNIQUE(project_id, judge_id, phase)` de la tabla.
+
+No hizo falta migración: la policy `"Judges can update own evaluations"`
+(`20260714_02`) ya permitía el UPDATE. Sus condiciones son las que definen el
+alcance: solo el voto propio, solo si el juez está **aprobado**, y **solo mientras
+la fase del voto sigue siendo la activa**. O sea que una vez que arranca la final,
+los votos de preclasificación quedan congelados — que es el comportamiento
+deseado.
+
+Corregir **no suma una evaluación nueva**: `evaluations_count` del ranking sigue
+en 1. Hay un test E2E que lo verifica (`juez corrige su voto de preclasificación`).
+
 ## Noticias (sitio público)
 
 Las noticias son una **content collection de Astro**: un `.md` por noticia en
@@ -197,15 +219,15 @@ Tres comandos:
 | `npm run test:unit` | 34 tests de las funciones puras (`src/utils/perfil.ts`) | no |
 | `npx playwright test sitio-publico` | 9 tests del sitio público | no |
 | `npx playwright test admin-metricas` | 4 tests de la pestaña Métricas | solo lee |
-| `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** |
+| `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** (se limpia solo) |
 
 Los unitarios usan el runner de Playwright con `playwright.unit.config.ts` (sin
 navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 
-`tests/e2e/full-flow.spec.ts` son 18 tests **seriales** que cubren registro,
+`tests/e2e/full-flow.spec.ts` son 19 tests **seriales** que cubren registro,
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
-contra la base real. **Los 27 tests en verde al 2026-07-29.**
+contra la base real. **Los 28 tests en verde al 2026-07-29.**
 
 ### Datos de prueba: la suite se limpia sola
 
@@ -282,26 +304,22 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
 
 ### Bugs y mejoras abiertos
 
-2. **El jurado no puede corregir un voto ya guardado.** `/evaluacion` sólo hace
-   `insert` y el `UNIQUE(project_id, judge_id, phase)` bloquea el segundo intento.
-   La policy RLS de UPDATE ya existe: falta sólo el camino en la interfaz. Riesgo
-   real durante el evento, y es **el pendiente más urgente**.
-3. **Admin en `/evaluacion` con la fase cerrada** ve la lista y el botón "Evaluar",
+2. **Admin en `/evaluacion` con la fase cerrada** ve la lista y el botón "Evaluar",
    pero guardar falla porque `phase` sería `cerrada` y el CHECK sólo admite
    `preclasificacion`/`final`. A los jueces no les pasa.
-4. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
+3. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-5. **22 inscripciones esperando aprobación** al 2026-07-29 (de 49 totales). Se ven
+4. **22 inscripciones esperando aprobación** al 2026-07-29 (de 49 totales). Se ven
    en la pestaña Métricas del admin.
-6. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
+5. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
    estadísticas de visitas propias, validación de `institution_other`,
    `var(--t-normal)` inexistente y el orden del historial de migraciones.
 
 ### Higiene
 
-7. **Rotar la service role key y la contraseña de la base**: quedaron expuestas
+6. **Rotar la service role key y la contraseña de la base**: quedaron expuestas
    en una sesión de trabajo del 2026-07-24.
-8. Aprobación visual del rediseño del tab "Mi Perfil" (commit `663b09e`; si no
+7. Aprobación visual del rediseño del tab "Mi Perfil" (commit `663b09e`; si no
    convence, `git revert 663b09e`).
