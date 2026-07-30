@@ -34,7 +34,7 @@ const supabase = createServerClient(
 const { data: allProfiles, error } = await supabase
   .from("profiles")
   .select(
-    "id, full_name, email, dni, institution, institution_other, is_egresado, role, registration_status, created_at",
+    "id, full_name, first_name, last_name, email, dni, institution, institution_other, is_egresado, role, registration_status, created_at",
   )
   .order("created_at", { ascending: false });
 
@@ -43,6 +43,22 @@ if (error) {
 }
 
 const profiles = allProfiles || [];
+
+/**
+ * Un registro abandonado es el que creó la cuenta y nunca completó el
+ * onboarding. El criterio es el mismo que usa `middleware.ts` para decidir a
+ * quién manda a /onboarding (tener `first_name` y `last_name`): si acá se
+ * definiera distinto, el admin contaría como inscripta a gente que la app
+ * sigue mandando a completar el formulario.
+ */
+function isProfileComplete(p: { first_name: string | null; last_name: string | null }) {
+  return !!(p.first_name && p.last_name);
+}
+
+/** Inscriptos de verdad: los que completaron el formulario. */
+const registeredProfiles = profiles.filter(isProfileComplete);
+/** Cuentas creadas que nunca llenaron el formulario. No hay nada que aprobarles. */
+const abandonedProfiles = profiles.filter((p) => !isProfileComplete(p));
 
 // Conteos para el módulo de comunicados masivos
 const approvedProfiles = profiles.filter(p => p.registration_status === 'aprobado');
@@ -66,25 +82,30 @@ function institutionLabel(p: { institution: string | null; institution_other: st
   return INSTITUTION_LABELS[p.institution] || p.institution;
 }
 
-const totalRegistrations = profiles.length;
+// ⚠️ Todos los conteos de acá para abajo van sobre `registeredProfiles`, NO sobre
+// `profiles`: los registros abandonados se cuentan aparte, en `countAbandoned`.
+// Mezclarlos era lo que hacía que "Pendientes de revisión" mostrara una cola de
+// trabajo que en su mayoría no existía.
+const totalRegistrations = registeredProfiles.length;
+const countAbandoned = abandonedProfiles.length;
 
 const byStatus = {
-  pendiente: profiles.filter((p) => p.registration_status === "pendiente").length,
-  aprobado: profiles.filter((p) => p.registration_status === "aprobado").length,
-  rechazado: profiles.filter((p) => p.registration_status === "rechazado").length,
+  pendiente: registeredProfiles.filter((p) => p.registration_status === "pendiente").length,
+  aprobado: registeredProfiles.filter((p) => p.registration_status === "aprobado").length,
+  rechazado: registeredProfiles.filter((p) => p.registration_status === "rechazado").length,
 };
 
 const byRole = {
-  usuario: profiles.filter((p) => p.role === "usuario").length,
-  mentor: profiles.filter((p) => p.role === "mentor").length,
-  juez: profiles.filter((p) => p.role === "juez").length,
-  staff: profiles.filter((p) => p.role === "admin" || p.role === "superadmin").length,
+  usuario: registeredProfiles.filter((p) => p.role === "usuario").length,
+  mentor: registeredProfiles.filter((p) => p.role === "mentor").length,
+  juez: registeredProfiles.filter((p) => p.role === "juez").length,
+  staff: registeredProfiles.filter((p) => p.role === "admin" || p.role === "superadmin").length,
 };
 
-const countEgresados = profiles.filter((p) => p.is_egresado).length;
+const countEgresados = registeredProfiles.filter((p) => p.is_egresado).length;
 
 // Ranking de instituciones (las 3 fijas suelen ser pocas, pero "otra" es campo libre)
-const institutionCounts = profiles.reduce<Record<string, number>>((acc, p) => {
+const institutionCounts = registeredProfiles.reduce<Record<string, number>>((acc, p) => {
   const label = institutionLabel(p);
   acc[label] = (acc[label] || 0) + 1;
   return acc;
@@ -103,7 +124,7 @@ const dailyRegistrations = Array.from({ length: DAYS_WINDOW }, (_, i) => {
   const next = new Date(day);
   next.setDate(next.getDate() + 1);
 
-  const count = profiles.filter((p) => {
+  const count = registeredProfiles.filter((p) => {
     if (!p.created_at) return false;
     const created = new Date(p.created_at);
     return created >= day && created < next;
@@ -121,8 +142,8 @@ const countLast7Days = dailyRegistrations.slice(-7).reduce((sum, d) => sum + d.c
 const countToday = dailyRegistrations[dailyRegistrations.length - 1].count;
 
 // Última inscripción registrada (los perfiles vienen ordenados por created_at desc)
-const lastRegistrationAt = profiles[0]?.created_at
-  ? new Date(profiles[0].created_at).toLocaleString("es-AR", {
+const lastRegistrationAt = registeredProfiles[0]?.created_at
+  ? new Date(registeredProfiles[0].created_at).toLocaleString("es-AR", {
       day: "2-digit",
       month: "2-digit",
       hour: "2-digit",
@@ -324,11 +345,32 @@ const projects = allProjects || [];
             </span>
           </div>
           <div class="metric-card card">
+            <span class="metric-label">Registro incompleto</span>
+            <strong class="metric-value">{countAbandoned}</strong>
+            <span class="metric-hint">
+              {countAbandoned > 0
+                ? "Crearon la cuenta y no completaron el formulario"
+                : "Nadie quedó a mitad de camino"}
+            </span>
+          </div>
+          <div class="metric-card card">
             <span class="metric-label">Últimos 7 días</span>
             <strong class="metric-value">{countLast7Days}</strong>
             <span class="metric-hint">Nuevas inscripciones</span>
           </div>
         </div>
+
+        {countAbandoned > 0 && (
+          <p class="metrics-callout">
+            <strong>{countAbandoned}</strong>{" "}
+            {countAbandoned === 1
+              ? "persona creó su cuenta y nunca completó el formulario de inscripción, así que no cuenta como inscripta ni aparece en los números de abajo. No hay nada que aprobarle: su ficha está vacía."
+              : "personas crearon su cuenta y nunca completaron el formulario de inscripción, así que no cuentan como inscriptas ni aparecen en los números de abajo. No hay nada que aprobarles: sus fichas están vacías."}
+            <button type="button" class="link-btn" data-goto-incompletos>
+              Ver quiénes son
+            </button>
+          </p>
+        )}
 
         <div class="admin-card card metrics-panel metrics-chart-card">
             <h3 class="metrics-card-title">Inscripciones por día</h3>
@@ -386,6 +428,10 @@ const projects = allProjects || [];
               <li>
                 <span>Rechazados</span>
                 <strong>{byStatus.rechazado}</strong>
+              </li>
+              <li class="metrics-list-aside">
+                <span>Registro incompleto <em>(no cuenta como inscripto)</em></span>
+                <strong>{countAbandoned}</strong>
               </li>
             </ul>
           </div>
@@ -457,6 +503,11 @@ const projects = allProjects || [];
               <option value="aprobado">Aprobado</option>
               <option value="rechazado">Rechazado</option>
             </select>
+            <select id="filter-completitud" class="filter-select">
+              <option value="all">Completos e incompletos</option>
+              <option value="completo">Solo perfiles completos</option>
+              <option value="incompleto">Solo registros incompletos</option>
+            </select>
           </div>
           <button id="bulk-approve-btn" class="btn btn-primary" disabled>
             Aprobar Seleccionados (0)
@@ -497,6 +548,7 @@ const projects = allProjects || [];
                         class="user-row"
                         data-role={p.role}
                         data-status={p.registration_status}
+                        data-completitud={isProfileComplete(p) ? "completo" : "incompleto"}
                       >
                         <td data-label="Seleccionar">
                           <label class="checkbox-label">
@@ -512,6 +564,14 @@ const projects = allProjects || [];
                           <div class="user-info">
                             <strong>{p.full_name || "Sin nombre"}</strong>
                             <span class="user-email">{p.email}</span>
+                            {!isProfileComplete(p) && (
+                              <span
+                                class="badge badge-incompleto"
+                                title="Creó la cuenta pero nunca completó el formulario de inscripción. No hay nada que aprobar."
+                              >
+                                Sin completar
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td data-label="DNI">{p.dni || "-"}</td>
@@ -1780,6 +1840,56 @@ const projects = allProjects || [];
     border-bottom: none;
   }
 
+  /* Fila que no forma parte del total de la lista (los registros abandonados no
+     son inscriptos). El borde de arriba la separa del bloque que sí suma. */
+  .metrics-list-aside {
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--brd);
+    color: var(--txt-m);
+  }
+
+  .metrics-list-aside em {
+    display: block;
+    font-size: 0.8rem;
+    font-style: normal;
+    color: var(--txt-m);
+  }
+
+  /* Calificado con li porque `.metrics-list strong` se declara más abajo y con
+     la misma especificidad le ganaría por orden. */
+  .metrics-list li.metrics-list-aside strong {
+    color: var(--txt-2);
+  }
+
+  /* Párrafo corrido a propósito: con flex el número quedaba en su propio
+     renglón, separado de la frase que lo explica. */
+  .metrics-callout {
+    margin: 0 0 2rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    background: rgba(var(--c1r), 0.04);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--txt-2);
+  }
+
+  .link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 0.35rem;
+    font: inherit;
+    color: var(--c1);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .link-btn:hover {
+    text-decoration: none;
+  }
+
   .metrics-list span {
     color: var(--txt-2);
   }
@@ -2128,6 +2238,10 @@ const projects = allProjects || [];
     .user-info {
       align-items: flex-end;
     }
+    /* En móvil la celda alinea a la derecha, así que el badge la acompaña. */
+    .badge-incompleto {
+      align-self: flex-end;
+    }
   }
 
   .user-info {
@@ -2155,6 +2269,17 @@ const projects = allProjects || [];
   .badge-no {
     background: rgba(119, 119, 119, 0.15);
     color: var(--txt-m);
+  }
+
+  /* Registro abandonado: no completó el onboarding. Va suelto bajo el email,
+     así que se alinea a la izquierda en vez de estirarse a lo ancho. */
+  .badge-incompleto {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    background: rgba(var(--c1r), 0.1);
+    color: var(--c1);
+    border: 1px dashed rgba(var(--c1r), 0.35);
+    white-space: nowrap;
   }
 
   /* Leaderboard Podium */
@@ -2784,19 +2909,28 @@ const projects = allProjects || [];
   const searchInput = document.getElementById(
     "search-users",
   ) as HTMLInputElement;
-  const rows = document.querySelectorAll(".user-row");
+  const filterCompletitud = document.getElementById(
+    "filter-completitud",
+  ) as HTMLSelectElement;
+  // Acotado a la tabla de Usuarios: la clase .user-row también la usan las filas
+  // de los rankings de Resultados, que quedaban ocultas al filtrar por rol.
+  const rows = document.querySelectorAll("#tab-usuarios .user-row");
 
   function applyFilters() {
     const roleVal = filterRole.value;
     const statusVal = filterStatus.value;
+    const completitudVal = filterCompletitud?.value || "all";
     const searchQuery = (searchInput?.value || "").toLowerCase().trim();
 
     rows.forEach((row) => {
       const rRole = row.getAttribute("data-role");
       const rStatus = row.getAttribute("data-status");
+      const rCompletitud = row.getAttribute("data-completitud");
 
       const matchRole = roleVal === "all" || rRole === roleVal;
       const matchStatus = statusVal === "all" || rStatus === statusVal;
+      const matchCompletitud =
+        completitudVal === "all" || rCompletitud === completitudVal;
 
       // Buscar en nombre y DNI
       let matchSearch = true;
@@ -2807,7 +2941,7 @@ const projects = allProjects || [];
         matchSearch = nameText.includes(searchQuery) || dniText.includes(searchQuery);
       }
 
-      const isVisible = matchRole && matchStatus && matchSearch;
+      const isVisible = matchRole && matchStatus && matchCompletitud && matchSearch;
       (row as HTMLElement).style.display = isVisible ? "" : "none";
 
       // Uncheck if hidden
@@ -2821,7 +2955,17 @@ const projects = allProjects || [];
 
   filterRole?.addEventListener("change", applyFilters);
   filterStatus?.addEventListener("change", applyFilters);
+  filterCompletitud?.addEventListener("change", applyFilters);
   searchInput?.addEventListener("input", applyFilters);
+
+  // Atajo del aviso de Métricas: salta a Usuarios ya filtrado por incompletos.
+  document.querySelector("[data-goto-incompletos]")?.addEventListener("click", () => {
+    (document.querySelector('.tab-btn[data-target="tab-usuarios"]') as HTMLElement)?.click();
+    if (filterCompletitud) {
+      filterCompletitud.value = "incompleto";
+      applyFilters();
+    }
+  });
 
   // Lógica de Acciones Masivas
   const selectAll = document.getElementById("select-all") as HTMLInputElement;

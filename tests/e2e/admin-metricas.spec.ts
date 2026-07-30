@@ -20,18 +20,56 @@ test('Métricas es la pestaña por defecto y muestra los conteos', async ({ brow
   await expect(page.locator('#tab-metricas')).toBeVisible();
   await expect(page.locator('.tab-btn[data-target="tab-metricas"]')).toHaveClass(/active/);
 
-  // Los 4 KPIs, con números de verdad (hay al menos el propio admin de prueba).
+  // Los 5 KPIs, con números de verdad (hay al menos el propio admin de prueba).
   const kpis = page.locator('.metrics-kpis .metric-value');
-  await expect(kpis).toHaveCount(4);
+  await expect(kpis).toHaveCount(5);
 
   const total = Number((await kpis.first().innerText()).trim());
   expect(total).toBeGreaterThan(0);
 
-  // El total tiene que ser la suma de los tres estados de inscripción.
+  // El total tiene que ser la suma de los tres estados de inscripción. La fila
+  // de "Registro incompleto" queda afuera a propósito: no son inscriptos.
   const porEstado = page.locator('.metrics-grid .admin-card').nth(0).locator('.metrics-list').nth(1);
-  const valores = await porEstado.locator('strong').allInnerTexts();
+  const valores = await porEstado.locator('li:not(.metrics-list-aside) strong').allInnerTexts();
   const suma = valores.reduce((acc, v) => acc + Number(v.trim()), 0);
   expect(suma).toBe(total);
+
+  await context.close();
+});
+
+test('los registros abandonados se cuentan aparte y no inflan la cola de aprobación', async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await loginUi(page, ADMIN_EMAIL, E2E_PASSWORD);
+  await page.goto('/admin');
+
+  // El KPI de incompletos y la fila aparte de "Por estado" tienen que coincidir:
+  // son el mismo número calculado en dos lugares de la pantalla.
+  const kpiIncompletos = Number(
+    (await page.locator('.metrics-kpis .metric-card').nth(3).locator('.metric-value').innerText()).trim(),
+  );
+  const filaAparte = Number(
+    (await page.locator('.metrics-list-aside strong').innerText()).trim(),
+  );
+  expect(filaAparte).toBe(kpiIncompletos);
+
+  // En Usuarios, el filtro de completitud deja ver exactamente esas filas, y
+  // todas las visibles llevan el badge.
+  await openAdminTab(page, 'tab-usuarios');
+  await page.selectOption('#filter-completitud', 'incompleto');
+
+  const visibles = page.locator('#tab-usuarios .user-row:visible');
+  await expect(visibles).toHaveCount(kpiIncompletos);
+  await expect(page.locator('#tab-usuarios .user-row:visible .badge-incompleto')).toHaveCount(
+    kpiIncompletos,
+  );
+
+  // Y el complemento: completos + incompletos son todos los registros.
+  await page.selectOption('#filter-completitud', 'completo');
+  const completos = await visibles.count();
+  await page.selectOption('#filter-completitud', 'all');
+  expect(await visibles.count()).toBe(completos + kpiIncompletos);
 
   await context.close();
 });
