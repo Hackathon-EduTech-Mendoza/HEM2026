@@ -3,6 +3,7 @@
 
 import { defineMiddleware } from 'astro:middleware';
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
+import { isProfileComplete } from './utils/perfil';
 
 /** Rutas que requieren haber iniciado sesión */
 const PROTECTED_ROUTES = ['/dashboard', '/admin', '/evaluacion', '/mentoria', '/onboarding'];
@@ -92,17 +93,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return redirect('/login');
   }
 
-  const isProfileComplete = !!(locals.profile?.first_name && locals.profile?.last_name);
+  const perfilCompleto = isProfileComplete(locals.profile);
 
   // Redirección por perfil incompleto para usuarios autenticados
-  if (user && !isProfileComplete) {
+  if (user && !perfilCompleto) {
     if (pathname.startsWith('/dashboard') || pathname.startsWith('/mentoria') || pathname.startsWith('/evaluacion') || pathname.startsWith('/admin')) {
       return redirect('/onboarding');
     }
   }
 
   // Redirección si ya completó onboarding y trata de entrar a /onboarding
-  if (pathname === '/onboarding' && user && isProfileComplete) {
+  if (pathname === '/onboarding' && user && perfilCompleto) {
     if (locals.profile?.role === 'juez') {
       return redirect('/evaluacion');
     }

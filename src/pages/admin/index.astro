@@ -3,6 +3,7 @@
 import Layout from "../../layouts/Layout.astro";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 import { CRITERIA, MAX_RAW_SCORE } from "../../lib/rubric";
+import { isProfileComplete } from "../../utils/perfil";
 
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -43,17 +44,6 @@ if (error) {
 }
 
 const profiles = allProfiles || [];
-
-/**
- * Un registro abandonado es el que creó la cuenta y nunca completó el
- * onboarding. El criterio es el mismo que usa `middleware.ts` para decidir a
- * quién manda a /onboarding (tener `first_name` y `last_name`): si acá se
- * definiera distinto, el admin contaría como inscripta a gente que la app
- * sigue mandando a completar el formulario.
- */
-function isProfileComplete(p: { first_name: string | null; last_name: string | null }) {
-  return !!(p.first_name && p.last_name);
-}
 
 /** Inscriptos de verdad: los que completaron el formulario. */
 const registeredProfiles = profiles.filter(isProfileComplete);
@@ -1250,17 +1240,21 @@ const projects = allProjects || [];
             Enviar Comunicado Masivo
           </h2>
           <p class="bulletin-description">
-            Redacta un mensaje que se enviará por correo electrónico a los destinatarios aprobados de la plataforma a través de la API de Brevo.
+            Redacta un mensaje que se enviará por correo electrónico a través de la API de Brevo.
+            Los tres primeros segmentos van a inscriptos <strong>aprobados</strong>; el de
+            <strong>registro incompleto</strong> es la excepción, y es el único que le escribe a
+            gente que todavía no completó el formulario.
           </p>
         </div>
 
         <div class="bulletin-form-group">
           <label for="bulletin-filter" class="bulletin-label">Destinatarios</label>
           <div class="bulletin-select-container">
-            <select id="bulletin-filter" class="bulletin-select" data-all={countAllApproved} data-participants={countParticipantsApproved} data-mentors={countMentorsApproved}>
+            <select id="bulletin-filter" class="bulletin-select" data-all={countAllApproved} data-participants={countParticipantsApproved} data-mentors={countMentorsApproved} data-incompleto={countAbandoned}>
               <option value="all">Todos los aprobados ({countAllApproved} usuarios)</option>
               <option value="participant">Solo Participantes ({countParticipantsApproved} usuarios)</option>
               <option value="mentor">Solo Mentores/Docentes ({countMentorsApproved} usuarios)</option>
+              <option value="incompleto">Registro incompleto — recordatorio ({countAbandoned} usuarios)</option>
             </select>
           </div>
           <div class="bulletin-badge-container">
@@ -3429,6 +3423,13 @@ const projects = allProjects || [];
       count = bulletinFilter.getAttribute("data-mentors") || "0";
       if (previewFname) previewFname.textContent = "Mentor";
       if (previewBodyFname) previewBodyFname.textContent = "Mentor";
+    } else if (roleVal === "incompleto") {
+      count = bulletinFilter.getAttribute("data-incompleto") || "0";
+      // Estos perfiles no tienen nombre cargado — es justamente lo que les
+      // falta — así que el saludo del mail les va a decir "Participante".
+      // La vista previa lo muestra tal cual para que no sorprenda.
+      if (previewFname) previewFname.textContent = "Participante";
+      if (previewBodyFname) previewBodyFname.textContent = "Participante";
     }
 
     if (recipientCountSpan) {
@@ -3507,8 +3508,12 @@ const projects = allProjects || [];
 
     // Confirmación del envío
     const ok = await showConfirm({
-      title: `¿Enviar comunicado a ${count} destinatarios?`,
-      text: "Esta acción no se puede deshacer y consumirá cuota de tu límite diario de Brevo.",
+      title: roleFilter === "incompleto"
+        ? `¿Mandar el recordatorio a ${count} registros incompletos?`
+        : `¿Enviar comunicado a ${count} destinatarios?`,
+      text: roleFilter === "incompleto"
+        ? "Le va a llegar a gente que creó su cuenta y NO completó el formulario, no a los inscriptos aprobados. No queda registro de a quién ya se le mandó: si repetís el envío, lo reciben de nuevo. Esta acción no se puede deshacer y consume cuota de Brevo."
+        : "Esta acción no se puede deshacer y consumirá cuota de tu límite diario de Brevo.",
       confirmText: "Sí, enviar",
       cancelText: "Cancelar",
       destructive: true,

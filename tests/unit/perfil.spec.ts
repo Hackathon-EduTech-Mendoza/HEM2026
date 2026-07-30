@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { normalizeInstagram, normalizePhone } from '../../src/utils/perfil';
+import { normalizeInstagram, normalizePhone, isProfileComplete } from '../../src/utils/perfil';
 
 // Lo que se guarda en `profiles` tiene que llegar limpio a mentores y admin,
 // sin importar cómo lo escribió la persona en onboarding o en el dashboard.
@@ -83,5 +83,37 @@ test.describe('normalizePhone', () => {
   test('es idempotente', () => {
     const unaVez = normalizePhone('+54 9 261 536-5167');
     expect(normalizePhone(unaVez)).toBe(unaVez);
+  });
+});
+
+/**
+ * `isProfileComplete` decide tres cosas a la vez: si el middleware te manda a
+ * /onboarding, si el admin te cuenta como inscripto y si te llega el mail de
+ * recordatorio. Por eso los casos borde importan: un falso positivo le manda el
+ * recordatorio a alguien que ya se inscribió.
+ */
+test.describe('isProfileComplete', () => {
+  test('con nombre y apellido está completo', () => {
+    expect(isProfileComplete({ first_name: 'Ana', last_name: 'Pérez' })).toBe(true);
+  });
+
+  test('falta uno de los dos y no está completo', () => {
+    expect(isProfileComplete({ first_name: 'Ana', last_name: null })).toBe(false);
+    expect(isProfileComplete({ first_name: null, last_name: 'Pérez' })).toBe(false);
+  });
+
+  test('el registro abandonado no tiene ninguno de los dos', () => {
+    expect(isProfileComplete({ first_name: null, last_name: null })).toBe(false);
+  });
+
+  test('el string vacío o en blanco no cuenta como cargado', () => {
+    expect(isProfileComplete({ first_name: '', last_name: '' })).toBe(false);
+    expect(isProfileComplete({ first_name: '   ', last_name: 'Pérez' })).toBe(false);
+  });
+
+  test('el perfil ausente no rompe', () => {
+    expect(isProfileComplete(null)).toBe(false);
+    expect(isProfileComplete(undefined)).toBe(false);
+    expect(isProfileComplete({})).toBe(false);
   });
 });
