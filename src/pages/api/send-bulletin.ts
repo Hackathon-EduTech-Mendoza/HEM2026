@@ -1,6 +1,7 @@
 // src/pages/api/send-bulletin.ts
 import type { APIRoute } from 'astro';
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
+import { isProfileComplete } from '../../utils/perfil';
 
 export const ALL: APIRoute = async (context) => {
   if (context.request.method !== 'POST') {
@@ -61,7 +62,10 @@ export const ALL: APIRoute = async (context) => {
     });
   }
 
-  const validFilters = ['all', 'participant', 'mentor'];
+  // 'incompleto' es el recordatorio a los registros abandonados. Es el único
+  // segmento que NO va sobre aprobados: justamente son los que nunca
+  // completaron el formulario, así que siguen en estado pendiente.
+  const validFilters = ['all', 'participant', 'mentor', 'incompleto'];
   if (!validFilters.includes(roleFilter)) {
     return new Response(JSON.stringify({ error: 'Invalid role filter.' }), {
       status: 400,
@@ -89,13 +93,16 @@ export const ALL: APIRoute = async (context) => {
 
   let query = supabase
     .from('profiles')
-    .select('email, first_name, full_name, role')
-    .eq('registration_status', 'aprobado');
+    .select('email, first_name, last_name, full_name, role');
 
-  if (roleFilter === 'participant') {
-    query = query.eq('role', 'usuario');
-  } else if (roleFilter === 'mentor') {
-    query = query.eq('role', 'mentor');
+  if (roleFilter !== 'incompleto') {
+    query = query.eq('registration_status', 'aprobado');
+
+    if (roleFilter === 'participant') {
+      query = query.eq('role', 'usuario');
+    } else if (roleFilter === 'mentor') {
+      query = query.eq('role', 'mentor');
+    }
   }
 
   const { data: recipientsData, error: dbError } = await query;
@@ -109,9 +116,14 @@ export const ALL: APIRoute = async (context) => {
   }
 
   const recipients = (recipientsData || [])
-    .filter((r): r is { email: string; first_name?: string; full_name?: string; role: string } => 
+    .filter((r): r is { email: string; first_name?: string; last_name?: string; full_name?: string; role: string } =>
       typeof r.email === 'string' && r.email.trim() !== ''
     )
+    // El descarte de los perfiles completos se hace acá y no en la query para
+    // que el criterio salga de `isProfileComplete()`, que también contempla el
+    // campo cargado con espacios. Un `.is('first_name', null)` en SQL dejaría
+    // pasar esos casos y le mandaría el recordatorio a alguien que ya completó.
+    .filter(r => roleFilter !== 'incompleto' || !isProfileComplete(r))
     .map(r => {
       let name = 'Participante';
       if (r.first_name && r.first_name.trim() !== '') {
@@ -128,7 +140,11 @@ export const ALL: APIRoute = async (context) => {
     });
 
   if (recipients.length === 0) {
-    return new Response(JSON.stringify({ error: 'No approved recipients found for the selected filter.' }), {
+    return new Response(JSON.stringify({
+      error: roleFilter === 'incompleto'
+        ? 'No hay registros incompletos: todos completaron el formulario.'
+        : 'No approved recipients found for the selected filter.'
+    }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });

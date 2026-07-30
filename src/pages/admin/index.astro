@@ -3,6 +3,7 @@
 import Layout from "../../layouts/Layout.astro";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 import { CRITERIA, MAX_RAW_SCORE } from "../../lib/rubric";
+import { isProfileComplete } from "../../utils/perfil";
 
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -34,7 +35,7 @@ const supabase = createServerClient(
 const { data: allProfiles, error } = await supabase
   .from("profiles")
   .select(
-    "id, full_name, email, dni, institution, institution_other, is_egresado, role, registration_status, created_at",
+    "id, full_name, first_name, last_name, email, dni, institution, institution_other, is_egresado, role, registration_status, created_at",
   )
   .order("created_at", { ascending: false });
 
@@ -43,6 +44,11 @@ if (error) {
 }
 
 const profiles = allProfiles || [];
+
+/** Inscriptos de verdad: los que completaron el formulario. */
+const registeredProfiles = profiles.filter(isProfileComplete);
+/** Cuentas creadas que nunca llenaron el formulario. No hay nada que aprobarles. */
+const abandonedProfiles = profiles.filter((p) => !isProfileComplete(p));
 
 // Conteos para el módulo de comunicados masivos
 const approvedProfiles = profiles.filter(p => p.registration_status === 'aprobado');
@@ -66,25 +72,30 @@ function institutionLabel(p: { institution: string | null; institution_other: st
   return INSTITUTION_LABELS[p.institution] || p.institution;
 }
 
-const totalRegistrations = profiles.length;
+// ⚠️ Todos los conteos de acá para abajo van sobre `registeredProfiles`, NO sobre
+// `profiles`: los registros abandonados se cuentan aparte, en `countAbandoned`.
+// Mezclarlos era lo que hacía que "Pendientes de revisión" mostrara una cola de
+// trabajo que en su mayoría no existía.
+const totalRegistrations = registeredProfiles.length;
+const countAbandoned = abandonedProfiles.length;
 
 const byStatus = {
-  pendiente: profiles.filter((p) => p.registration_status === "pendiente").length,
-  aprobado: profiles.filter((p) => p.registration_status === "aprobado").length,
-  rechazado: profiles.filter((p) => p.registration_status === "rechazado").length,
+  pendiente: registeredProfiles.filter((p) => p.registration_status === "pendiente").length,
+  aprobado: registeredProfiles.filter((p) => p.registration_status === "aprobado").length,
+  rechazado: registeredProfiles.filter((p) => p.registration_status === "rechazado").length,
 };
 
 const byRole = {
-  usuario: profiles.filter((p) => p.role === "usuario").length,
-  mentor: profiles.filter((p) => p.role === "mentor").length,
-  juez: profiles.filter((p) => p.role === "juez").length,
-  staff: profiles.filter((p) => p.role === "admin" || p.role === "superadmin").length,
+  usuario: registeredProfiles.filter((p) => p.role === "usuario").length,
+  mentor: registeredProfiles.filter((p) => p.role === "mentor").length,
+  juez: registeredProfiles.filter((p) => p.role === "juez").length,
+  staff: registeredProfiles.filter((p) => p.role === "admin" || p.role === "superadmin").length,
 };
 
-const countEgresados = profiles.filter((p) => p.is_egresado).length;
+const countEgresados = registeredProfiles.filter((p) => p.is_egresado).length;
 
 // Ranking de instituciones (las 3 fijas suelen ser pocas, pero "otra" es campo libre)
-const institutionCounts = profiles.reduce<Record<string, number>>((acc, p) => {
+const institutionCounts = registeredProfiles.reduce<Record<string, number>>((acc, p) => {
   const label = institutionLabel(p);
   acc[label] = (acc[label] || 0) + 1;
   return acc;
@@ -103,7 +114,7 @@ const dailyRegistrations = Array.from({ length: DAYS_WINDOW }, (_, i) => {
   const next = new Date(day);
   next.setDate(next.getDate() + 1);
 
-  const count = profiles.filter((p) => {
+  const count = registeredProfiles.filter((p) => {
     if (!p.created_at) return false;
     const created = new Date(p.created_at);
     return created >= day && created < next;
@@ -121,8 +132,8 @@ const countLast7Days = dailyRegistrations.slice(-7).reduce((sum, d) => sum + d.c
 const countToday = dailyRegistrations[dailyRegistrations.length - 1].count;
 
 // Última inscripción registrada (los perfiles vienen ordenados por created_at desc)
-const lastRegistrationAt = profiles[0]?.created_at
-  ? new Date(profiles[0].created_at).toLocaleString("es-AR", {
+const lastRegistrationAt = registeredProfiles[0]?.created_at
+  ? new Date(registeredProfiles[0].created_at).toLocaleString("es-AR", {
       day: "2-digit",
       month: "2-digit",
       hour: "2-digit",
@@ -324,13 +335,34 @@ const projects = allProjects || [];
             </span>
           </div>
           <div class="metric-card card">
+            <span class="metric-label">Registro incompleto</span>
+            <strong class="metric-value">{countAbandoned}</strong>
+            <span class="metric-hint">
+              {countAbandoned > 0
+                ? "Crearon la cuenta y no completaron el formulario"
+                : "Nadie quedó a mitad de camino"}
+            </span>
+          </div>
+          <div class="metric-card card">
             <span class="metric-label">Últimos 7 días</span>
             <strong class="metric-value">{countLast7Days}</strong>
             <span class="metric-hint">Nuevas inscripciones</span>
           </div>
         </div>
 
-        <div class="admin-card card metrics-chart-card">
+        {countAbandoned > 0 && (
+          <p class="metrics-callout">
+            <strong>{countAbandoned}</strong>{" "}
+            {countAbandoned === 1
+              ? "persona creó su cuenta y nunca completó el formulario de inscripción, así que no cuenta como inscripta ni aparece en los números de abajo. No hay nada que aprobarle: su ficha está vacía."
+              : "personas crearon su cuenta y nunca completaron el formulario de inscripción, así que no cuentan como inscriptas ni aparecen en los números de abajo. No hay nada que aprobarles: sus fichas están vacías."}
+            <button type="button" class="link-btn" data-goto-incompletos>
+              Ver quiénes son
+            </button>
+          </p>
+        )}
+
+        <div class="admin-card card metrics-panel metrics-chart-card">
             <h3 class="metrics-card-title">Inscripciones por día</h3>
             {totalRegistrations === 0 ? (
               <p class="empty-state">Todavía no hay inscripciones registradas.</p>
@@ -352,7 +384,7 @@ const projects = allProjects || [];
         </div>
 
         <div class="metrics-grid">
-          <div class="admin-card card">
+          <div class="admin-card card metrics-panel">
             <h3 class="metrics-card-title">Por rol</h3>
             <ul class="metrics-list">
               <li>
@@ -387,10 +419,14 @@ const projects = allProjects || [];
                 <span>Rechazados</span>
                 <strong>{byStatus.rechazado}</strong>
               </li>
+              <li class="metrics-list-aside">
+                <span>Registro incompleto <em>(no cuenta como inscripto)</em></span>
+                <strong>{countAbandoned}</strong>
+              </li>
             </ul>
           </div>
 
-          <div class="admin-card card">
+          <div class="admin-card card metrics-panel">
             <h3 class="metrics-card-title">Por institución</h3>
             {institutionRanking.length === 0 ? (
               <p class="empty-state">Sin datos de institución.</p>
@@ -409,7 +445,7 @@ const projects = allProjects || [];
             </p>
           </div>
 
-          <div class="admin-card card">
+          <div class="admin-card card metrics-panel">
             <h3 class="metrics-card-title">Estado del evento</h3>
             <ul class="metrics-list">
               <li>
@@ -457,6 +493,11 @@ const projects = allProjects || [];
               <option value="aprobado">Aprobado</option>
               <option value="rechazado">Rechazado</option>
             </select>
+            <select id="filter-completitud" class="filter-select">
+              <option value="all">Completos e incompletos</option>
+              <option value="completo">Solo perfiles completos</option>
+              <option value="incompleto">Solo registros incompletos</option>
+            </select>
           </div>
           <button id="bulk-approve-btn" class="btn btn-primary" disabled>
             Aprobar Seleccionados (0)
@@ -497,6 +538,7 @@ const projects = allProjects || [];
                         class="user-row"
                         data-role={p.role}
                         data-status={p.registration_status}
+                        data-completitud={isProfileComplete(p) ? "completo" : "incompleto"}
                       >
                         <td data-label="Seleccionar">
                           <label class="checkbox-label">
@@ -512,6 +554,14 @@ const projects = allProjects || [];
                           <div class="user-info">
                             <strong>{p.full_name || "Sin nombre"}</strong>
                             <span class="user-email">{p.email}</span>
+                            {!isProfileComplete(p) && (
+                              <span
+                                class="badge badge-incompleto"
+                                title="Creó la cuenta pero nunca completó el formulario de inscripción. No hay nada que aprobar."
+                              >
+                                Sin completar
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td data-label="DNI">{p.dni || "-"}</td>
@@ -997,11 +1047,9 @@ const projects = allProjects || [];
 
     <!-- Fase 1: Preclasificación -->
     <div class="admin-card card" style="margin-bottom: 2rem;">
-      <div class="admin-actions" style="justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-        <h3 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.15rem;">
-          Fase 1: Preclasificación
-        </h3>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <div class="admin-card-header">
+        <h3>Fase 1: Preclasificación</h3>
+        <div class="admin-card-header-actions">
           <button id="autoselect-finalists-btn" class="btn btn-outline">
             Marcar Top {finalistsCount}
           </button>
@@ -1100,10 +1148,8 @@ const projects = allProjects || [];
 
     <!-- Fase 2: Ronda Final -->
     <div class="admin-card card">
-      <div class="admin-actions">
-        <h3 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.15rem;">
-          Fase 2: Ronda Final
-        </h3>
+      <div class="admin-card-header">
+        <h3>Fase 2: Ronda Final</h3>
       </div>
       <div class="table-responsive">
         <table class="admin-table leaderboard-table">
@@ -1194,17 +1240,21 @@ const projects = allProjects || [];
             Enviar Comunicado Masivo
           </h2>
           <p class="bulletin-description">
-            Redacta un mensaje que se enviará por correo electrónico a los destinatarios aprobados de la plataforma a través de la API de Brevo.
+            Redacta un mensaje que se enviará por correo electrónico a través de la API de Brevo.
+            Los tres primeros segmentos van a inscriptos <strong>aprobados</strong>; el de
+            <strong>registro incompleto</strong> es la excepción, y es el único que le escribe a
+            gente que todavía no completó el formulario.
           </p>
         </div>
 
         <div class="bulletin-form-group">
           <label for="bulletin-filter" class="bulletin-label">Destinatarios</label>
           <div class="bulletin-select-container">
-            <select id="bulletin-filter" class="bulletin-select" data-all={countAllApproved} data-participants={countParticipantsApproved} data-mentors={countMentorsApproved}>
+            <select id="bulletin-filter" class="bulletin-select" data-all={countAllApproved} data-participants={countParticipantsApproved} data-mentors={countMentorsApproved} data-incompleto={countAbandoned}>
               <option value="all">Todos los aprobados ({countAllApproved} usuarios)</option>
               <option value="participant">Solo Participantes ({countParticipantsApproved} usuarios)</option>
               <option value="mentor">Solo Mentores/Docentes ({countMentorsApproved} usuarios)</option>
+              <option value="incompleto">Registro incompleto — recordatorio ({countAbandoned} usuarios)</option>
             </select>
           </div>
           <div class="bulletin-badge-container">
@@ -1662,7 +1712,11 @@ const projects = allProjects || [];
 
   .tab-content {
     display: none;
-    animation: fadeIn var(--t-normal) ease-out;
+    /* Duración literal, no `var(--t-base)`: los tokens de tiempo traen la curva
+       adentro (`0.3s var(--ease)`), así que en el shorthand de `animation`
+       quedarían dos timing-functions y el navegador descarta la declaración.
+       Los tokens sirven para `transition`, donde no hay una curva aparte. */
+    animation: fadeIn 0.3s ease-out;
   }
   .tab-content.active {
     display: block;
@@ -1746,6 +1800,14 @@ const projects = allProjects || [];
     gap: 1.5rem;
   }
 
+  /* .admin-card viene con padding 0 para que las tablas queden a ras del borde.
+     Las cards de métricas no llevan tabla, así que se les devuelve el padding.
+     Va calificado con .admin-card porque esa regla se declara más abajo y con
+     un solo selector de clase le ganaría por orden. */
+  .admin-card.metrics-panel {
+    padding: 1.5rem;
+  }
+
   .metrics-chart-card {
     margin-bottom: 1.5rem;
   }
@@ -1774,6 +1836,56 @@ const projects = allProjects || [];
 
   .metrics-list li:last-child {
     border-bottom: none;
+  }
+
+  /* Fila que no forma parte del total de la lista (los registros abandonados no
+     son inscriptos). El borde de arriba la separa del bloque que sí suma. */
+  .metrics-list-aside {
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--brd);
+    color: var(--txt-m);
+  }
+
+  .metrics-list-aside em {
+    display: block;
+    font-size: 0.8rem;
+    font-style: normal;
+    color: var(--txt-m);
+  }
+
+  /* Calificado con li porque `.metrics-list strong` se declara más abajo y con
+     la misma especificidad le ganaría por orden. */
+  .metrics-list li.metrics-list-aside strong {
+    color: var(--txt-2);
+  }
+
+  /* Párrafo corrido a propósito: con flex el número quedaba en su propio
+     renglón, separado de la frase que lo explica. */
+  .metrics-callout {
+    margin: 0 0 2rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    background: rgba(var(--c1r), 0.04);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--txt-2);
+  }
+
+  .link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 0.35rem;
+    font: inherit;
+    color: var(--c1);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .link-btn:hover {
+    text-decoration: none;
   }
 
   .metrics-list span {
@@ -1912,6 +2024,45 @@ const projects = allProjects || [];
     background: var(--bg-card);
     border-radius: var(--r-md);
     overflow: hidden;
+  }
+
+  /* Encabezado dentro de una card con tabla. No usa .admin-actions porque ese
+     lleva margin-bottom y abriría un hueco entre el título y la tabla; acá la
+     separación la da el borde. El padding lateral es el mismo de las celdas
+     (1.5rem), así el título queda alineado con la primera columna. */
+  .admin-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--brd);
+  }
+
+  .admin-card-header h3 {
+    font-family: var(--font-heading);
+    color: var(--txt-1);
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .admin-card-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 640px) {
+    .admin-card.metrics-panel {
+      padding: 1.25rem;
+    }
+    .admin-card-header {
+      padding: 1rem 1.25rem;
+    }
+    .admin-card-header-actions .btn {
+      flex: 1;
+    }
   }
 
   .admin-actions {
@@ -2085,6 +2236,10 @@ const projects = allProjects || [];
     .user-info {
       align-items: flex-end;
     }
+    /* En móvil la celda alinea a la derecha, así que el badge la acompaña. */
+    .badge-incompleto {
+      align-self: flex-end;
+    }
   }
 
   .user-info {
@@ -2112,6 +2267,17 @@ const projects = allProjects || [];
   .badge-no {
     background: rgba(119, 119, 119, 0.15);
     color: var(--txt-m);
+  }
+
+  /* Registro abandonado: no completó el onboarding. Va suelto bajo el email,
+     así que se alinea a la izquierda en vez de estirarse a lo ancho. */
+  .badge-incompleto {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    background: rgba(var(--c1r), 0.1);
+    color: var(--c1);
+    border: 1px dashed rgba(var(--c1r), 0.35);
+    white-space: nowrap;
   }
 
   /* Leaderboard Podium */
@@ -2741,19 +2907,28 @@ const projects = allProjects || [];
   const searchInput = document.getElementById(
     "search-users",
   ) as HTMLInputElement;
-  const rows = document.querySelectorAll(".user-row");
+  const filterCompletitud = document.getElementById(
+    "filter-completitud",
+  ) as HTMLSelectElement;
+  // Acotado a la tabla de Usuarios: la clase .user-row también la usan las filas
+  // de los rankings de Resultados, que quedaban ocultas al filtrar por rol.
+  const rows = document.querySelectorAll("#tab-usuarios .user-row");
 
   function applyFilters() {
     const roleVal = filterRole.value;
     const statusVal = filterStatus.value;
+    const completitudVal = filterCompletitud?.value || "all";
     const searchQuery = (searchInput?.value || "").toLowerCase().trim();
 
     rows.forEach((row) => {
       const rRole = row.getAttribute("data-role");
       const rStatus = row.getAttribute("data-status");
+      const rCompletitud = row.getAttribute("data-completitud");
 
       const matchRole = roleVal === "all" || rRole === roleVal;
       const matchStatus = statusVal === "all" || rStatus === statusVal;
+      const matchCompletitud =
+        completitudVal === "all" || rCompletitud === completitudVal;
 
       // Buscar en nombre y DNI
       let matchSearch = true;
@@ -2764,7 +2939,7 @@ const projects = allProjects || [];
         matchSearch = nameText.includes(searchQuery) || dniText.includes(searchQuery);
       }
 
-      const isVisible = matchRole && matchStatus && matchSearch;
+      const isVisible = matchRole && matchStatus && matchCompletitud && matchSearch;
       (row as HTMLElement).style.display = isVisible ? "" : "none";
 
       // Uncheck if hidden
@@ -2778,7 +2953,17 @@ const projects = allProjects || [];
 
   filterRole?.addEventListener("change", applyFilters);
   filterStatus?.addEventListener("change", applyFilters);
+  filterCompletitud?.addEventListener("change", applyFilters);
   searchInput?.addEventListener("input", applyFilters);
+
+  // Atajo del aviso de Métricas: salta a Usuarios ya filtrado por incompletos.
+  document.querySelector("[data-goto-incompletos]")?.addEventListener("click", () => {
+    (document.querySelector('.tab-btn[data-target="tab-usuarios"]') as HTMLElement)?.click();
+    if (filterCompletitud) {
+      filterCompletitud.value = "incompleto";
+      applyFilters();
+    }
+  });
 
   // Lógica de Acciones Masivas
   const selectAll = document.getElementById("select-all") as HTMLInputElement;
@@ -3238,6 +3423,13 @@ const projects = allProjects || [];
       count = bulletinFilter.getAttribute("data-mentors") || "0";
       if (previewFname) previewFname.textContent = "Mentor";
       if (previewBodyFname) previewBodyFname.textContent = "Mentor";
+    } else if (roleVal === "incompleto") {
+      count = bulletinFilter.getAttribute("data-incompleto") || "0";
+      // Estos perfiles no tienen nombre cargado — es justamente lo que les
+      // falta — así que el saludo del mail les va a decir "Participante".
+      // La vista previa lo muestra tal cual para que no sorprenda.
+      if (previewFname) previewFname.textContent = "Participante";
+      if (previewBodyFname) previewBodyFname.textContent = "Participante";
     }
 
     if (recipientCountSpan) {
@@ -3316,8 +3508,12 @@ const projects = allProjects || [];
 
     // Confirmación del envío
     const ok = await showConfirm({
-      title: `¿Enviar comunicado a ${count} destinatarios?`,
-      text: "Esta acción no se puede deshacer y consumirá cuota de tu límite diario de Brevo.",
+      title: roleFilter === "incompleto"
+        ? `¿Mandar el recordatorio a ${count} registros incompletos?`
+        : `¿Enviar comunicado a ${count} destinatarios?`,
+      text: roleFilter === "incompleto"
+        ? "Le va a llegar a gente que creó su cuenta y NO completó el formulario, no a los inscriptos aprobados. No queda registro de a quién ya se le mandó: si repetís el envío, lo reciben de nuevo. Esta acción no se puede deshacer y consume cuota de Brevo."
+        : "Esta acción no se puede deshacer y consumirá cuota de tu límite diario de Brevo.",
       confirmText: "Sí, enviar",
       cancelText: "Cancelar",
       destructive: true,

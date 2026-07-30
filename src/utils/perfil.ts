@@ -45,3 +45,24 @@ export function normalizePhone(input: string | null | undefined): string | null 
   const digits = input.replace(/\D/g, '');
   return digits || null;
 }
+
+/**
+ * Perfil completo = terminó el onboarding. Quien no lo cumple es un **registro
+ * abandonado**: creó la cuenta y nunca llenó el formulario, así que su ficha
+ * está vacía y no hay nada que aprobarle.
+ *
+ * ⚠️ Fuente única de verdad. La consumen el middleware (para redirigir a
+ * `/onboarding`), la pestaña Métricas y la de Usuarios del admin (para no
+ * contarlos como inscriptos) y el módulo de comunicados (para poder mandarles
+ * el recordatorio). Estuvo copiada en cada lugar hasta el 2026-07-30: si las
+ * definiciones se separan, el admin cuenta como inscripta a gente que la app
+ * sigue mandando a completar el formulario.
+ *
+ * Se mide por nombre y apellido porque son los dos campos que el onboarding
+ * pide primero y sin los cuales la ficha no sirve para nada.
+ */
+export function isProfileComplete(
+  profile: { first_name?: string | null; last_name?: string | null } | null | undefined,
+): boolean {
+  return Boolean(profile?.first_name?.trim() && profile?.last_name?.trim());
+}

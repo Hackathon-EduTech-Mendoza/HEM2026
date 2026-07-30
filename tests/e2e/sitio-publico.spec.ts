@@ -28,6 +28,43 @@ test.describe('navegación a noticias', () => {
   });
 });
 
+test.describe('miniaturas de las tarjetas', () => {
+  /**
+   * La grilla es mixta a propósito: solo llevan portada las noticias con
+   * `imagen` en el frontmatter (las de prensa externa usan la foto del medio,
+   * que no es nuestra). Por eso los tests no fijan cuántas tienen: verifican
+   * que las que la tienen no estén rotas.
+   *
+   * El riesgo real es una ruta mal escrita en `imagen:`, que da un 404 y deja
+   * un hueco sin que nada falle en el build.
+   */
+  test('las portadas que existen cargan de verdad', async ({ page }) => {
+    await page.goto('/noticias');
+    await page.waitForLoadState('networkidle');
+
+    const portadas = page.locator('.news-card-media img');
+    const total = await portadas.count();
+
+    for (let i = 0; i < total; i++) {
+      const img = portadas.nth(i);
+      const src = await img.getAttribute('src');
+      // naturalWidth 0 = el navegador no pudo decodificarla (404 o corrupta).
+      const ancho = await img.evaluate((el) => (el as HTMLImageElement).naturalWidth);
+      expect(ancho, `la portada ${src} no cargó`).toBeGreaterThan(0);
+    }
+  });
+
+  test('la tarjeta sin portada no deja el hueco de la imagen', async ({ page }) => {
+    await page.goto('/noticias');
+
+    // Las de prensa externa no tienen `imagen`: su tarjeta tiene que arrancar
+    // por el encabezado, no por una banda vacía.
+    const sinPortada = page.locator('.news-card:not(:has(.news-card-media))');
+    expect(await sinPortada.count()).toBeGreaterThan(0);
+    await expect(sinPortada.first().locator('.news-card-media')).toHaveCount(0);
+  });
+});
+
 test.describe('nota de prensa externa', () => {
   test('la nota de El Nueve aparece y apunta al medio', async ({ page }) => {
     await page.goto('/noticias');

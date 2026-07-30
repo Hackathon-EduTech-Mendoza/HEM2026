@@ -2,59 +2,42 @@
 
 Mejoras identificadas pendientes de aprobación / información externa.
 
-> Última revisión: **2026-07-29**. En esa sesión se cerraron los ítems 1, 2, 3,
-> 4, 5, 7, 8 y 9 de la lista anterior (formato del puntaje, normalización de
-> Instagram, carrera de la entrega de proyecto, validación de teléfono, textos
-> de la nota de la rectora, `/noticias` en la navegación, `poster` de los
-> videos y feed RSS). Quedan los que siguen.
+> Última revisión: **2026-07-30**. En esta sesión se cerraron el ítem 2
+> (distinguir los registros abandonados en el admin), el de `var(--t-normal)`
+> —que estaba en dos lugares y no en uno— y el de las miniaturas en las tarjetas
+> de noticia. El del recordatorio quedó implementado y a la espera de la
+> decisión de mandarlo. El 2026-07-29 se habían cerrado los
+> ítems 1, 2, 3, 4, 5, 7, 8 y 9 de la lista anterior (formato del puntaje,
+> normalización de Instagram, carrera de la entrega de proyecto, validación de
+> teléfono, textos de la nota de la rectora, `/noticias` en la navegación,
+> `poster` de los videos y feed RSS). Quedan los que siguen.
 
 ## Aprobadas a la espera de implementación
 
-### 1. Las tarjetas de noticia no muestran imagen
-`NewsCard.astro` es solo texto. Ahora que las notas tienen `imagen`, mostrarla
-como miniatura levantaría mucho la sección del home y el listado. Hay que definir
-qué hacer con las que no tienen imagen (las de prensa externa y los avisos):
-placeholder con el color de la categoría, o grilla que tolere tarjetas mixtas.
+### 1. Validación del campo libre de institución
+`institution_other` solo valida "no vacío": hay un perfil cargado con `-` como
+institución, que aparece así en el ranking de la pestaña Métricas. Falta definir
+un mínimo razonable (largo, o una lista de valores rechazados).
 
-### 2. Distinguir en el admin quién no completó el onboarding
-**Este es el que tiene valor operativo real de los que quedan.**
+Salió del ítem de los registros abandonados, que se cerró el 2026-07-30.
 
-Medido el 2026-07-29 sobre 50 perfiles:
+### 2. Mandar el recordatorio a los registros abandonados
+**El código ya está** (commit `90dc9ab`): la pestaña Comunicados tiene el
+segmento "Registro incompleto". Lo que falta es la decisión y el texto:
 
-| | |
-|---|---|
-| Nunca completaron el onboarding | **17** |
-| De esos 17, en estado `pendiente` | **17** (todos) |
-| Pendientes que **sí** completaron el perfil | **6** |
+- ¿se les manda? Son 19 personas que se anotaron y quedaron trabadas en el
+  formulario, con la inscripción todavía abierta
+- redactar el mail: corto, con el link directo a `/onboarding`
+- el saludo les va a decir "¡Hola Participante!", porque el nombre es
+  justamente lo que no cargaron
 
-O sea que los ~23 "pendientes de revisión" que muestra la pestaña Métricas son
-en realidad **6 personas esperando aprobación y 17 registros abandonados**. De
-esos 17 no hay nada que aprobar: no tienen ni nombre cargado. Un admin que
-recorra la cola pierde el tiempo con fichas vacías.
-
-El dato ya existe y la app ya lo usa: `middleware.ts:95` define perfil completo
-como tener `first_name` **y** `last_name`, y con eso decide mandar a
-`/onboarding`. Falta solo exponerlo:
-
-- separar el conteo en la pestaña Métricas (pendientes reales vs. abandonados)
-- marcar esas filas en la pestaña Usuarios, o poder filtrarlas
-- decidir si se les manda un recordatorio para que completen el perfil
-
-**Decisión de diseño pendiente:** ¿se los trata como una categoría aparte
-("Registro incompleto") o se los sigue contando como inscriptos? Cambia el
-número grande de "Inscriptos totales", así que conviene definirlo antes.
-
-De paso, el campo libre `institution_other` solo valida "no vacío" y hay un
-perfil con `-` como institución.
+⚠️ **No queda registro de a quién ya se le mandó.** Si se planea mandarlo más de
+una vez, primero hay que guardar la fecha del último recordatorio en `profiles`,
+o los mismos lo reciben de nuevo.
 
 ## Deuda técnica menor
 
-### 3. `var(--t-normal)` no existe
-`.tab-content` en `src/pages/admin/index.astro` usa `var(--t-normal)` para la
-animación de las pestañas, pero `global.css` define `--t-fast`, `--t-base` y
-`--t-slow`. La animación corre sin duración. Es un one-liner.
-
-### 4. Ordenar el historial de migraciones
+### 3. Ordenar el historial de migraciones
 Las migraciones se aplicaron siempre por MCP o dashboard, así que los timestamps
 de `supabase_migrations.schema_migrations` no coinciden con los nombres de
 archivo locales. Para el CLI ninguna migración local está aplicada y un
@@ -63,7 +46,7 @@ archivo locales. Para el CLI ninguna migración local está aplicada y un
 
 ## Notas del sitio público
 
-### 5. Los títulos de los videos de la nota de la rectora
+### 4. Los títulos de los videos de la nota de la rectora
 Los `alt` de las fotos ya se corrigieron mirando el material, y los títulos de
 los tres videos pasaron a ser descriptivos y neutros ("La entrevista en el
 estudio de Cada Día, parte 1/2/3"). Si alguien que vio los clips completos

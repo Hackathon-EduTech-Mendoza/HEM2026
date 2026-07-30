@@ -10,7 +10,8 @@ interface Props {
 }
 
 const { noticia, idx = 0 } = Astro.props;
-const { titulo, fecha, categoria, extracto, color, url, fuente } = noticia.data;
+const { titulo, fecha, categoria, extracto, color, url, fuente, imagen, imagenAlt } =
+  noticia.data;
 
 const href = enlaceDeNoticia(noticia);
 const esExterna = Boolean(url);
@@ -26,6 +27,20 @@ const delay = idx < 3 ? ` rd${idx + 1}` : '';
   target={esExterna ? '_blank' : undefined}
   rel={esExterna ? 'noopener noreferrer' : undefined}
 >
+  {imagen && (
+    <div class="news-card-media">
+      {/* `alt` vacío cuando no hay uno propio: el título va acá al lado, así que
+          describir la foto con el título solo repetiría el texto al lector de
+          pantalla. Con `imagenAlt` cargado, la foto sí aporta algo nuevo. */}
+      <img
+        src={imagen}
+        alt={imagenAlt ?? ''}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  )}
+
   <div class="news-card-header">
     <span
       class="news-badge"
@@ -57,7 +72,10 @@ const delay = idx < 3 ? ` rd${idx + 1}` : '';
 
 <style>
   .news-card {
-    padding: 2.25rem;
+    /* En una variable porque la banda de imagen la usa en negativo para salirse
+       del padding y llegar al borde de la tarjeta. */
+    --news-pad: 2.25rem;
+    padding: var(--news-pad);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -88,6 +106,38 @@ const delay = idx < 3 ? ` rd${idx + 1}` : '';
   .news-card:hover:nth-child(even) {
     border-color: var(--c2);
     box-shadow: 0 12px 30px -10px rgba(var(--c2r), 0.15);
+  }
+
+  /* Banda de portada. Solo la tienen las noticias con `imagen` cargada: la
+     grilla convive con tarjetas que no la traen (las de prensa externa usan la
+     foto del medio, que no es nuestra) y esas arrancan directo por el
+     encabezado. El `aspect-ratio` fijo evita que la tarjeta salte cuando la
+     imagen termina de cargar. */
+  .news-card-media {
+    margin: calc(var(--news-pad) * -1) calc(var(--news-pad) * -1) var(--news-pad);
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--bg-2);
+  }
+
+  .news-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s var(--ease);
+  }
+
+  .news-card:hover .news-card-media img {
+    transform: scale(1.04);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .news-card-media img,
+    .news-card:hover .news-card-media img {
+      transition: none;
+      transform: none;
+    }
   }
 
   .news-card-header {

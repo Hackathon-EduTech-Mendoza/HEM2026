@@ -1,6 +1,6 @@
 # Estado actual del repositorio
 
-> Actualizado: **2026-07-29**. Resume dónde está el código, cómo está la base y
+> Actualizado: **2026-07-30**. Resume dónde está el código, cómo está la base y
 > qué queda pendiente, para poder retomar sin reconstruir el contexto.
 
 ## Git
@@ -8,8 +8,8 @@
 | | |
 |---|---|
 | Rama de trabajo | `Nahuel_Develop` |
-| Último commit | ver la tabla de la sesión 2026-07-29, más abajo |
-| Estado | pusheado y sincronizado con `origin/Nahuel_Develop` |
+| Último commit | ver la tabla de la sesión 2026-07-30, más abajo |
+| Estado | ⚠️ la sesión 2026-07-30 está **commiteada localmente pero sin pushear** |
 
 El PR **#32 fue mergeado a `main` y está deployado**. Encima de eso está el
 trabajo de la sesión 2026-07-29, en el **PR #33, abierto y a la espera de
@@ -32,6 +32,59 @@ Se revisa con `git remote -v` y se corrige con:
 ```bash
 git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.git
 ```
+
+### Sesión 2026-07-30 (UX del admin y registros abandonados)
+
+| Commit | Qué es |
+|--------|--------|
+| `05a9f3e` | Las cards de Métricas y los encabezados de fase dejan de pegarse al borde |
+| `2602895` | Los registros abandonados dejan de contar como inscriptos |
+| `47d67fe` | El admin deja de ver una pantalla de votación que no puede usar, y `var(--t-normal)` |
+| `07b55f4` | Las tarjetas de noticia muestran la portada cuando la nota tiene una |
+| `90dc9ab` | Segmento de comunicados para el recordatorio a los registros incompletos |
+| `7d65fa4` | Bootstrap de HEM-Dev con el esquema de prod, sin datos personales |
+
+### ⏸️ Separación HEM-Prod / HEM-Dev: EN CURSO, cortada a la mitad
+
+| Proyecto | `project_ref` | Estado |
+|---|---|---|
+| **HEM-Prod** | `cotwhywqcocutrkmrpiw` | La base real, 54 perfiles |
+| **HEM-Dev** | `mhipqazqvnuvtlrbqdce` | Creado y **vacío**. Todavía sin esquema |
+
+**Por qué:** hasta ahora `npm run test:e2e` corría **contra producción** — cada
+corrida creaba 4 cuentas reales, 1 equipo, 1 proyecto y 2 evaluaciones, y las
+borraba al terminar. Funcionaba, pero no es lo que querés durante el evento.
+
+**Hecho:** `supabase/dev-bootstrap/` con el dump del esquema, el complemento, el
+bootstrap del admin de pruebas y un README con los 5 pasos. `.mcp.json` tiene dos
+servidores: `supabase-dev` (completo) y `supabase-prod` (**`read_only=true`**,
+solo `docs,database,debugging`, para que auditarlo no pueda escribirlo).
+
+**Dónde retomar:** los MCP están configurados pero **sin autenticar**. Hay que
+correr `claude /mcp` en una **terminal normal** (no la extensión del IDE),
+autenticar los dos y **reiniciar la sesión** — Claude Code los carga al arrancar.
+Después: aplicar `01` → `02` → `03` en dev, apuntar `.env` y los secrets del CI, y
+correr la suite completa contra dev.
+
+⚠️ **Vercel no se tocó**: producción sigue apuntando a HEM-Prod.
+
+**Solo el jurado vota.** El admin entra a `/evaluacion` (el middleware lo deja)
+pero **nunca** puede guardar: la policy RLS de INSERT de `evaluations` exige
+`role = 'juez'`. Ve una tarjeta que se lo explica, distinta según la fase esté
+cerrada o abierta, y que lo manda al Centro de Comando. Lo cubre
+`tests/e2e/admin-evaluacion.spec.ts`, escrito para valer en cualquier fase.
+
+⚠️ **Los tokens de tiempo traen la curva adentro** (`--t-base: 0.3s var(--ease)`).
+Sirven para `transition`, pero **no** para el shorthand de `animation`: quedarían
+dos timing-functions y el navegador descarta la declaración. Ahí va una duración
+literal.
+
+**`.admin-card` lleva `padding: 0` a propósito**, para que las tablas queden a
+ras del borde. Lo que no sea una tabla adentro de esa card tiene que reponer el
+padding: hay `.admin-card.metrics-panel` (cards de Métricas) y
+`.admin-card-header` (título + botones arriba de una tabla). Los dos van
+calificados con `.admin-card` porque esa regla se declara más abajo en el
+archivo y con un solo selector de clase les ganaría por orden.
 
 ### Sesión 2026-07-29 (métricas, backlog y tests)
 
@@ -75,19 +128,43 @@ de QA. Detalle en el historial (`d8ee95b`…`c39bb2d`).
 
 ## Base de datos (Supabase `cotwhywqcocutrkmrpiw`, región us-east-2)
 
-**Contenido al 2026-07-29:** **50 perfiles** y **0 equipos, 0 proyectos, 0
-evaluaciones**. Por institución: 20 del IES 9-023, 4 de Edison, 3 "otra".
+**Contenido al 2026-07-30:** **54 filas en `profiles`** — 35 inscriptos reales y
+19 registros abandonados — y **0 equipos, 0 proyectos, 0 evaluaciones**. De los
+35: 28 aprobados y 7 pendientes; por institución, 21 del IES 9-023 y 4 de Edison.
 
-⚠️ **Los "pendientes de revisión" engañan.** De los ~23 pendientes, solo **6**
-completaron el onboarding y esperan aprobación: los otros **17 son registros
-abandonados** (crearon la cuenta y nunca llenaron el formulario, así que no
-tienen ni `first_name`). No hay nada que aprobarles. La app ya sabe
-distinguirlos (`middleware.ts:95`), pero el admin no lo ve: es el ítem 2 del
-`BACKLOG.md`, y el de más valor operativo de los que quedan.
+### Registros abandonados
 
-Estos números salen ahora de la pestaña **Métricas** del admin, que los calcula
-sobre `profiles` sin consultas nuevas. Antes había que ir a Vercel o leerlos
-sueltos en otras pestañas.
+**19 de las 54 filas son cuentas que nunca completaron el onboarding.** No
+tienen ni `first_name`, así que no hay nada que aprobarles. Como quedan en
+estado `pendiente`, antes inflaban la cola de revisión: mostraba 26 cuando la
+real era 7.
+
+Desde el 2026-07-30 **el admin los separa**. El criterio vive en un solo lado:
+**`isProfileComplete()` en `src/utils/perfil.ts`** (tener `first_name` **y**
+`last_name`, ignorando los cargados con espacios). Lo importan el middleware
+—para redirigir a `/onboarding`—, el admin y el endpoint de comunicados. Estuvo
+copiado en cada lugar hasta esa fecha; si las definiciones se separan otra vez,
+el admin cuenta como inscripta a gente que la app sigue mandando a completar el
+formulario.
+
+En la pestaña **Métricas**, `totalRegistrations` y **todos** los desgloses (rol,
+estado, institución, egresados, gráfico diario, última inscripción) se calculan
+sobre `registeredProfiles`. Los abandonados van a un KPI propio, a una fila
+aparte de "Por estado" marcada como que no suma, y a un aviso con atajo a
+Usuarios. En **Usuarios** llevan badge "Sin completar" y hay un filtro de
+completitud.
+
+**Se les puede mandar un recordatorio**, pero todavía no se mandó. La pestaña
+Comunicados tiene un cuarto segmento, "Registro incompleto", que es el único que
+**no** va sobre aprobados. Falta decidir el texto y apretar el botón.
+
+⚠️ **No queda registro de a quién ya se le mandó.** Un segundo envío les llega de
+nuevo. La confirmación lo avisa, pero si se va a mandar más de una vez conviene
+guardar la fecha del último recordatorio antes.
+
+Estos números salen de la pestaña **Métricas**, que los calcula sobre `profiles`
+sin consultas nuevas. Antes había que ir a Vercel o leerlos sueltos en otras
+pestañas.
 
 Los datos de prueba viejos se borraron el 2026-07-24 junto con el equipo "Los
 Vengadores" y el proyecto "Guidia". Se conservó `e2e.admin@hem2026.test`, que lo
@@ -99,6 +176,30 @@ necesita `npm run test:e2e`.
 **Migraciones aplicadas** (además de las históricas): `20260714_01` (fases y
 criterios), `20260714_02` (juez aprobado), `20260724_01` (rúbrica 1–5
 ponderada), `20260724_02` (`profiles.institution_other`).
+
+### Auditoría de seguridad del esquema (2026-07-30)
+
+Corrida por conexión directa, solo lectura. **Sin hallazgos:**
+
+| Chequeo | Resultado |
+|---|---|
+| Tablas de `public` sin RLS | **0** — las 8 lo tienen activo |
+| Tablas con RLS pero sin ninguna policy | **0** |
+| Vistas con `security_invoker` | **2 de 2** |
+| Funciones `SECURITY DEFINER` sin `search_path` fijo | **0 de 13** |
+| FKs sin índice | **0** |
+
+Las dos que más importan: las vistas usan `security_invoker=true` (sin eso
+`project_leaderboard` correría con los permisos de quien la creó y cualquiera
+leería el ranking salteándose el RLS), y las 13 funciones `SECURITY DEFINER`
+tienen `search_path` fijo, que es *el* vector clásico de escalada en Postgres.
+
+Policies por tabla: `projects` 10, `profiles` 7, `teams` 6, `evaluations` 4,
+`event_config` 3, `help_requests` 3, `editions` 2, `edition_projects` 2.
+
+Falta correr el **Security Advisor del dashboard**, que ve cosas que no se
+deducen del esquema (config de auth, MFA, claves filtradas). El MCP no tenía
+permisos para `get_advisors` en esa sesión.
 
 ### ⚠️ Cómo conectarse (y qué no hacer)
 
@@ -183,6 +284,14 @@ El **tipo de noticia sale del frontmatter**, sin flags extra:
 | Nota interna | tiene cuerpo markdown | va a `/noticias/<slug>`, que se prerenderiza |
 | Aviso corto | ni `url` ni cuerpo | sin "Leer más" |
 
+**La grilla de tarjetas es mixta a propósito.** `NewsCard.astro` muestra la
+portada como banda 16/9 arriba **solo si la nota tiene `imagen`**; la que no la
+tiene arranca por el encabezado. No hay placeholder de color: de 5 noticias solo
+1 tiene foto, y las de prensa externa probablemente nunca la tengan (la imagen es
+del medio, no nuestra), así que serían 4 bandas de acento inventadas contra 1
+foto real — en contra de la regla del 10% del `DESIGN.md`. La grilla mejora sola
+a medida que se carguen fotos.
+
 Piezas: `NewsCard.astro` (tarjeta compartida), `NewsSection.astro` (bloque del
 home, muestra las 3 más recientes + "Ver todas" si hay más), `/noticias`
 (listado completo), `/noticias/[slug]` (nota interna) y `NewsVideoPlayer.astro`
@@ -220,9 +329,10 @@ Tres comandos:
 
 | Comando | Qué corre | Toca la base |
 |---|---|---|
-| `npm run test:unit` | 34 tests de las funciones puras (`src/utils/perfil.ts`) | no |
-| `npx playwright test sitio-publico` | 9 tests del sitio público | no |
-| `npx playwright test admin-metricas` | 4 tests de la pestaña Métricas | solo lee |
+| `npm run test:unit` | 39 tests de las funciones puras (`src/utils/perfil.ts`) | no |
+| `npx playwright test sitio-publico` | 11 tests del sitio público | no |
+| `npx playwright test admin-metricas` | 5 tests de la pestaña Métricas | solo lee |
+| `npx playwright test admin-evaluacion` | 1 test: el admin no ve la votación | solo lee |
 | `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** (se limpia solo) |
 
 Los unitarios usan el runner de Playwright con `playwright.unit.config.ts` (sin
@@ -231,7 +341,9 @@ navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 `tests/e2e/full-flow.spec.ts` son 19 tests **seriales** que cubren registro,
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
-contra la base real. **Los 28 tests en verde al 2026-07-29.**
+contra la base real. **Los 32 tests en verde al 2026-07-30**, corridos ese día:
+la suite completa se corrió entera después de tocar el middleware, y la limpieza
+dejó la base como estaba. Más los 39 unitarios.
 
 ### Datos de prueba: la suite se limpia sola
 
@@ -303,31 +415,35 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
 
 ### Decisiones con la organización
 
-1. **Aprobación de Martín** para el texto nuevo de la sección 6 de las Bases y
-   Condiciones (criterios con peso + proceso en dos instancias).
+1. **Sección 6 de las Bases: PRE-APROBADA, a la espera de confirmación.** Se
+   lleva a la reunión de staff del 2026-07-30 para que Martín (administrador del
+   concurso) confirme tres cosas del texto **ya publicado**: los pesos de los 6
+   criterios, la escala 1–5 y los **diez (10) equipos finalistas**.
+
+   ⚠️ Los 10 finalistas están **escritos en duro** en las Bases, pero en el admin
+   el cupo es configurable (`finalists_count`). Si alguien lo cambia durante el
+   evento, el sitio dice una cosa y el sistema hace otra.
 
 ### Bugs y mejoras abiertos
 
-2. **Admin en `/evaluacion` con la fase cerrada** ve el panel completo y el botón
-   "Evaluar", pero guardar falla. La causa está en `evaluacion.astro:98`: el
-   cartel de "Evaluaciones Cerradas" se muestra sólo `&& profile?.role === 'juez'`,
-   así que el admin cae en el `else` y ve la interfaz de votación. Arreglarlo es
-   sacar esa condición de rol.
-
-   **No hay riesgo de datos:** el guardado está bloqueado por dos guardas
-   independientes — el `CHECK (phase IN ('preclasificacion','final'))` rechaza
-   `cerrada`, y la policy RLS de INSERT exige `role = 'juez'`. Es solo una
-   pantalla inusable con un error incomprensible.
-3. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
+2. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-4. **6 inscripciones reales esperando aprobación** al 2026-07-29, más **17
-   registros abandonados** que hoy se cuentan como pendientes sin serlo (ver la
-   sección de base de datos). Revisar la cola en la pestaña Métricas.
-5. Ítems restantes del `BACKLOG.md`: distinguir los registros abandonados en el
-   admin (el de más valor), miniatura en las tarjetas de noticia,
-   `var(--t-normal)` inexistente y el orden del historial de migraciones.
+3. ⚠️ **Los 7 pendientes son 4 mentores y 3 jueces, y bloquean el evento.**
+   Verificado en el admin el 2026-07-30. Es por diseño: el trigger
+   `auto_approve_participant` aprueba solo a los participantes con DNI e
+   institución; jueces y mentores quedan en revisión manual. Consecuencias hoy:
+
+   - **Los 3 jueces no pueden evaluar nada**: la policy RLS exige juez
+     *aprobado*. Si llega el 28/08 sin aprobarlos, el jurado no puede votar.
+   - **Los 4 mentores no se pueden asignar**: el desplegable de Mentoría solo
+     lista mentores aprobados (por eso "Mentores aprobados: 0").
+
+   Es un clic por persona en la pestaña Usuarios.
+4. Ítems restantes del `BACKLOG.md`: validación del campo libre de institución
+   (hay un perfil con `-`), recordatorio a los registros abandonados y el orden
+   del historial de migraciones.
 
 Las **estadísticas de visitas propias** quedaron **descartadas** el 2026-07-29:
 las visitas se siguen mirando en Vercel. El análisis de qué haría falta quedó en
