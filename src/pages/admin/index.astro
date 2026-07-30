@@ -1718,7 +1718,11 @@ const projects = allProjects || [];
 
   .tab-content {
     display: none;
-    animation: fadeIn var(--t-normal) ease-out;
+    /* Duración literal, no `var(--t-base)`: los tokens de tiempo traen la curva
+       adentro (`0.3s var(--ease)`), así que en el shorthand de `animation`
+       quedarían dos timing-functions y el navegador descarta la declaración.
+       Los tokens sirven para `transition`, donde no hay una curva aparte. */
+    animation: fadeIn 0.3s ease-out;
   }
   .tab-content.active {
     display: block;

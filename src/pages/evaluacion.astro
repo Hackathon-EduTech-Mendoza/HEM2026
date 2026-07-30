@@ -15,6 +15,14 @@ if (!user || (profile?.role !== 'juez' && profile?.role !== 'admin' && profile?.
 // Un juez sin inscripción aprobada no puede ver ni evaluar proyectos
 const isApprovedJudge = profile.role !== 'juez' || profile.registration_status === 'aprobado';
 
+/**
+ * Solo el jurado vota. El admin entra a esta página (el middleware lo deja),
+ * pero no puede guardar: la policy RLS de INSERT de `evaluations` exige
+ * `role = 'juez'`. Mostrarle la interfaz de votación era ofrecerle un botón
+ * que siempre falla, así que ve una tarjeta informativa en su lugar.
+ */
+const isJudge = profile.role === 'juez';
+
 const supabase = createServerClient(
   import.meta.env.PUBLIC_SUPABASE_URL,
   import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
@@ -95,7 +103,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
           <h3>Tu solicitud está en revisión</h3>
           <p>El equipo organizador está revisando tu perfil como Juez. Vas a poder evaluar proyectos cuando tu registro sea aprobado.</p>
         </div>
-      ) : !isVotingOpen && profile?.role === 'juez' ? (
+      ) : !isVotingOpen ? (
         <div class="card warning-card">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c1); margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
           <h3>Evaluaciones Cerradas</h3>
@@ -104,6 +112,25 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
           ) : (
             <p>El administrador aún no ha habilitado la etapa de evaluación.</p>
           )}
+          {!isJudge && (
+            <p class="warning-note">
+              Estás viendo esta pantalla como administrador. La fase se cambia desde
+              <a href="/admin">el Centro de Comando</a>, en la pestaña Configuración.
+            </p>
+          )}
+        </div>
+      ) : !isJudge ? (
+        <div class="card warning-card">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--c1); margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <h3>La votación la carga el jurado</h3>
+          <p>
+            La fase <strong>{phaseLabel}</strong> está abierta, pero los puntajes solo
+            los puede guardar un juez aprobado: tu usuario es de administración.
+          </p>
+          <p class="warning-note">
+            El avance de la votación y el ranking los seguís desde
+            <a href="/admin">el Centro de Comando</a>, en la pestaña Resultados.
+          </p>
         </div>
       ) : (
         <>
@@ -399,6 +426,21 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  /* Aclaración secundaria de la tarjeta: a quién le habla y adónde ir. */
+  .warning-note {
+    margin-top: 1rem;
+    max-width: 46ch;
+    font-size: 0.9rem;
+    color: var(--txt-2);
+  }
+
+  /* Sin margin: el salto de línea del markup ya aporta el espacio previo, y un
+     margen a la derecha separaba el enlace de la coma que lo sigue. */
+  .warning-note a {
+    color: var(--c1);
+    font-weight: 600;
   }
 
   .eval-sections {
@@ -827,7 +869,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     transform: translateY(100px);
     opacity: 0;
-    transition: all var(--t-normal);
+    transition: all var(--t-base);
     z-index: 2000;
     pointer-events: none;
   }
