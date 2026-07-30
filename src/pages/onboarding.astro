@@ -97,11 +97,11 @@ const email = user.email || '';
             <div class="form-row">
               <div class="form-group">
                 <label for="dni">DNI</label>
-                <input type="text" id="dni" name="dni" placeholder="Ej: 12345678" data-req required />
+                <input type="text" id="dni" name="dni" placeholder="Ej: 12345678" inputmode="numeric" autocomplete="off" data-req required />
               </div>
               <div class="form-group">
                 <label for="phone_whatsapp">Número de WhatsApp</label>
-                <input type="tel" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: +54 9 261 555-5555" data-req required />
+                <input type="tel" id="phone_whatsapp" name="phone_whatsapp" placeholder="Ej: +54 9 261 555-5555" inputmode="tel" autocomplete="tel" data-req required />
               </div>
             </div>
 
@@ -512,6 +512,7 @@ const email = user.email || '';
 
 <script>
   import { createBrowserClient } from '@supabase/ssr';
+  import { normalizeInstagram, normalizePhone } from '../utils/perfil';
 
   const supabase = createBrowserClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
@@ -668,6 +669,13 @@ const email = user.email || '';
     return cleanDNI.length > 0;
   }
 
+  // Validación de teléfono: se cuenta sobre los dígitos, igual que el DNI.
+  // El mínimo cubre un fijo sin característica y el máximo es el de E.164.
+  function isValidPhone(phone: string): boolean {
+    const digits = phone.replace(/\D/g, '');
+    return digits.length >= 8 && digits.length <= 15;
+  }
+
   // Envío del formulario
   onboardingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -712,12 +720,18 @@ const email = user.email || '';
       return;
     }
 
+    if (!isValidPhone(phone_whatsapp)) {
+      errorDiv.textContent = 'Revisá el número de WhatsApp: tiene que tener entre 8 y 15 dígitos.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
     // Armado del objeto a actualizar
     const updateData: any = {
       first_name,
       last_name,
       dni,
-      phone_whatsapp,
+      phone_whatsapp: normalizePhone(phone_whatsapp),
       institution,
       institution_other: institution === 'otra' ? institution_other : null,
       disciplinary_profile,
@@ -725,8 +739,8 @@ const email = user.email || '';
     };
 
     if (selectedRole === 'usuario' || selectedRole === 'mentor') {
-      const instagram = (document.getElementById('instagram_handle') as HTMLInputElement).value.trim();
-      updateData.instagram_handle = instagram || null;
+      const instagram = (document.getElementById('instagram_handle') as HTMLInputElement).value;
+      updateData.instagram_handle = normalizeInstagram(instagram);
     }
 
     if (selectedRole === 'usuario') {

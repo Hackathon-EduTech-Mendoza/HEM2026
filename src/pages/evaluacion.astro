@@ -203,8 +203,19 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
                 );
                 const totalScore = rawScore(scores);
                 const weighted = weightedScore(scores);
+                // El voto ya guardado viaja con la tarjeta para poder precargarlo
+                // en el modal cuando el jurado quiere corregirlo.
+                const votoGuardado = {
+                  ...scores,
+                  feedback: ev.feedback || '',
+                  updated_at: ev.updated_at || ev.created_at,
+                };
                 return (
-                  <div class="project-card card completed">
+                  <div
+                    class="project-card card completed"
+                    data-project={JSON.stringify(project)}
+                    data-evaluacion={JSON.stringify(votoGuardado)}
+                  >
                     <div class="project-header">
                       <h3>{project.title}</h3>
                       <span class="team-name">Equipo: {project.teams?.name}</span>
@@ -215,7 +226,12 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
                         <span class="score-value">{totalScore}/{MAX_RAW_SCORE}</span>
                         <span class="score-weighted">({weighted.toFixed(1)} pts ponderados)</span>
                       </div>
-                      <span class="badge badge-yes">Completado</span>
+                      <div class="score-actions">
+                        <span class="badge badge-yes">Completado</span>
+                        <button class="btn btn-outline btn-sm evaluate-btn" data-id={project.id}>
+                          Corregir
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -239,6 +255,12 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
           </button>
         </div>
         <div class="modal-body">
+          <!-- Solo visible cuando se está corrigiendo un voto ya guardado -->
+          <div id="modal-editando" class="eval-editing-notice" hidden>
+            <strong>Estás corrigiendo tu evaluación.</strong>
+            <span id="modal-editando-fecha"></span>
+            Al guardar se reemplazan los puntajes anteriores.
+          </div>
           <div class="project-details">
             <h4>Problema</h4>
             <p id="modal-problem"></p>
@@ -457,6 +479,28 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  /* Badge "Completado" + botón "Corregir" */
+  .score-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  /* Aviso de que se está corrigiendo un voto ya guardado */
+  .eval-editing-notice {
+    background: rgba(var(--c1r), 0.08);
+    border: 1px solid var(--c1);
+    border-radius: var(--r-md);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--txt-1);
+    line-height: 1.5;
+  }
+  .eval-editing-notice[hidden] {
+    display: none;
   }
   .score-display {
     display: flex;
@@ -813,8 +857,16 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
   const modalPrototype = document.getElementById('modal-prototype') as HTMLAnchorElement;
   const modalMaterial = document.getElementById('modal-material') as HTMLAnchorElement;
   const formProjectId = document.getElementById('form-project-id') as HTMLInputElement;
+  const editingNotice = document.getElementById('modal-editando') as HTMLElement;
+  const editingDate = document.getElementById('modal-editando-fecha') as HTMLElement;
 
-  function openModal(project: any) {
+  /**
+   * Voto ya guardado que se está corrigiendo, o null si es una evaluación nueva.
+   * Decide si el submit inserta o actualiza, y el texto del botón.
+   */
+  let votoEnEdicion: Record<string, any> | null = null;
+
+  function openModal(project: any, votoGuardado: Record<string, any> | null = null) {
     if (!modal || !modalTitle || !modalProblem || !modalSolution || !formProjectId) return;
 
     // Limpiar la puntuación del proyecto anterior (los radios conservan estado)
@@ -840,7 +892,37 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     }
 
     formProjectId.value = project.id;
-    
+
+    // Corrección: precargar los puntajes y el feedback ya guardados.
+    votoEnEdicion = votoGuardado;
+
+    if (votoGuardado) {
+      for (const c of CRITERIA) {
+        const valor = votoGuardado[c.key];
+        if (valor == null) continue;
+        const radio = form?.querySelector<HTMLInputElement>(
+          `input[name="score_${c.key}"][value="${valor}"]`,
+        );
+        if (radio) radio.checked = true;
+      }
+
+      const feedbackEl = form?.querySelector<HTMLTextAreaElement>('#feedback');
+      if (feedbackEl) feedbackEl.value = votoGuardado.feedback || '';
+
+      // Los totales se recalculan recién ahora, con los radios ya marcados.
+      refreshTotals();
+    }
+
+    if (editingNotice) editingNotice.hidden = !votoGuardado;
+    if (editingDate) {
+      editingDate.textContent = votoGuardado?.updated_at
+        ? `Guardada el ${new Date(votoGuardado.updated_at).toLocaleString('es-AR')}.`
+        : '';
+    }
+    if (submitBtn) {
+      submitBtn.textContent = votoGuardado ? 'Actualizar Evaluación' : 'Guardar Evaluación';
+    }
+
     modal.classList.add('show');
     document.body.style.overflow = 'hidden'; // prevent background scrolling
   }
@@ -856,7 +938,9 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
       const card = (e.target as HTMLElement).closest('.project-card');
       if (card) {
         const projectData = JSON.parse(card.getAttribute('data-project') || '{}');
-        openModal(projectData);
+        // Las tarjetas ya evaluadas traen el voto guardado; las pendientes no.
+        const raw = card.getAttribute('data-evaluacion');
+        openModal(projectData, raw ? JSON.parse(raw) : null);
       }
     });
   });
@@ -932,8 +1016,9 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
       return;
     }
 
+    const estabaEditando = Boolean(votoEnEdicion);
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Guardando...';
+    submitBtn.textContent = estabaEditando ? 'Actualizando...' : 'Guardando...';
 
     const formData = new FormData(form);
     const evaluationData: Record<string, unknown> = {
@@ -946,17 +1031,21 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
       evaluationData[`score_${c.key}`] = parseInt(formData.get(`score_${c.key}`) as string, 10);
     });
 
+    // upsert en vez de insert: un solo camino para votar y para corregir.
+    // El conflicto lo resuelve el UNIQUE(project_id, judge_id, phase) de la
+    // tabla, y la policy RLS "Judges can update own evaluations" ya permite el
+    // UPDATE si el voto es propio, el juez está aprobado y la fase es la activa.
     const { error } = await supabase
       .from('evaluations')
-      .insert(evaluationData);
+      .upsert(evaluationData, { onConflict: 'project_id,judge_id,phase' });
 
     if (error) {
       console.error('Error saving evaluation:', error);
       showToast('Error al guardar la evaluación. ' + error.message, true);
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Guardar Evaluación';
+      submitBtn.textContent = estabaEditando ? 'Actualizar Evaluación' : 'Guardar Evaluación';
     } else {
-      showToast('¡Evaluación guardada con éxito!');
+      showToast(estabaEditando ? '¡Evaluación actualizada!' : '¡Evaluación guardada con éxito!');
       closeModal();
       // Recargar la página para mover el proyecto a "Completados"
       setTimeout(() => {

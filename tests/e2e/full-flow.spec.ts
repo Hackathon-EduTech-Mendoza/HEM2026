@@ -10,6 +10,7 @@ import {
   openDashboardTab,
   openAdminTab,
   newApiClient,
+  limpiarDatosE2E,
   TestUser,
 } from './utils';
 import { CRITERIA, MAX_RAW_SCORE, rawScore, weightedScore } from '../../src/lib/rubric';
@@ -24,6 +25,26 @@ import { CRITERIA, MAX_RAW_SCORE, rawScore, weightedScore } from '../../src/lib/
  */
 test.describe.configure({ mode: 'serial' });
 
+// La suite escribe en la base real, así que se limpia sola: si no, cada corrida
+// deja 4 perfiles que la pestaña Métricas cuenta como inscripciones reales.
+// Solo borra lo de su propio RUN_ID; el admin de prueba nunca se toca.
+test.afterAll(async () => {
+  try {
+    const borrado = await limpiarDatosE2E(RUN_ID);
+    console.log(
+      `\n[limpieza ${RUN_ID}] ${borrado.perfiles} perfiles, ${borrado.cuentasAuth} cuentas de auth, ` +
+        `${borrado.equipos} equipos, ${borrado.proyectos} proyectos, ${borrado.evaluaciones} evaluaciones.`,
+    );
+  } catch (e) {
+    // No se falla la corrida por la limpieza, pero tiene que quedar a la vista:
+    // si esto pasa seguido, la base se llena de datos de prueba.
+    console.error(
+      `\n[limpieza ${RUN_ID}] FALLÓ. Hay que borrar a mano con: npm run test:e2e:limpiar\n`,
+      e,
+    );
+  }
+});
+
 // ── Estado compartido del run ──
 const TEAM_NAME = `Equipo E2E ${RUN_ID}`;
 const PROJECT_TITLE = `Proyecto E2E ${RUN_ID}`;
@@ -33,6 +54,11 @@ const FINAL_SCORES = { problem: 5, solution: 5, innovation: 4, feasibility: 5, i
 const PRE_TOTAL = rawScore(PRE_SCORES);
 const FINAL_TOTAL = rawScore(FINAL_SCORES);
 const PRE_WEIGHTED = weightedScore(PRE_SCORES);
+// Puntaje intermedio para probar la corrección de un voto ya guardado.
+// Distinto de PRE_SCORES en todos los criterios, para que no haya falsos verdes.
+const CORRECTED_SCORES = { problem: 2, solution: 5, innovation: 3, feasibility: 2, impact: 5, communication: 3 };
+const CORRECTED_TOTAL = rawScore(CORRECTED_SCORES);
+const CORRECTED_WEIGHTED = weightedScore(CORRECTED_SCORES);
 
 let participantB: TestUser;
 let participantC: TestUser;
@@ -168,16 +194,35 @@ test('participantes B y C se unen con el código', async ({ browser }) => {
 
 test('participante A (líder) entrega el proyecto', async ({ browser }) => {
   const page = await newPage(browser);
+
+  // Retrasamos a propósito el fetch inicial del proyecto para poder observar
+  // el estado de carga: es donde antes se perdía lo que la persona tipeaba.
+  await page.route(
+    (url) => url.pathname.endsWith('/rest/v1/projects') && url.searchParams.has('team_id'),
+    async (route) => {
+      if (route.request().method() !== 'GET') return route.fallback();
+      await new Promise((r) => setTimeout(r, 2000));
+      return route.fallback();
+    },
+  );
+
   await loginUi(page, participantAEmail, E2E_PASSWORD);
   await openDashboardTab(page, 'equipo');
 
   await expect(page.locator('#ps-active')).toBeVisible({ timeout: 20_000 });
-  // ProjectSubmission pone "Cargando..." en los campos y los limpia cuando
-  // responde el fetch inicial; escribir antes de eso pierde lo tipeado.
-  await page.waitForFunction(() => {
-    const el = document.getElementById('ps-title') as HTMLInputElement | null;
-    return !!el && el.value !== 'Cargando...' && !el.disabled;
-  });
+
+  // Mientras carga: los campos están deshabilitados (así no se puede tipear
+  // algo que la respuesta después pisaría) y el aviso lo explica. El campo
+  // nunca debe tener "Cargando..." como valor.
+  const title = page.locator('#ps-title');
+  await expect(title).toBeDisabled();
+  await expect(title).toHaveValue('');
+  await expect(page.locator('#ps-last-saved')).toContainText('Cargando');
+
+  // Cuando termina, el líder recupera el control.
+  await expect(title).toBeEnabled({ timeout: 20_000 });
+  await expect(title).not.toHaveValue('Cargando...');
+
   await page.fill('#ps-title', PROJECT_TITLE);
   await page.fill('#ps-problem', 'Problema de prueba E2E: la gestión del hackathon es manual.');
   await page.fill('#ps-solution', 'Solución de prueba E2E: plataforma web que automatiza inscripción y evaluación.');
@@ -257,6 +302,7 @@ test('admin aprueba al juez y habilita fase preclasificación', async ({ browser
   await loginUi(page, ADMIN_EMAIL, E2E_PASSWORD);
   await page.goto('/admin');
   await expect(page).toHaveURL(/\/admin/);
+  await openAdminTab(page, 'tab-usuarios');
 
   // Ubicar la fila del juez por email y aprobarlo
   const juezRow = page.locator('tr.user-row', { hasText: juezEmail });
@@ -295,6 +341,83 @@ test('juez vota el proyecto en preclasificación', async ({ browser }) => {
   const completedCard = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
   await expect(completedCard).toBeVisible({ timeout: 20_000 });
   await expect(completedCard.locator('.score-value')).toContainText(`${PRE_TOTAL}/${MAX_RAW_SCORE}`);
+  await page.context().close();
+});
+
+// ═══════════════════════════════════════════════════════════
+// 6b. JUEZ: corrige un voto ya guardado
+//
+// Antes esto era imposible: /evaluacion solo hacía insert y el
+// UNIQUE(project_id, judge_id, phase) rechazaba el segundo intento. Un jurado
+// que se equivocaba durante la jornada no tenía salida.
+//
+// El test termina restaurando PRE_SCORES para que los tests siguientes, que son
+// seriales y esperan ese puntaje, sigan valiendo.
+// ═══════════════════════════════════════════════════════════
+
+test('juez corrige su voto de preclasificación', async ({ browser }) => {
+  const page = await newPage(browser);
+  await loginUi(page, juezEmail, E2E_PASSWORD);
+  await page.goto('/evaluacion');
+
+  const completedCard = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
+  await expect(completedCard).toBeVisible({ timeout: 20_000 });
+  await completedCard.locator('.evaluate-btn').click();
+  await expect(page.locator('#eval-modal')).toBeVisible();
+
+  // Se ve que es una corrección, no un voto nuevo.
+  await expect(page.locator('#modal-editando')).toBeVisible();
+  await expect(page.locator('#submit-eval-btn')).toHaveText('Actualizar Evaluación');
+
+  // El modal llega con el voto anterior ya cargado: si no, el jurado tendría
+  // que acordarse de lo que puso y volver a completar los 6 criterios.
+  for (const c of CRITERIA) {
+    await expect(
+      page.locator(`input[name="score_${c.key}"][value="${PRE_SCORES[c.key as keyof typeof PRE_SCORES]}"]`),
+    ).toBeChecked();
+  }
+  await expect(page.locator('#feedback')).toHaveValue('Feedback E2E de preclasificación.');
+
+  // Corregir a otro puntaje
+  await fillEvaluation(page, CORRECTED_SCORES);
+  await page.fill('#feedback', 'Feedback E2E corregido.');
+  await page.click('#submit-eval-btn');
+  await expect(page.locator('#toast-msg')).toContainText('actualizada', { timeout: 15_000 });
+
+  await page.waitForLoadState('load');
+  const cardTrasCorregir = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
+  await expect(cardTrasCorregir).toHaveCount(1);
+  await expect(cardTrasCorregir.locator('.score-value')).toContainText(
+    `${CORRECTED_TOTAL}/${MAX_RAW_SCORE}`,
+  );
+  // Y no quedó pendiente además de evaluado.
+  await expect(page.locator('.project-card:not(.completed)', { hasText: PROJECT_TITLE })).toHaveCount(0);
+
+  // El admin ve el puntaje corregido, y sigue habiendo UNA sola evaluación:
+  // corregir no puede sumar un voto nuevo.
+  const adminPage = await newPage(browser);
+  await loginUi(adminPage, ADMIN_EMAIL, E2E_PASSWORD);
+  await adminPage.goto('/admin');
+  await openAdminTab(adminPage, 'tab-resultados');
+  const row = adminPage.locator('#tab-resultados table').first().locator('tr', { hasText: PROJECT_TITLE });
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText(`${CORRECTED_TOTAL.toFixed(1)}/${MAX_RAW_SCORE}`);
+  await expect(row).toContainText(CORRECTED_WEIGHTED.toFixed(2));
+  await adminPage.context().close();
+
+  // Restaurar el voto original para los tests que siguen.
+  await page.goto('/evaluacion');
+  await page.locator('.project-card.completed', { hasText: PROJECT_TITLE }).locator('.evaluate-btn').click();
+  await expect(page.locator('#eval-modal')).toBeVisible();
+  await fillEvaluation(page, PRE_SCORES);
+  await page.fill('#feedback', 'Feedback E2E de preclasificación.');
+  await page.click('#submit-eval-btn');
+  await expect(page.locator('#toast-msg')).toContainText('actualizada', { timeout: 15_000 });
+  await page.waitForLoadState('load');
+  await expect(
+    page.locator('.project-card.completed', { hasText: PROJECT_TITLE }).locator('.score-value'),
+  ).toContainText(`${PRE_TOTAL}/${MAX_RAW_SCORE}`);
+
   await page.context().close();
 });
 

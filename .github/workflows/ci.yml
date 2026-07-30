@@ -1,0 +1,151 @@
+name: CI
+
+# Qué corre y cuándo:
+#
+#   unit + build + e2e-publico  -> en cada push y cada PR. No tocan la base:
+#                                  alcanzan credenciales falsas de Supabase
+#                                  porque las páginas públicas se prerenderizan
+#                                  y el middleware las saltea.
+#
+#   e2e-completo                -> solo a mano (Actions -> CI -> Run workflow).
+#                                  ESCRIBE EN LA BASE REAL: crea usuarios
+#                                  e2e.*@hem2026.test y mueve evaluation_phase.
+#                                  Por eso no corre automático.
+
+on:
+  push:
+    branches-ignore:
+      - 'gh-pages'
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      correr_suite_completa:
+        description: 'Correr también la suite que escribe en la base real'
+        type: boolean
+        default: false
+
+# Un push nuevo sobre la misma rama cancela la corrida anterior.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # package.json pide >=22.12.0; '22' toma la última 22.x disponible.
+  NODE_VERSION: '22'
+
+jobs:
+  unit:
+    name: Tests unitarios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      # Funciones puras: no necesitan navegador, dev server ni credenciales.
+      - run: npm run test:unit
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: astro build
+        run: npm run build
+        env:
+          # El build solo necesita que las variables existan: las páginas
+          # públicas no consultan Supabase al prerenderizar.
+          PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_para_ci
+
+  e2e-publico:
+    name: E2E del sitio público
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      # sitio-publico.spec.ts no importa tests/e2e/utils.ts, así que no necesita
+      # el archivo .env ni credenciales reales.
+      - name: Correr sitio-publico
+        run: npx playwright test sitio-publico --reporter=list
+        env:
+          PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_para_ci
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-publico
+          path: playwright-report/
+          retention-days: 7
+
+  e2e-completo:
+    name: E2E completo (escribe en la base real)
+    runs-on: ubuntu-latest
+    # Solo a mano y con la casilla marcada: nunca en un push automático.
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.correr_suite_completa == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      # tests/e2e/utils.ts lee un archivo .env del disco (no process.env),
+      # así que hay que materializarlo desde los secrets del repo.
+      # La service role key es imprescindible para el teardown: borrar cuentas
+      # de auth.users no se puede con la anon key.
+      - name: Escribir .env
+        run: |
+          echo "PUBLIC_SUPABASE_URL=${{ secrets.PUBLIC_SUPABASE_URL }}" >> .env
+          echo "PUBLIC_SUPABASE_ANON_KEY=${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}" >> .env
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
+
+      - name: Correr la suite completa
+        run: npm run test:e2e
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-completo
+          path: playwright-report/
+          retention-days: 7
+
+      # La suite se limpia sola en su afterAll. Esto barre lo que pueda haber
+      # quedado si la corrida se cortó antes de llegar al teardown.
+      - name: Limpiar sobras
+        if: always()
+        run: npm run test:e2e:limpiar -- --si

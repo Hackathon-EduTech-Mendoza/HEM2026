@@ -10,9 +10,12 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:unit": "playwright test --config=playwright.unit.config.ts",
+    "test:e2e:limpiar": "node scripts/limpiar-e2e.mjs"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/vercel": "^10.0.6",
     "@fontsource/lexend": "^5.2.11",
