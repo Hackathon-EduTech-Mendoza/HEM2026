@@ -75,11 +75,15 @@ de QA. Detalle en el historial (`d8ee95b`…`c39bb2d`).
 
 ## Base de datos (Supabase `cotwhywqcocutrkmrpiw`, región us-east-2)
 
-**Contenido al 2026-07-29:** **49 perfiles** (35 usuario, 3 mentor, 3 juez, 8
-staff entre admin y superadmin) y **0 equipos, 0 proyectos, 0 evaluaciones**.
-De los 49, **27 aprobados y 22 pendientes de revisión**. Por institución: 20 del
-IES 9-023, 4 de Edison, 3 "otra", y **16 sin institución** (gente que se registró
-y no terminó el onboarding).
+**Contenido al 2026-07-29:** **50 perfiles** y **0 equipos, 0 proyectos, 0
+evaluaciones**. Por institución: 20 del IES 9-023, 4 de Edison, 3 "otra".
+
+⚠️ **Los "pendientes de revisión" engañan.** De los ~23 pendientes, solo **6**
+completaron el onboarding y esperan aprobación: los otros **17 son registros
+abandonados** (crearon la cuenta y nunca llenaron el formulario, así que no
+tienen ni `first_name`). No hay nada que aprobarles. La app ya sabe
+distinguirlos (`middleware.ts:95`), pero el admin no lo ve: es el ítem 2 del
+`BACKLOG.md`, y el de más valor operativo de los que quedan.
 
 Estos números salen ahora de la pestaña **Métricas** del admin, que los calcula
 sobre `profiles` sin consultas nuevas. Antes había que ir a Vercel o leerlos
@@ -304,18 +308,26 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
 
 ### Bugs y mejoras abiertos
 
-2. **Admin en `/evaluacion` con la fase cerrada** ve la lista y el botón "Evaluar",
-   pero guardar falla porque `phase` sería `cerrada` y el CHECK sólo admite
-   `preclasificacion`/`final`. A los jueces no les pasa.
+2. **Admin en `/evaluacion` con la fase cerrada** ve el panel completo y el botón
+   "Evaluar", pero guardar falla. La causa está en `evaluacion.astro:98`: el
+   cartel de "Evaluaciones Cerradas" se muestra sólo `&& profile?.role === 'juez'`,
+   así que el admin cae en el `else` y ve la interfaz de votación. Arreglarlo es
+   sacar esa condición de rol.
+
+   **No hay riesgo de datos:** el guardado está bloqueado por dos guardas
+   independientes — el `CHECK (phase IN ('preclasificacion','final'))` rechaza
+   `cerrada`, y la policy RLS de INSERT exige `role = 'juez'`. Es solo una
+   pantalla inusable con un error incomprensible.
 3. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-4. **22 inscripciones esperando aprobación** al 2026-07-29 (de 49 totales). Se ven
-   en la pestaña Métricas del admin.
-5. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
-   validación de `institution_other`, `var(--t-normal)` inexistente y el orden
-   del historial de migraciones.
+4. **6 inscripciones reales esperando aprobación** al 2026-07-29, más **17
+   registros abandonados** que hoy se cuentan como pendientes sin serlo (ver la
+   sección de base de datos). Revisar la cola en la pestaña Métricas.
+5. Ítems restantes del `BACKLOG.md`: distinguir los registros abandonados en el
+   admin (el de más valor), miniatura en las tarjetas de noticia,
+   `var(--t-normal)` inexistente y el orden del historial de migraciones.
 
 Las **estadísticas de visitas propias** quedaron **descartadas** el 2026-07-29:
 las visitas se siguen mirando en Vercel. El análisis de qué haría falta quedó en

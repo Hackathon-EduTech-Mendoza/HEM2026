@@ -16,12 +16,36 @@ como miniatura levantaría mucho la sección del home y el listado. Hay que defi
 qué hacer con las que no tienen imagen (las de prensa externa y los avisos):
 placeholder con el color de la categoría, o grilla que tolere tarjetas mixtas.
 
-### 2. `institution_other` no valida nada
-El campo libre de institución solo exige "no vacío", así que entran cosas como
-`-`. Al 2026-07-29 hay **16 perfiles sin institución y uno con `-`** sobre 49
-inscriptos. Los sin institución son, casi con certeza, gente que se registró y
-no terminó el onboarding: conviene distinguir esos dos casos antes de tocar la
-validación, y ver si hace falta un recordatorio para que completen el perfil.
+### 2. Distinguir en el admin quién no completó el onboarding
+**Este es el que tiene valor operativo real de los que quedan.**
+
+Medido el 2026-07-29 sobre 50 perfiles:
+
+| | |
+|---|---|
+| Nunca completaron el onboarding | **17** |
+| De esos 17, en estado `pendiente` | **17** (todos) |
+| Pendientes que **sí** completaron el perfil | **6** |
+
+O sea que los ~23 "pendientes de revisión" que muestra la pestaña Métricas son
+en realidad **6 personas esperando aprobación y 17 registros abandonados**. De
+esos 17 no hay nada que aprobar: no tienen ni nombre cargado. Un admin que
+recorra la cola pierde el tiempo con fichas vacías.
+
+El dato ya existe y la app ya lo usa: `middleware.ts:95` define perfil completo
+como tener `first_name` **y** `last_name`, y con eso decide mandar a
+`/onboarding`. Falta solo exponerlo:
+
+- separar el conteo en la pestaña Métricas (pendientes reales vs. abandonados)
+- marcar esas filas en la pestaña Usuarios, o poder filtrarlas
+- decidir si se les manda un recordatorio para que completen el perfil
+
+**Decisión de diseño pendiente:** ¿se los trata como una categoría aparte
+("Registro incompleto") o se los sigue contando como inscriptos? Cambia el
+número grande de "Inscriptos totales", así que conviene definirlo antes.
+
+De paso, el campo libre `institution_other` solo valida "no vacío" y hay un
+perfil con `-` como institución.
 
 ## Deuda técnica menor
 
