@@ -366,8 +366,14 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
 
 ### Decisiones con la organización
 
-1. **Aprobación de Martín** para el texto nuevo de la sección 6 de las Bases y
-   Condiciones (criterios con peso + proceso en dos instancias).
+1. **Sección 6 de las Bases: PRE-APROBADA, a la espera de confirmación.** Se
+   lleva a la reunión de staff del 2026-07-30 para que Martín (administrador del
+   concurso) confirme tres cosas del texto **ya publicado**: los pesos de los 6
+   criterios, la escala 1–5 y los **diez (10) equipos finalistas**.
+
+   ⚠️ Los 10 finalistas están **escritos en duro** en las Bases, pero en el admin
+   el cupo es configurable (`finalists_count`). Si alguien lo cambia durante el
+   evento, el sitio dice una cosa y el sistema hace otra.
 
 ### Bugs y mejoras abiertos
 
