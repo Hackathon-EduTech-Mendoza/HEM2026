@@ -42,6 +42,31 @@ git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.g
 | `47d67fe` | El admin deja de ver una pantalla de votación que no puede usar, y `var(--t-normal)` |
 | `07b55f4` | Las tarjetas de noticia muestran la portada cuando la nota tiene una |
 | `90dc9ab` | Segmento de comunicados para el recordatorio a los registros incompletos |
+| `7d65fa4` | Bootstrap de HEM-Dev con el esquema de prod, sin datos personales |
+
+### ⏸️ Separación HEM-Prod / HEM-Dev: EN CURSO, cortada a la mitad
+
+| Proyecto | `project_ref` | Estado |
+|---|---|---|
+| **HEM-Prod** | `cotwhywqcocutrkmrpiw` | La base real, 54 perfiles |
+| **HEM-Dev** | `mhipqazqvnuvtlrbqdce` | Creado y **vacío**. Todavía sin esquema |
+
+**Por qué:** hasta ahora `npm run test:e2e` corría **contra producción** — cada
+corrida creaba 4 cuentas reales, 1 equipo, 1 proyecto y 2 evaluaciones, y las
+borraba al terminar. Funcionaba, pero no es lo que querés durante el evento.
+
+**Hecho:** `supabase/dev-bootstrap/` con el dump del esquema, el complemento, el
+bootstrap del admin de pruebas y un README con los 5 pasos. `.mcp.json` tiene dos
+servidores: `supabase-dev` (completo) y `supabase-prod` (**`read_only=true`**,
+solo `docs,database,debugging`, para que auditarlo no pueda escribirlo).
+
+**Dónde retomar:** los MCP están configurados pero **sin autenticar**. Hay que
+correr `claude /mcp` en una **terminal normal** (no la extensión del IDE),
+autenticar los dos y **reiniciar la sesión** — Claude Code los carga al arrancar.
+Después: aplicar `01` → `02` → `03` en dev, apuntar `.env` y los secrets del CI, y
+correr la suite completa contra dev.
+
+⚠️ **Vercel no se tocó**: producción sigue apuntando a HEM-Prod.
 
 **Solo el jurado vota.** El admin entra a `/evaluacion` (el middleware lo deja)
 pero **nunca** puede guardar: la policy RLS de INSERT de `evaluations` exige
@@ -151,6 +176,30 @@ necesita `npm run test:e2e`.
 **Migraciones aplicadas** (además de las históricas): `20260714_01` (fases y
 criterios), `20260714_02` (juez aprobado), `20260724_01` (rúbrica 1–5
 ponderada), `20260724_02` (`profiles.institution_other`).
+
+### Auditoría de seguridad del esquema (2026-07-30)
+
+Corrida por conexión directa, solo lectura. **Sin hallazgos:**
+
+| Chequeo | Resultado |
+|---|---|
+| Tablas de `public` sin RLS | **0** — las 8 lo tienen activo |
+| Tablas con RLS pero sin ninguna policy | **0** |
+| Vistas con `security_invoker` | **2 de 2** |
+| Funciones `SECURITY DEFINER` sin `search_path` fijo | **0 de 13** |
+| FKs sin índice | **0** |
+
+Las dos que más importan: las vistas usan `security_invoker=true` (sin eso
+`project_leaderboard` correría con los permisos de quien la creó y cualquiera
+leería el ranking salteándose el RLS), y las 13 funciones `SECURITY DEFINER`
+tienen `search_path` fijo, que es *el* vector clásico de escalada en Postgres.
+
+Policies por tabla: `projects` 10, `profiles` 7, `teams` 6, `evaluations` 4,
+`event_config` 3, `help_requests` 3, `editions` 2, `edition_projects` 2.
+
+Falta correr el **Security Advisor del dashboard**, que ve cosas que no se
+deducen del esquema (config de auth, MFA, claves filtradas). El MCP no tenía
+permisos para `get_advisors` en esa sesión.
 
 ### ⚠️ Cómo conectarse (y qué no hacer)
 
@@ -381,8 +430,17 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-3. **7 inscripciones esperando aprobación** al 2026-07-30. La pestaña Métricas
-   ya muestra la cola real, sin los 19 registros abandonados.
+3. ⚠️ **Los 7 pendientes son 4 mentores y 3 jueces, y bloquean el evento.**
+   Verificado en el admin el 2026-07-30. Es por diseño: el trigger
+   `auto_approve_participant` aprueba solo a los participantes con DNI e
+   institución; jueces y mentores quedan en revisión manual. Consecuencias hoy:
+
+   - **Los 3 jueces no pueden evaluar nada**: la policy RLS exige juez
+     *aprobado*. Si llega el 28/08 sin aprobarlos, el jurado no puede votar.
+   - **Los 4 mentores no se pueden asignar**: el desplegable de Mentoría solo
+     lista mentores aprobados (por eso "Mentores aprobados: 0").
+
+   Es un clic por persona en la pestaña Usuarios.
 4. Ítems restantes del `BACKLOG.md`: validación del campo libre de institución
    (hay un perfil con `-`), recordatorio a los registros abandonados y el orden
    del historial de migraciones.
