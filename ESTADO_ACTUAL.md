@@ -1,6 +1,6 @@
 # Estado actual del repositorio
 
-> Actualizado: **2026-07-29**. Resume dónde está el código, cómo está la base y
+> Actualizado: **2026-07-30**. Resume dónde está el código, cómo está la base y
 > qué queda pendiente, para poder retomar sin reconstruir el contexto.
 
 ## Git
@@ -32,6 +32,20 @@ Se revisa con `git remote -v` y se corrige con:
 ```bash
 git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.git
 ```
+
+### Sesión 2026-07-30 (UX del admin y registros abandonados)
+
+| Commit | Qué es |
+|--------|--------|
+| `05a9f3e` | Las cards de Métricas y los encabezados de fase dejan de pegarse al borde |
+| `2602895` | Los registros abandonados dejan de contar como inscriptos |
+
+**`.admin-card` lleva `padding: 0` a propósito**, para que las tablas queden a
+ras del borde. Lo que no sea una tabla adentro de esa card tiene que reponer el
+padding: hay `.admin-card.metrics-panel` (cards de Métricas) y
+`.admin-card-header` (título + botones arriba de una tabla). Los dos van
+calificados con `.admin-card` porque esa regla se declara más abajo en el
+archivo y con un solo selector de clase les ganaría por orden.
 
 ### Sesión 2026-07-29 (métricas, backlog y tests)
 
@@ -75,19 +89,36 @@ de QA. Detalle en el historial (`d8ee95b`…`c39bb2d`).
 
 ## Base de datos (Supabase `cotwhywqcocutrkmrpiw`, región us-east-2)
 
-**Contenido al 2026-07-29:** **50 perfiles** y **0 equipos, 0 proyectos, 0
-evaluaciones**. Por institución: 20 del IES 9-023, 4 de Edison, 3 "otra".
+**Contenido al 2026-07-30:** **54 filas en `profiles`** — 35 inscriptos reales y
+19 registros abandonados — y **0 equipos, 0 proyectos, 0 evaluaciones**. De los
+35: 28 aprobados y 7 pendientes; por institución, 21 del IES 9-023 y 4 de Edison.
 
-⚠️ **Los "pendientes de revisión" engañan.** De los ~23 pendientes, solo **6**
-completaron el onboarding y esperan aprobación: los otros **17 son registros
-abandonados** (crearon la cuenta y nunca llenaron el formulario, así que no
-tienen ni `first_name`). No hay nada que aprobarles. La app ya sabe
-distinguirlos (`middleware.ts:95`), pero el admin no lo ve: es el ítem 2 del
-`BACKLOG.md`, y el de más valor operativo de los que quedan.
+### Registros abandonados
 
-Estos números salen ahora de la pestaña **Métricas** del admin, que los calcula
-sobre `profiles` sin consultas nuevas. Antes había que ir a Vercel o leerlos
-sueltos en otras pestañas.
+**19 de las 54 filas son cuentas que nunca completaron el onboarding.** No
+tienen ni `first_name`, así que no hay nada que aprobarles. Como quedan en
+estado `pendiente`, antes inflaban la cola de revisión: mostraba 26 cuando la
+real era 7.
+
+Desde el 2026-07-30 **el admin los separa**. El criterio es el mismo que usa
+`middleware.ts:95` para mandar a `/onboarding` (tener `first_name` **y**
+`last_name`), duplicado en `admin/index.astro` como `isProfileComplete()`: si se
+cambia uno hay que cambiar el otro, o el admin contaría como inscripta a gente
+que la app sigue mandando a completar el formulario.
+
+En la pestaña **Métricas**, `totalRegistrations` y **todos** los desgloses (rol,
+estado, institución, egresados, gráfico diario, última inscripción) se calculan
+sobre `registeredProfiles`. Los abandonados van a un KPI propio, a una fila
+aparte de "Por estado" marcada como que no suma, y a un aviso con atajo a
+Usuarios. En **Usuarios** llevan badge "Sin completar" y hay un filtro de
+completitud.
+
+Lo que **no** existe todavía es mandarles un recordatorio: es el ítem 3 del
+`BACKLOG.md`.
+
+Estos números salen de la pestaña **Métricas**, que los calcula sobre `profiles`
+sin consultas nuevas. Antes había que ir a Vercel o leerlos sueltos en otras
+pestañas.
 
 Los datos de prueba viejos se borraron el 2026-07-24 junto con el equipo "Los
 Vengadores" y el proyecto "Guidia". Se conservó `e2e.admin@hem2026.test`, que lo
@@ -222,7 +253,7 @@ Tres comandos:
 |---|---|---|
 | `npm run test:unit` | 34 tests de las funciones puras (`src/utils/perfil.ts`) | no |
 | `npx playwright test sitio-publico` | 9 tests del sitio público | no |
-| `npx playwright test admin-metricas` | 4 tests de la pestaña Métricas | solo lee |
+| `npx playwright test admin-metricas` | 5 tests de la pestaña Métricas | solo lee |
 | `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** (se limpia solo) |
 
 Los unitarios usan el runner de Playwright con `playwright.unit.config.ts` (sin
@@ -231,7 +262,9 @@ navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 `tests/e2e/full-flow.spec.ts` son 19 tests **seriales** que cubren registro,
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
-contra la base real. **Los 28 tests en verde al 2026-07-29.**
+contra la base real. **Los 29 tests en verde al 2026-07-30** (los 34 unitarios y
+los 14 que no tocan la base se corrieron el 2026-07-30; el flujo serial completo,
+el 2026-07-29).
 
 ### Datos de prueba: la suite se limpia sola
 
@@ -322,12 +355,12 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-4. **6 inscripciones reales esperando aprobación** al 2026-07-29, más **17
-   registros abandonados** que hoy se cuentan como pendientes sin serlo (ver la
-   sección de base de datos). Revisar la cola en la pestaña Métricas.
-5. Ítems restantes del `BACKLOG.md`: distinguir los registros abandonados en el
-   admin (el de más valor), miniatura en las tarjetas de noticia,
-   `var(--t-normal)` inexistente y el orden del historial de migraciones.
+4. **7 inscripciones esperando aprobación** al 2026-07-30. La pestaña Métricas
+   ya muestra la cola real, sin los 19 registros abandonados.
+5. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
+   validación del campo libre de institución (hay un perfil con `-`),
+   recordatorio a los registros abandonados, `var(--t-normal)` inexistente y el
+   orden del historial de migraciones.
 
 Las **estadísticas de visitas propias** quedaron **descartadas** el 2026-07-29:
 las visitas se siguen mirando en Vercel. El análisis de qué haría falta quedó en

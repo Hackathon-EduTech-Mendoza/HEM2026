@@ -2,11 +2,12 @@
 
 Mejoras identificadas pendientes de aprobación / información externa.
 
-> Última revisión: **2026-07-29**. En esa sesión se cerraron los ítems 1, 2, 3,
-> 4, 5, 7, 8 y 9 de la lista anterior (formato del puntaje, normalización de
-> Instagram, carrera de la entrega de proyecto, validación de teléfono, textos
-> de la nota de la rectora, `/noticias` en la navegación, `poster` de los
-> videos y feed RSS). Quedan los que siguen.
+> Última revisión: **2026-07-30**. En esta sesión se cerró el ítem 2 (distinguir
+> los registros abandonados en el admin). El 2026-07-29 se habían cerrado los
+> ítems 1, 2, 3, 4, 5, 7, 8 y 9 de la lista anterior (formato del puntaje,
+> normalización de Instagram, carrera de la entrega de proyecto, validación de
+> teléfono, textos de la nota de la rectora, `/noticias` en la navegación,
+> `poster` de los videos y feed RSS). Quedan los que siguen.
 
 ## Aprobadas a la espera de implementación
 
@@ -16,45 +17,28 @@ como miniatura levantaría mucho la sección del home y el listado. Hay que defi
 qué hacer con las que no tienen imagen (las de prensa externa y los avisos):
 placeholder con el color de la categoría, o grilla que tolere tarjetas mixtas.
 
-### 2. Distinguir en el admin quién no completó el onboarding
-**Este es el que tiene valor operativo real de los que quedan.**
+### 2. Validación del campo libre de institución
+`institution_other` solo valida "no vacío": hay un perfil cargado con `-` como
+institución, que aparece así en el ranking de la pestaña Métricas. Falta definir
+un mínimo razonable (largo, o una lista de valores rechazados).
 
-Medido el 2026-07-29 sobre 50 perfiles:
+Salió del ítem de los registros abandonados, que se cerró el 2026-07-30.
 
-| | |
-|---|---|
-| Nunca completaron el onboarding | **17** |
-| De esos 17, en estado `pendiente` | **17** (todos) |
-| Pendientes que **sí** completaron el perfil | **6** |
-
-O sea que los ~23 "pendientes de revisión" que muestra la pestaña Métricas son
-en realidad **6 personas esperando aprobación y 17 registros abandonados**. De
-esos 17 no hay nada que aprobar: no tienen ni nombre cargado. Un admin que
-recorra la cola pierde el tiempo con fichas vacías.
-
-El dato ya existe y la app ya lo usa: `middleware.ts:95` define perfil completo
-como tener `first_name` **y** `last_name`, y con eso decide mandar a
-`/onboarding`. Falta solo exponerlo:
-
-- separar el conteo en la pestaña Métricas (pendientes reales vs. abandonados)
-- marcar esas filas en la pestaña Usuarios, o poder filtrarlas
-- decidir si se les manda un recordatorio para que completen el perfil
-
-**Decisión de diseño pendiente:** ¿se los trata como una categoría aparte
-("Registro incompleto") o se los sigue contando como inscriptos? Cambia el
-número grande de "Inscriptos totales", así que conviene definirlo antes.
-
-De paso, el campo libre `institution_other` solo valida "no vacío" y hay un
-perfil con `-` como institución.
+### 3. Recordatorio a los registros abandonados
+Ya se los puede identificar y filtrar en el admin (ver "Registros abandonados"
+en `ESTADO_ACTUAL.md`), pero **no se les manda nada**. Queda decidir si se les
+manda un mail para que completen el formulario, y con qué texto. El módulo de
+comunicados masivos hoy segmenta por rol sobre los **aprobados**, así que habría
+que sumarle este segmento.
 
 ## Deuda técnica menor
 
-### 3. `var(--t-normal)` no existe
+### 4. `var(--t-normal)` no existe
 `.tab-content` en `src/pages/admin/index.astro` usa `var(--t-normal)` para la
 animación de las pestañas, pero `global.css` define `--t-fast`, `--t-base` y
 `--t-slow`. La animación corre sin duración. Es un one-liner.
 
-### 4. Ordenar el historial de migraciones
+### 5. Ordenar el historial de migraciones
 Las migraciones se aplicaron siempre por MCP o dashboard, así que los timestamps
 de `supabase_migrations.schema_migrations` no coinciden con los nombres de
 archivo locales. Para el CLI ninguna migración local está aplicada y un
@@ -63,7 +47,7 @@ archivo locales. Para el CLI ninguna migración local está aplicada y un
 
 ## Notas del sitio público
 
-### 5. Los títulos de los videos de la nota de la rectora
+### 6. Los títulos de los videos de la nota de la rectora
 Los `alt` de las fotos ya se corrigieron mirando el material, y los títulos de
 los tres videos pasaron a ser descriptivos y neutros ("La entrevista en el
 estudio de Cada Día, parte 1/2/3"). Si alguien que vio los clips completos
