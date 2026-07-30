@@ -3,8 +3,9 @@
 Mejoras identificadas pendientes de aprobación / información externa.
 
 > Última revisión: **2026-07-30**. En esta sesión se cerraron el ítem 2
-> (distinguir los registros abandonados en el admin) y el de `var(--t-normal)`,
-> que estaba en dos lugares y no en uno. El 2026-07-29 se habían cerrado los
+> (distinguir los registros abandonados en el admin), el de `var(--t-normal)`
+> —que estaba en dos lugares y no en uno— y el de las miniaturas en las tarjetas
+> de noticia. El 2026-07-29 se habían cerrado los
 > ítems 1, 2, 3, 4, 5, 7, 8 y 9 de la lista anterior (formato del puntaje,
 > normalización de Instagram, carrera de la entrega de proyecto, validación de
 > teléfono, textos de la nota de la rectora, `/noticias` en la navegación,
@@ -12,20 +13,14 @@ Mejoras identificadas pendientes de aprobación / información externa.
 
 ## Aprobadas a la espera de implementación
 
-### 1. Las tarjetas de noticia no muestran imagen
-`NewsCard.astro` es solo texto. Ahora que las notas tienen `imagen`, mostrarla
-como miniatura levantaría mucho la sección del home y el listado. Hay que definir
-qué hacer con las que no tienen imagen (las de prensa externa y los avisos):
-placeholder con el color de la categoría, o grilla que tolere tarjetas mixtas.
-
-### 2. Validación del campo libre de institución
+### 1. Validación del campo libre de institución
 `institution_other` solo valida "no vacío": hay un perfil cargado con `-` como
 institución, que aparece así en el ranking de la pestaña Métricas. Falta definir
 un mínimo razonable (largo, o una lista de valores rechazados).
 
 Salió del ítem de los registros abandonados, que se cerró el 2026-07-30.
 
-### 3. Recordatorio a los registros abandonados
+### 2. Recordatorio a los registros abandonados
 Ya se los puede identificar y filtrar en el admin (ver "Registros abandonados"
 en `ESTADO_ACTUAL.md`), pero **no se les manda nada**. Queda decidir si se les
 manda un mail para que completen el formulario, y con qué texto. El módulo de
@@ -34,7 +29,7 @@ que sumarle este segmento.
 
 ## Deuda técnica menor
 
-### 4. Ordenar el historial de migraciones
+### 3. Ordenar el historial de migraciones
 Las migraciones se aplicaron siempre por MCP o dashboard, así que los timestamps
 de `supabase_migrations.schema_migrations` no coinciden con los nombres de
 archivo locales. Para el CLI ninguna migración local está aplicada y un
@@ -43,7 +38,7 @@ archivo locales. Para el CLI ninguna migración local está aplicada y un
 
 ## Notas del sitio público
 
-### 5. Los títulos de los videos de la nota de la rectora
+### 4. Los títulos de los videos de la nota de la rectora
 Los `alt` de las fotos ya se corrigieron mirando el material, y los títulos de
 los tres videos pasaron a ser descriptivos y neutros ("La entrevista en el
 estudio de Cada Día, parte 1/2/3"). Si alguien que vio los clips completos

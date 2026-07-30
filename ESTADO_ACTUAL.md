@@ -8,8 +8,8 @@
 | | |
 |---|---|
 | Rama de trabajo | `Nahuel_Develop` |
-| Último commit | ver la tabla de la sesión 2026-07-29, más abajo |
-| Estado | pusheado y sincronizado con `origin/Nahuel_Develop` |
+| Último commit | ver la tabla de la sesión 2026-07-30, más abajo |
+| Estado | ⚠️ la sesión 2026-07-30 está **commiteada localmente pero sin pushear** |
 
 El PR **#32 fue mergeado a `main` y está deployado**. Encima de eso está el
 trabajo de la sesión 2026-07-29, en el **PR #33, abierto y a la espera de
@@ -40,6 +40,7 @@ git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.g
 | `05a9f3e` | Las cards de Métricas y los encabezados de fase dejan de pegarse al borde |
 | `2602895` | Los registros abandonados dejan de contar como inscriptos |
 | `47d67fe` | El admin deja de ver una pantalla de votación que no puede usar, y `var(--t-normal)` |
+| `07b55f4` | Las tarjetas de noticia muestran la portada cuando la nota tiene una |
 
 **Solo el jurado vota.** El admin entra a `/evaluacion` (el middleware lo deja)
 pero **nunca** puede guardar: la policy RLS de INSERT de `evaluations` exige
@@ -125,7 +126,7 @@ aparte de "Por estado" marcada como que no suma, y a un aviso con atajo a
 Usuarios. En **Usuarios** llevan badge "Sin completar" y hay un filtro de
 completitud.
 
-Lo que **no** existe todavía es mandarles un recordatorio: es el ítem 3 del
+Lo que **no** existe todavía es mandarles un recordatorio: es el ítem 2 del
 `BACKLOG.md`.
 
 Estos números salen de la pestaña **Métricas**, que los calcula sobre `profiles`
@@ -226,6 +227,14 @@ El **tipo de noticia sale del frontmatter**, sin flags extra:
 | Nota interna | tiene cuerpo markdown | va a `/noticias/<slug>`, que se prerenderiza |
 | Aviso corto | ni `url` ni cuerpo | sin "Leer más" |
 
+**La grilla de tarjetas es mixta a propósito.** `NewsCard.astro` muestra la
+portada como banda 16/9 arriba **solo si la nota tiene `imagen`**; la que no la
+tiene arranca por el encabezado. No hay placeholder de color: de 5 noticias solo
+1 tiene foto, y las de prensa externa probablemente nunca la tengan (la imagen es
+del medio, no nuestra), así que serían 4 bandas de acento inventadas contra 1
+foto real — en contra de la regla del 10% del `DESIGN.md`. La grilla mejora sola
+a medida que se carguen fotos.
+
 Piezas: `NewsCard.astro` (tarjeta compartida), `NewsSection.astro` (bloque del
 home, muestra las 3 más recientes + "Ver todas" si hay más), `/noticias`
 (listado completo), `/noticias/[slug]` (nota interna) y `NewsVideoPlayer.astro`
@@ -264,7 +273,7 @@ Tres comandos:
 | Comando | Qué corre | Toca la base |
 |---|---|---|
 | `npm run test:unit` | 34 tests de las funciones puras (`src/utils/perfil.ts`) | no |
-| `npx playwright test sitio-publico` | 9 tests del sitio público | no |
+| `npx playwright test sitio-publico` | 11 tests del sitio público | no |
 | `npx playwright test admin-metricas` | 5 tests de la pestaña Métricas | solo lee |
 | `npx playwright test admin-evaluacion` | 1 test: el admin no ve la votación | solo lee |
 | `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** (se limpia solo) |
@@ -275,8 +284,8 @@ navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 `tests/e2e/full-flow.spec.ts` son 19 tests **seriales** que cubren registro,
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
-contra la base real. **Los 30 tests en verde al 2026-07-30** (los 34 unitarios y
-los 15 que no tocan la base se corrieron el 2026-07-30; el flujo serial completo,
+contra la base real. **Los 32 tests en verde al 2026-07-30** (los 34 unitarios y
+los 17 que no tocan la base se corrieron el 2026-07-30; el flujo serial completo,
 el 2026-07-29).
 
 ### Datos de prueba: la suite se limpia sola
@@ -360,10 +369,9 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
    reactiva el fetch comentado en `Hero.astro`.
 3. **7 inscripciones esperando aprobación** al 2026-07-30. La pestaña Métricas
    ya muestra la cola real, sin los 19 registros abandonados.
-4. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
-   validación del campo libre de institución (hay un perfil con `-`),
-   recordatorio a los registros abandonados y el orden del historial de
-   migraciones.
+4. Ítems restantes del `BACKLOG.md`: validación del campo libre de institución
+   (hay un perfil con `-`), recordatorio a los registros abandonados y el orden
+   del historial de migraciones.
 
 Las **estadísticas de visitas propias** quedaron **descartadas** el 2026-07-29:
 las visitas se siguen mirando en Vercel. El análisis de qué haría falta quedó en
