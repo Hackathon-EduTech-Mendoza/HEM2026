@@ -12,13 +12,16 @@ export default defineConfig({
   retries: 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:4321',
+    baseURL: 'http://localhost:4399',
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
+  // Puerto propio de la suite, distinto del 4321 de `npm run dev`: con
+  // `reuseExistingServer` y el puerto por defecto, si había otro proyecto
+  // Astro levantado los tests corrían contra ese sitio y fallaban con 404.
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:4321',
+    command: 'npm run dev -- --port 4399',
+    url: 'http://localhost:4399',
     reuseExistingServer: true,
     timeout: 120_000,
   },

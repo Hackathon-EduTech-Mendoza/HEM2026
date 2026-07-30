@@ -168,16 +168,35 @@ test('participantes B y C se unen con el código', async ({ browser }) => {
 
 test('participante A (líder) entrega el proyecto', async ({ browser }) => {
   const page = await newPage(browser);
+
+  // Retrasamos a propósito el fetch inicial del proyecto para poder observar
+  // el estado de carga: es donde antes se perdía lo que la persona tipeaba.
+  await page.route(
+    (url) => url.pathname.endsWith('/rest/v1/projects') && url.searchParams.has('team_id'),
+    async (route) => {
+      if (route.request().method() !== 'GET') return route.fallback();
+      await new Promise((r) => setTimeout(r, 2000));
+      return route.fallback();
+    },
+  );
+
   await loginUi(page, participantAEmail, E2E_PASSWORD);
   await openDashboardTab(page, 'equipo');
 
   await expect(page.locator('#ps-active')).toBeVisible({ timeout: 20_000 });
-  // ProjectSubmission pone "Cargando..." en los campos y los limpia cuando
-  // responde el fetch inicial; escribir antes de eso pierde lo tipeado.
-  await page.waitForFunction(() => {
-    const el = document.getElementById('ps-title') as HTMLInputElement | null;
-    return !!el && el.value !== 'Cargando...' && !el.disabled;
-  });
+
+  // Mientras carga: los campos están deshabilitados (así no se puede tipear
+  // algo que la respuesta después pisaría) y el aviso lo explica. El campo
+  // nunca debe tener "Cargando..." como valor.
+  const title = page.locator('#ps-title');
+  await expect(title).toBeDisabled();
+  await expect(title).toHaveValue('');
+  await expect(page.locator('#ps-last-saved')).toContainText('Cargando');
+
+  // Cuando termina, el líder recupera el control.
+  await expect(title).toBeEnabled({ timeout: 20_000 });
+  await expect(title).not.toHaveValue('Cargando...');
+
   await page.fill('#ps-title', PROJECT_TITLE);
   await page.fill('#ps-problem', 'Problema de prueba E2E: la gestión del hackathon es manual.');
   await page.fill('#ps-solution', 'Solución de prueba E2E: plataforma web que automatiza inscripción y evaluación.');

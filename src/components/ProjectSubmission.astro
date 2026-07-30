@@ -207,21 +207,30 @@
   let currentTeamId: string | null = null;
   let isLeader = false;
 
-  function toggleFormState(readonly: boolean) {
-    const elements = form.querySelectorAll('input, textarea');
-    elements.forEach((el) => {
-      (el as HTMLInputElement | HTMLTextAreaElement).disabled = readonly;
+  /** Solo habilita o bloquea los campos, sin tocar el resto de la interfaz. */
+  function setFieldsDisabled(disabled: boolean) {
+    form.querySelectorAll('input, textarea').forEach((el) => {
+      (el as HTMLInputElement | HTMLTextAreaElement).disabled = disabled;
     });
+  }
+
+  /** Modo lectura para quien no es líder: además esconde el botón y avisa. */
+  function toggleFormState(readonly: boolean) {
+    setFieldsDisabled(readonly);
     submitBtn.style.display = readonly ? 'none' : '';
     warningMsg.style.display = readonly ? 'flex' : 'none';
   }
 
   async function fetchProjectData() {
     if (!currentTeamId) return;
-    
-    // Set loading state
-    const elements = form.querySelectorAll('input, textarea');
-    elements.forEach(el => (el as any).value = 'Cargando...');
+
+    // Mientras carga se deshabilitan los campos, no se les escribe adentro:
+    // si se usaba el value como indicador de carga y la persona empezaba a
+    // tipear antes de que respondiera el fetch, al llegar la respuesta se le
+    // borraba lo escrito.
+    setFieldsDisabled(true);
+    submitBtn.disabled = true;
+    lastSaved.textContent = 'Cargando los datos del proyecto...';
 
     const { data, error } = await supabase
       .from('projects')
@@ -229,8 +238,18 @@
       .eq('team_id', currentTeamId)
       .single();
 
-    // Clear loading state
-    elements.forEach(el => (el as any).value = '');
+    lastSaved.textContent = '';
+    // Se devuelve el control según el rol, no siempre habilitado.
+    setFieldsDisabled(!isLeader);
+    submitBtn.disabled = false;
+
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 = todavía no hay proyecto para el equipo, que es lo normal
+      // la primera vez. Cualquier otro error sí hay que avisarlo.
+      console.error('Error cargando el proyecto:', error);
+      lastSaved.textContent = 'No se pudieron cargar los datos guardados.';
+      return;
+    }
 
     if (data) {
       (document.getElementById('ps-title') as HTMLInputElement).value = data.title || '';
