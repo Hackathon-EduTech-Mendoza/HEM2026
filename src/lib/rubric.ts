@@ -9,6 +9,12 @@
  *     los equipos no llegan a validar la propuesta con usuarios reales.
  *   - Los criterios se reformularon con foco EduTech (educación + tecnología).
  *
+ * FORMATO OFICIAL DEL PUNTAJE (decidido por el administrador del concurso,
+ * 2026-07-29): el resultado oficial es el **puntaje ponderado** normalizado a
+ * 100, que es el que ordena el ranking. La suma directa de los 6 criterios
+ * (sobre 30) se sigue calculando y mostrando, pero solo como referencia: no
+ * define posiciones ni finalistas.
+ *
  * IMPORTANTE: los pesos deben coincidir con los de la vista SQL
  * `public.project_leaderboard` (ver supabase/migrations/20260724_01_*.sql).
  * Si cambiás un peso acá, cambialo también en la vista.

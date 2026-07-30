@@ -987,11 +987,12 @@ const projects = allProjects || [];
     </div>
 
     <p style="margin: 0 0 1.5rem; font-size: 0.9rem; color: var(--txt-2); line-height: 1.6;">
-      Cada criterio se puntúa de 1 a 5. Se muestran los dos formatos para poder compararlos:
-      <strong>Suma directa</strong> es el promedio de los {CRITERIA.length} criterios sumados sin pesos
-      (sobre {MAX_RAW_SCORE}), y <strong>Puntaje Ponderado</strong> aplica el peso de cada criterio
-      normalizado a 100 ({CRITERIA.map((c) => `${c.short} ${Math.round(c.weight * 100)}%`).join(" · ")}).
-      El ranking se ordena por el puntaje ponderado.
+      Cada criterio se puntúa de 1 a 5. El <strong>resultado oficial del concurso es el puntaje
+      ponderado</strong>: aplica el peso de cada criterio y lo normaliza a 100
+      ({CRITERIA.map((c) => `${c.short} ${Math.round(c.weight * 100)}%`).join(" · ")}). El ranking
+      se ordena por ese puntaje. La <strong>suma directa</strong> —el promedio de los
+      {CRITERIA.length} criterios sumados sin pesos, sobre {MAX_RAW_SCORE}— se sigue mostrando
+      solo como referencia y no define posiciones.
     </p>
 
     <!-- Fase 1: Preclasificación -->
@@ -1018,8 +1019,8 @@ const projects = allProjects || [];
               <th>Equipo</th>
               <th>Evaluaciones</th>
               <th class="desktop-only">Desglose ({CRITERIA.map((c) => c.short).join(" / ")})</th>
-              <th>Suma directa</th>
-              <th>Puntaje Ponderado</th>
+              <th>Suma directa <span class="th-note">(referencia)</span></th>
+              <th>Puntaje Ponderado <span class="th-note">(oficial)</span></th>
               <th>Finalista</th>
             </tr>
           </thead>
@@ -1113,8 +1114,8 @@ const projects = allProjects || [];
               <th>Equipo</th>
               <th>Evaluaciones</th>
               <th class="desktop-only">Desglose ({CRITERIA.map((c) => c.short).join(" / ")})</th>
-              <th>Suma directa</th>
-              <th>Puntaje Ponderado</th>
+              <th>Suma directa <span class="th-note">(referencia)</span></th>
+              <th>Puntaje Ponderado <span class="th-note">(oficial)</span></th>
             </tr>
           </thead>
           <tbody>
@@ -1429,10 +1430,10 @@ const projects = allProjects || [];
           <div class="help-section">
             <h3>🏆 Cómo se calcula el puntaje</h3>
             <p>
-              Cada jurado puntúa <strong>6 criterios del 1 al 5</strong> (Problema, Solución, Innovación, Factibilidad, Impacto y Comunicación). El ranking muestra dos totales para poder compararlos:
+              Cada jurado puntúa <strong>6 criterios del 1 al 5</strong> (Problema, Solución, Innovación, Factibilidad, Impacto y Comunicación).
             </p>
             <p>
-              <strong>Suma directa</strong> es el promedio de los 6 criterios sumados sin pesos, sobre 30. <strong>Puntaje Ponderado</strong> aplica el peso de cada criterio y lo normaliza a 100 — Solución y Factibilidad pesan 20% cada uno, y los otros cuatro 15%. <strong>El ranking se ordena por el ponderado.</strong>
+              El <strong>resultado oficial es el Puntaje Ponderado</strong>: aplica el peso de cada criterio y lo normaliza a 100 — Solución y Factibilidad pesan 20% cada uno, y los otros cuatro 15%. Es el que ordena el ranking y define las posiciones. La <strong>Suma directa</strong> (promedio de los 6 criterios sin pesos, sobre 30) queda como referencia para comparar, pero no define nada.
             </p>
             <p>
               La columna <em>Desglose</em> muestra el promedio de cada criterio por separado, en el orden de los encabezados, para ver dónde se hizo la diferencia entre dos proyectos parejos.
@@ -1675,6 +1676,14 @@ const projects = allProjects || [];
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Aclaración chica dentro de un encabezado de tabla (oficial / referencia) */
+  .th-note {
+    font-weight: 400;
+    text-transform: none;
+    color: var(--txt-2);
+    white-space: nowrap;
   }
 
   /* --- Métricas --- */
