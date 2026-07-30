@@ -257,6 +257,7 @@ test('admin aprueba al juez y habilita fase preclasificación', async ({ browser
   await loginUi(page, ADMIN_EMAIL, E2E_PASSWORD);
   await page.goto('/admin');
   await expect(page).toHaveURL(/\/admin/);
+  await openAdminTab(page, 'tab-usuarios');
 
   // Ubicar la fila del juez por email y aprobarlo
   const juezRow = page.locator('tr.user-row', { hasText: juezEmail });

@@ -50,6 +50,92 @@ const countAllApproved = approvedProfiles.length;
 const countParticipantsApproved = approvedProfiles.filter(p => p.role === 'usuario').length;
 const countMentorsApproved = approvedProfiles.filter(p => p.role === 'mentor').length;
 
+// ──────────────────────────────────────────────────
+// Métricas de inscripción (pestaña "Métricas")
+// Todo se calcula sobre `profiles`, que ya está en memoria.
+// ──────────────────────────────────────────────────
+const INSTITUTION_LABELS: Record<string, string> = {
+  ies_9023_maipu: "IES 9-023 (Maipú)",
+  ies_edison: "IES Tomás Alva Edison",
+};
+
+/** Etiqueta legible de la institución de un perfil */
+function institutionLabel(p: { institution: string | null; institution_other: string | null }) {
+  if (!p.institution) return "Sin especificar";
+  if (p.institution === "otra") return p.institution_other?.trim() || "Otra institución";
+  return INSTITUTION_LABELS[p.institution] || p.institution;
+}
+
+const totalRegistrations = profiles.length;
+
+const byStatus = {
+  pendiente: profiles.filter((p) => p.registration_status === "pendiente").length,
+  aprobado: profiles.filter((p) => p.registration_status === "aprobado").length,
+  rechazado: profiles.filter((p) => p.registration_status === "rechazado").length,
+};
+
+const byRole = {
+  usuario: profiles.filter((p) => p.role === "usuario").length,
+  mentor: profiles.filter((p) => p.role === "mentor").length,
+  juez: profiles.filter((p) => p.role === "juez").length,
+  staff: profiles.filter((p) => p.role === "admin" || p.role === "superadmin").length,
+};
+
+const countEgresados = profiles.filter((p) => p.is_egresado).length;
+
+// Ranking de instituciones (las 3 fijas suelen ser pocas, pero "otra" es campo libre)
+const institutionCounts = profiles.reduce<Record<string, number>>((acc, p) => {
+  const label = institutionLabel(p);
+  acc[label] = (acc[label] || 0) + 1;
+  return acc;
+}, {});
+const institutionRanking = Object.entries(institutionCounts).sort((a, b) => b[1] - a[1]);
+
+// Inscripciones por día de los últimos 14 días, para ver el ritmo de anotaciones.
+// Se arma la grilla completa así los días sin inscriptos también se dibujan.
+const DAYS_WINDOW = 14;
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const dailyRegistrations = Array.from({ length: DAYS_WINDOW }, (_, i) => {
+  const day = new Date(today);
+  day.setDate(day.getDate() - (DAYS_WINDOW - 1 - i));
+  const next = new Date(day);
+  next.setDate(next.getDate() + 1);
+
+  const count = profiles.filter((p) => {
+    if (!p.created_at) return false;
+    const created = new Date(p.created_at);
+    return created >= day && created < next;
+  }).length;
+
+  return {
+    date: day,
+    label: day.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" }),
+    count,
+  };
+});
+
+const maxDaily = Math.max(1, ...dailyRegistrations.map((d) => d.count));
+const countLast7Days = dailyRegistrations.slice(-7).reduce((sum, d) => sum + d.count, 0);
+const countToday = dailyRegistrations[dailyRegistrations.length - 1].count;
+
+// Última inscripción registrada (los perfiles vienen ordenados por created_at desc)
+const lastRegistrationAt = profiles[0]?.created_at
+  ? new Date(profiles[0].created_at).toLocaleString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  : null;
+
+/** Porcentaje sobre el total de inscriptos, listo para mostrar */
+function pctOfTotal(n: number) {
+  if (totalRegistrations === 0) return "0%";
+  return `${Math.round((n / totalRegistrations) * 100)}%`;
+}
+
 // Obtener configuración del evento para teams, projects y evaluations
 const { data: configData } = await supabase
   .from("event_config")
@@ -194,7 +280,8 @@ const projects = allProjects || [];
       </div>
 
       <div class="admin-tabs-nav">
-        <button class="tab-btn active" data-target="tab-usuarios"
+        <button class="tab-btn active" data-target="tab-metricas">Métricas</button>
+        <button class="tab-btn" data-target="tab-usuarios"
           >Usuarios</button
         >
         <button class="tab-btn" data-target="tab-configuracion"
@@ -206,7 +293,153 @@ const projects = allProjects || [];
         <button class="tab-btn" data-target="tab-presentaciones">Presentaciones</button>
       </div>
 
-      <div class="tab-content active" id="tab-usuarios">
+      <div class="tab-content active" id="tab-metricas">
+        <div class="admin-actions">
+          <h2 class="tab-title">Estadísticas de inscripción</h2>
+          {lastRegistrationAt && (
+            <p class="metrics-updated">Última inscripción: {lastRegistrationAt}</p>
+          )}
+        </div>
+
+        <div class="metrics-kpis">
+          <div class="metric-card card metric-card-hero">
+            <span class="metric-label">Inscriptos totales</span>
+            <strong class="metric-value">{totalRegistrations}</strong>
+            <span class="metric-hint">
+              {countToday > 0 ? `+${countToday} hoy` : "Sin inscripciones hoy"}
+            </span>
+          </div>
+          <div class="metric-card card">
+            <span class="metric-label">Aprobados</span>
+            <strong class="metric-value">{byStatus.aprobado}</strong>
+            <span class="metric-hint">{pctOfTotal(byStatus.aprobado)} del total</span>
+          </div>
+          <div class="metric-card card">
+            <span class="metric-label">Pendientes de revisión</span>
+            <strong class="metric-value" style={byStatus.pendiente > 0 ? "color: var(--danger);" : undefined}>
+              {byStatus.pendiente}
+            </strong>
+            <span class="metric-hint">
+              {byStatus.pendiente > 0 ? "Requieren tu aprobación" : "Todo al día"}
+            </span>
+          </div>
+          <div class="metric-card card">
+            <span class="metric-label">Últimos 7 días</span>
+            <strong class="metric-value">{countLast7Days}</strong>
+            <span class="metric-hint">Nuevas inscripciones</span>
+          </div>
+        </div>
+
+        <div class="admin-card card metrics-chart-card">
+            <h3 class="metrics-card-title">Inscripciones por día</h3>
+            {totalRegistrations === 0 ? (
+              <p class="empty-state">Todavía no hay inscripciones registradas.</p>
+            ) : (
+              <div class="chart-bars" role="img" aria-label="Inscripciones diarias de los últimos 14 días">
+                {dailyRegistrations.map((d) => (
+                  <div class="chart-bar-col" title={`${d.label}: ${d.count} inscripciones`}>
+                    <span class="chart-bar-count">{d.count > 0 ? d.count : ""}</span>
+                    <div
+                      class="chart-bar"
+                      style={`height: ${Math.max(2, (d.count / maxDaily) * 100)}%`}
+                      data-empty={d.count === 0 ? "true" : "false"}
+                    ></div>
+                    <span class="chart-bar-label">{d.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+        </div>
+
+        <div class="metrics-grid">
+          <div class="admin-card card">
+            <h3 class="metrics-card-title">Por rol</h3>
+            <ul class="metrics-list">
+              <li>
+                <span>Participantes</span>
+                <strong>{byRole.usuario}</strong>
+              </li>
+              <li>
+                <span>Mentores</span>
+                <strong>{byRole.mentor}</strong>
+              </li>
+              <li>
+                <span>Jueces</span>
+                <strong>{byRole.juez}</strong>
+              </li>
+              <li>
+                <span>Staff (admin)</span>
+                <strong>{byRole.staff}</strong>
+              </li>
+            </ul>
+
+            <h3 class="metrics-card-title" style="margin-top: 1.5rem;">Por estado</h3>
+            <ul class="metrics-list">
+              <li>
+                <span>Aprobados</span>
+                <strong>{byStatus.aprobado}</strong>
+              </li>
+              <li>
+                <span>Pendientes</span>
+                <strong>{byStatus.pendiente}</strong>
+              </li>
+              <li>
+                <span>Rechazados</span>
+                <strong>{byStatus.rechazado}</strong>
+              </li>
+            </ul>
+          </div>
+
+          <div class="admin-card card">
+            <h3 class="metrics-card-title">Por institución</h3>
+            {institutionRanking.length === 0 ? (
+              <p class="empty-state">Sin datos de institución.</p>
+            ) : (
+              <ul class="metrics-list">
+                {institutionRanking.map(([label, count]) => (
+                  <li>
+                    <span>{label}</span>
+                    <strong>{count}</strong>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p class="metric-hint" style="margin-top: 1rem;">
+              {countEgresados} {countEgresados === 1 ? "inscripto es egresado" : "inscriptos son egresados"}.
+            </p>
+          </div>
+
+          <div class="admin-card card">
+            <h3 class="metrics-card-title">Estado del evento</h3>
+            <ul class="metrics-list">
+              <li>
+                <span>Equipos creados</span>
+                <strong>{teams.length}</strong>
+              </li>
+              <li>
+                <span>Equipos sin mentor</span>
+                <strong style={unassignedTeamsCount > 0 ? "color: var(--danger);" : undefined}>
+                  {unassignedTeamsCount}
+                </strong>
+              </li>
+              <li>
+                <span>Proyectos presentados</span>
+                <strong>{projects.length}</strong>
+              </li>
+              <li>
+                <span>Mentores aprobados</span>
+                <strong>{mentorsCount}</strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="metrics-footnote">
+          Las visitas al sitio no se miden acá: siguen en el panel de Vercel Analytics.
+        </p>
+      </div>
+
+      <div class="tab-content" id="tab-usuarios">
         <div class="admin-actions">
           <div class="filters">
             <input type="search" id="search-users" class="search-input" placeholder="Buscar por nombre o DNI..." autocomplete="off" />
@@ -1444,6 +1677,167 @@ const projects = allProjects || [];
     }
   }
 
+  /* --- Métricas --- */
+  .tab-title {
+    font-family: var(--font-heading);
+    color: var(--txt-1);
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .metrics-updated {
+    color: var(--txt-2);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .metrics-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .metric-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.25rem;
+  }
+
+  .metric-card-hero {
+    border: 1px solid var(--c1);
+    background: rgba(var(--c1r), 0.05);
+  }
+
+  .metric-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--txt-2);
+  }
+
+  .metric-value {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--txt-1);
+  }
+
+  .metric-hint {
+    font-size: 0.85rem;
+    color: var(--txt-2);
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: start;
+    gap: 1.5rem;
+  }
+
+  .metrics-chart-card {
+    margin-bottom: 1.5rem;
+  }
+
+  .metrics-card-title {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--txt-1);
+    margin: 0 0 1rem;
+  }
+
+  .metrics-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .metrics-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--brd);
+  }
+
+  .metrics-list li:last-child {
+    border-bottom: none;
+  }
+
+  .metrics-list span {
+    color: var(--txt-2);
+  }
+
+  .metrics-list strong {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: var(--txt-1);
+  }
+
+  /* Gráfico de barras de inscripciones por día (CSS puro, sin librerías) */
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.4rem;
+    height: 200px;
+  }
+
+  .chart-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+    min-width: 0;
+  }
+
+  .chart-bar-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--txt-2);
+    margin-bottom: 0.25rem;
+    min-height: 1em;
+  }
+
+  .chart-bar {
+    width: 100%;
+    max-width: 32px;
+    background: var(--c1);
+    border-radius: 4px 4px 0 0;
+    transition: height var(--t-base) ease-out;
+  }
+
+  .chart-bar[data-empty="true"] {
+    background: var(--brd);
+  }
+
+  .chart-bar-label {
+    font-size: 0.7rem;
+    color: var(--txt-2);
+    margin-top: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .metrics-footnote {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: var(--txt-2);
+  }
+
+  @media (max-width: 640px) {
+    .metric-value {
+      font-size: 2rem;
+    }
+    .chart-bar-label {
+      font-size: 0.6rem;
+      transform: rotate(-45deg);
+    }
+  }
+
   /* --- Config Grid --- */
   .config-grid {
     display: grid;
@@ -2260,7 +2654,7 @@ const projects = allProjects || [];
   if (savedTab && document.getElementById(savedTab)) {
     activateTab(savedTab);
   } else {
-    activateTab("tab-usuarios");
+    activateTab("tab-metricas");
   }
 
   const supabase = createBrowserClient(
