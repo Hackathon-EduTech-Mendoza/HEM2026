@@ -1,6 +1,6 @@
 # Estado actual del repositorio
 
-> Actualizado: **2026-07-28**. Resume dónde está el código, cómo está la base y
+> Actualizado: **2026-07-29**. Resume dónde está el código, cómo está la base y
 > qué queda pendiente, para poder retomar sin reconstruir el contexto.
 
 ## Git
@@ -8,11 +8,12 @@
 | | |
 |---|---|
 | Rama de trabajo | `Nahuel_Develop` |
-| Último commit | `5b9826c` (merge del PR #32) |
-| Estado | Limpio, sincronizado con `origin/Nahuel_Develop` |
+| Último commit | ver la tabla de la sesión 2026-07-29, más abajo |
+| Estado | 10 commits locales **sin pushear** al 2026-07-29 |
 
-El PR **#32 fue mergeado a `main` y está deployado**, así que `origin/main`,
-`origin/Nahuel_Develop` y la copia local apuntan al mismo commit.
+El PR **#32 fue mergeado a `main` y está deployado**. Sobre eso están los commits
+de la sesión del 2026-07-29, todavía solo en local: falta pushear
+`Nahuel_Develop` y abrir el PR.
 
 ⚠️ **`develop` NO tiene este trabajo.** Quedó en una línea divergente
 (`689ac41`, con los componentes de Seba). Si el flujo del equipo sigue usando
@@ -22,6 +23,22 @@ Otras ramas remotas activas: `Gustavo_develop` (exportar Excel/PDF en admin) y
 
 El `origin` local apunta a `Nahuelito22/HEM2026`, que redirige a
 `Hackathon-EduTech-Mendoza/HEM2026`. Conviene actualizar la URL del remoto.
+
+### Sesión 2026-07-29 (métricas, backlog y tests)
+
+| Commit | Qué es |
+|--------|--------|
+| `06889cc` | Pestaña **Métricas** en el admin (inscriptos, estados, roles, instituciones, gráfico diario) |
+| `8da7258` | El puntaje **ponderado** queda como oficial y se marca en pantalla |
+| `73ff9a5` | Normalización de Instagram y teléfono + runner de tests unitarios |
+| `8267b14` | La entrega de proyecto ya no borra lo tipeado al cargar |
+| `fe12f71` | `/noticias` en el navbar y el footer |
+| `bcf5e85` | Cobertura de El Nueve como prensa externa |
+| `74bcff7` | `alt` reales y `poster` de los videos de la nota de la rectora |
+| `5d5a12c` | Feed RSS en `/rss.xml` |
+| `46b4bc0` | Suites de tests del sitio público y de la pestaña Métricas |
+
+Se cerraron 8 de los 9 ítems que tenía el `BACKLOG.md`.
 
 ### Trabajo de la sesión 2026-07-28 (sitio público)
 
@@ -45,10 +62,19 @@ de QA. Detalle en el historial (`d8ee95b`…`c39bb2d`).
 
 ## Base de datos (Supabase `cotwhywqcocutrkmrpiw`, región us-east-2)
 
-**Contenido actual:** 16 perfiles (1 superadmin, 7 admin, 1 juez, 7 usuario),
-**0 equipos, 0 proyectos, 0 evaluaciones**. Los datos de prueba se borraron el
-2026-07-24 junto con el equipo "Los Vengadores" y el proyecto "Guidia".
-Se conservó `e2e.admin@hem2026.test`, que lo necesita `npm run test:e2e`.
+**Contenido al 2026-07-29:** **49 perfiles** (35 usuario, 3 mentor, 3 juez, 8
+staff entre admin y superadmin) y **0 equipos, 0 proyectos, 0 evaluaciones**.
+De los 49, **27 aprobados y 22 pendientes de revisión**. Por institución: 20 del
+IES 9-023, 4 de Edison, 3 "otra", y **16 sin institución** (gente que se registró
+y no terminó el onboarding).
+
+Estos números salen ahora de la pestaña **Métricas** del admin, que los calcula
+sobre `profiles` sin consultas nuevas. Antes había que ir a Vercel o leerlos
+sueltos en otras pestañas.
+
+Los datos de prueba viejos se borraron el 2026-07-24 junto con el equipo "Los
+Vengadores" y el proyecto "Guidia". Se conservó `e2e.admin@hem2026.test`, que lo
+necesita `npm run test:e2e`.
 
 **Configuración:** `evaluation_phase = cerrada`, `finalists_count = 10`,
 `teams_enabled = true`, `project_submission_enabled = true`.
@@ -101,8 +127,11 @@ con comentarios cruzados: si cambiás uno, cambiá el otro.
 
 El flujo es `cerrada → preclasificacion → deliberacion → final`, con selección
 manual de finalistas (botón "Marcar Top N" + "Guardar Finalistas") entre medio.
-El ranking del admin muestra **suma directa (/30)** y **ponderado (/100)**, y
-ordena por el ponderado.
+
+**El puntaje oficial es el ponderado (/100)** — decidido por el administrador del
+concurso el 2026-07-29. Es el que ordena el ranking y define posiciones. La suma
+directa (/30) se sigue mostrando al lado, marcada como referencia, pero no define
+nada. Los encabezados del ranking dicen "(oficial)" y "(referencia)".
 
 ## Noticias (sitio público)
 
@@ -152,47 +181,62 @@ Si cambian, se tocan en un solo lado.
 
 ## Tests
 
-`npm run test:e2e` — 14 tests seriales en `tests/e2e/full-flow.spec.ts`, **todos
-en verde** al 2026-07-24. Cubren registro, onboarding, equipos, entrega de
-proyecto, aprobación de juez, votación en dos fases, finalistas y seguridad
-(middleware, RLS y escalación de rol).
+Tres comandos:
 
-Corren contra la base real. Los datos de prueba usan `e2e.*@hem2026.test` y
-equipos `Equipo E2E *`; hay que limpiarlos después y devolver `evaluation_phase`
-a `cerrada`.
+| Comando | Qué corre | Toca la base |
+|---|---|---|
+| `npm run test:unit` | 34 tests de las funciones puras (`src/utils/perfil.ts`) | no |
+| `npx playwright test sitio-publico` | 9 tests del sitio público | no |
+| `npx playwright test admin-metricas` | 4 tests de la pestaña Métricas | solo lee |
+| `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** |
+
+Los unitarios usan el runner de Playwright con `playwright.unit.config.ts` (sin
+navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
+
+`tests/e2e/full-flow.spec.ts` son 14 tests **seriales** que cubren registro,
+onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
+fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
+contra la base real: los datos de prueba usan `e2e.*@hem2026.test` y equipos
+`Equipo E2E *`; hay que limpiarlos después y devolver `evaluation_phase` a
+`cerrada`. Estaban en verde al 2026-07-24; el test de entrega de proyecto se
+reescribió el 2026-07-29 y **todavía no se volvió a correr la suite completa**.
+
+`sitio-publico.spec.ts` y `admin-metricas.spec.ts` son independientes del flujo
+serial, así que se pueden correr sueltas sin ensuciar nada.
+
+⚠️ La suite corre en el **puerto 4399**, no en el 4321. Con `reuseExistingServer`
+y el puerto por defecto, si había otro proyecto Astro levantado los tests corrían
+contra ese sitio y fallaban con un 404 desconcertante.
 
 ## Pendientes
 
 ### Decisiones con la organización
 
-1. **Puntaje oficial: ponderado o suma directa.** El panel muestra los dos para
-   poder compararlos con datos reales (ver `BACKLOG.md` punto 1). Si se cambia,
-   hay que tocar el `ORDER BY` de la vista, el `.order()` del admin y la guía rápida.
-2. **Aprobación de Martín** para el texto nuevo de la sección 6 de las Bases y
+1. **Aprobación de Martín** para el texto nuevo de la sección 6 de las Bases y
    Condiciones (criterios con peso + proceso en dos instancias).
 
 ### Bugs y mejoras abiertos
 
-3. **El jurado no puede corregir un voto ya guardado.** `/evaluacion` sólo hace
+2. **El jurado no puede corregir un voto ya guardado.** `/evaluacion` sólo hace
    `insert` y el `UNIQUE(project_id, judge_id, phase)` bloquea el segundo intento.
    La policy RLS de UPDATE ya existe: falta sólo el camino en la interfaz. Riesgo
-   real durante el evento.
-4. **Admin en `/evaluacion` con la fase cerrada** ve la lista y el botón "Evaluar",
+   real durante el evento, y es **el pendiente más urgente**.
+3. **Admin en `/evaluacion` con la fase cerrada** ve la lista y el botón "Evaluar",
    pero guardar falla porque `phase` sería `cerrada` y el CHECK sólo admite
    `preclasificacion`/`final`. A los jueces no les pasa.
-5. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
+4. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-6. Ítems del `BACKLOG.md`: normalizar Instagram, validar teléfono como el DNI, y
-   la carrera de "Cargando..." en `ProjectSubmission.astro`.
-7. **Textos de la nota de la rectora sin revisar**: los títulos de los tres
-   videos y los `alt` de las fotos se escribieron sin ver el material, y la fecha
-   (`2026-07-28`) se asumió porque el texto decía "Hoy". Ver `BACKLOG.md` punto 5.
+5. **22 inscripciones esperando aprobación** al 2026-07-29 (de 49 totales). Se ven
+   en la pestaña Métricas del admin.
+6. Ítems restantes del `BACKLOG.md`: miniatura en las tarjetas de noticia,
+   estadísticas de visitas propias, validación de `institution_other`,
+   `var(--t-normal)` inexistente y el orden del historial de migraciones.
 
 ### Higiene
 
-8. **Rotar la service role key y la contraseña de la base**: quedaron expuestas
+7. **Rotar la service role key y la contraseña de la base**: quedaron expuestas
    en una sesión de trabajo del 2026-07-24.
-9. Aprobación visual del rediseño del tab "Mi Perfil" (commit `663b09e`; si no
+8. Aprobación visual del rediseño del tab "Mi Perfil" (commit `663b09e`; si no
    convence, `git revert 663b09e`).
