@@ -21,8 +21,17 @@ de la sesión del 2026-07-29, todavía solo en local: falta pushear
 Otras ramas remotas activas: `Gustavo_develop` (exportar Excel/PDF en admin) y
 `seba/feat/componentes-orden`.
 
-El `origin` local apunta a `Nahuelito22/HEM2026`, que redirige a
-`Hackathon-EduTech-Mendoza/HEM2026`. Conviene actualizar la URL del remoto.
+El `origin` ya apunta directo a `Hackathon-EduTech-Mendoza/HEM2026` (se corrigió
+el 2026-07-29). Antes apuntaba a `Nahuelito22/HEM2026` y funcionaba por el
+redirect de GitHub, con el riesgo de que si alguien creaba un repo nuevo con ese
+nombre en esa cuenta, los push habrían empezado a ir ahí **sin ningún error**.
+
+⚠️ **Si alguien del equipo clonó desde la URL vieja, tiene el mismo problema.**
+Se revisa con `git remote -v` y se corrige con:
+
+```bash
+git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.git
+```
 
 ### Sesión 2026-07-29 (métricas, backlog y tests)
 
