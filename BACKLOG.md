@@ -5,7 +5,8 @@ Mejoras identificadas pendientes de aprobación / información externa.
 > Última revisión: **2026-07-30**. En esta sesión se cerraron el ítem 2
 > (distinguir los registros abandonados en el admin), el de `var(--t-normal)`
 > —que estaba en dos lugares y no en uno— y el de las miniaturas en las tarjetas
-> de noticia. El 2026-07-29 se habían cerrado los
+> de noticia. El del recordatorio quedó implementado y a la espera de la
+> decisión de mandarlo. El 2026-07-29 se habían cerrado los
 > ítems 1, 2, 3, 4, 5, 7, 8 y 9 de la lista anterior (formato del puntaje,
 > normalización de Instagram, carrera de la entrega de proyecto, validación de
 > teléfono, textos de la nota de la rectora, `/noticias` en la navegación,
@@ -20,12 +21,19 @@ un mínimo razonable (largo, o una lista de valores rechazados).
 
 Salió del ítem de los registros abandonados, que se cerró el 2026-07-30.
 
-### 2. Recordatorio a los registros abandonados
-Ya se los puede identificar y filtrar en el admin (ver "Registros abandonados"
-en `ESTADO_ACTUAL.md`), pero **no se les manda nada**. Queda decidir si se les
-manda un mail para que completen el formulario, y con qué texto. El módulo de
-comunicados masivos hoy segmenta por rol sobre los **aprobados**, así que habría
-que sumarle este segmento.
+### 2. Mandar el recordatorio a los registros abandonados
+**El código ya está** (commit `90dc9ab`): la pestaña Comunicados tiene el
+segmento "Registro incompleto". Lo que falta es la decisión y el texto:
+
+- ¿se les manda? Son 19 personas que se anotaron y quedaron trabadas en el
+  formulario, con la inscripción todavía abierta
+- redactar el mail: corto, con el link directo a `/onboarding`
+- el saludo les va a decir "¡Hola Participante!", porque el nombre es
+  justamente lo que no cargaron
+
+⚠️ **No queda registro de a quién ya se le mandó.** Si se planea mandarlo más de
+una vez, primero hay que guardar la fecha del último recordatorio en `profiles`,
+o los mismos lo reciben de nuevo.
 
 ## Deuda técnica menor
 

@@ -41,6 +41,7 @@ git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.g
 | `2602895` | Los registros abandonados dejan de contar como inscriptos |
 | `47d67fe` | El admin deja de ver una pantalla de votación que no puede usar, y `var(--t-normal)` |
 | `07b55f4` | Las tarjetas de noticia muestran la portada cuando la nota tiene una |
+| `90dc9ab` | Segmento de comunicados para el recordatorio a los registros incompletos |
 
 **Solo el jurado vota.** El admin entra a `/evaluacion` (el middleware lo deja)
 pero **nunca** puede guardar: la policy RLS de INSERT de `evaluations` exige
@@ -113,11 +114,13 @@ tienen ni `first_name`, así que no hay nada que aprobarles. Como quedan en
 estado `pendiente`, antes inflaban la cola de revisión: mostraba 26 cuando la
 real era 7.
 
-Desde el 2026-07-30 **el admin los separa**. El criterio es el mismo que usa
-`middleware.ts:95` para mandar a `/onboarding` (tener `first_name` **y**
-`last_name`), duplicado en `admin/index.astro` como `isProfileComplete()`: si se
-cambia uno hay que cambiar el otro, o el admin contaría como inscripta a gente
-que la app sigue mandando a completar el formulario.
+Desde el 2026-07-30 **el admin los separa**. El criterio vive en un solo lado:
+**`isProfileComplete()` en `src/utils/perfil.ts`** (tener `first_name` **y**
+`last_name`, ignorando los cargados con espacios). Lo importan el middleware
+—para redirigir a `/onboarding`—, el admin y el endpoint de comunicados. Estuvo
+copiado en cada lugar hasta esa fecha; si las definiciones se separan otra vez,
+el admin cuenta como inscripta a gente que la app sigue mandando a completar el
+formulario.
 
 En la pestaña **Métricas**, `totalRegistrations` y **todos** los desgloses (rol,
 estado, institución, egresados, gráfico diario, última inscripción) se calculan
@@ -126,8 +129,13 @@ aparte de "Por estado" marcada como que no suma, y a un aviso con atajo a
 Usuarios. En **Usuarios** llevan badge "Sin completar" y hay un filtro de
 completitud.
 
-Lo que **no** existe todavía es mandarles un recordatorio: es el ítem 2 del
-`BACKLOG.md`.
+**Se les puede mandar un recordatorio**, pero todavía no se mandó. La pestaña
+Comunicados tiene un cuarto segmento, "Registro incompleto", que es el único que
+**no** va sobre aprobados. Falta decidir el texto y apretar el botón.
+
+⚠️ **No queda registro de a quién ya se le mandó.** Un segundo envío les llega de
+nuevo. La confirmación lo avisa, pero si se va a mandar más de una vez conviene
+guardar la fecha del último recordatorio antes.
 
 Estos números salen de la pestaña **Métricas**, que los calcula sobre `profiles`
 sin consultas nuevas. Antes había que ir a Vercel o leerlos sueltos en otras
@@ -272,7 +280,7 @@ Tres comandos:
 
 | Comando | Qué corre | Toca la base |
 |---|---|---|
-| `npm run test:unit` | 34 tests de las funciones puras (`src/utils/perfil.ts`) | no |
+| `npm run test:unit` | 39 tests de las funciones puras (`src/utils/perfil.ts`) | no |
 | `npx playwright test sitio-publico` | 11 tests del sitio público | no |
 | `npx playwright test admin-metricas` | 5 tests de la pestaña Métricas | solo lee |
 | `npx playwright test admin-evaluacion` | 1 test: el admin no ve la votación | solo lee |
@@ -284,9 +292,9 @@ navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 `tests/e2e/full-flow.spec.ts` son 19 tests **seriales** que cubren registro,
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
-contra la base real. **Los 32 tests en verde al 2026-07-30** (los 34 unitarios y
-los 17 que no tocan la base se corrieron el 2026-07-30; el flujo serial completo,
-el 2026-07-29).
+contra la base real. **Los 32 tests en verde al 2026-07-30**, corridos ese día:
+la suite completa se corrió entera después de tocar el middleware, y la limpieza
+dejó la base como estaba. Más los 39 unitarios.
 
 ### Datos de prueba: la suite se limpia sola
 
