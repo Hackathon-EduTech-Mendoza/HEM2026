@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
-import { CRITERIA, SCALE, MAX_RAW_SCORE, rawScore, weightedScore } from '../lib/rubric';
+import { SCALE, criteriaFor, maxRawScore, rawScore, weightedScore } from '../lib/rubric';
 
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -50,6 +50,13 @@ const evaluationPhase = configData?.find(c => c.key === 'evaluation_phase')?.val
 const finalistsCount = configData?.find(c => c.key === 'finalists_count')?.value || '10';
 const isVotingOpen = evaluationPhase === 'preclasificacion' || evaluationPhase === 'final';
 const phaseLabel = evaluationPhase === 'preclasificacion' ? 'Preclasificación' : 'Ronda Final';
+
+// La rúbrica depende de la fase: en preclasificación no se puntúa el pitch.
+// Con la votación cerrada se muestra la rúbrica de preclasificación, que es
+// la que viene primero.
+const rubricPhase = evaluationPhase === 'final' ? 'final' : 'preclasificacion';
+const phaseCriteria = criteriaFor(rubricPhase);
+const phaseMaxRaw = maxRawScore(rubricPhase);
 
 // Obtener los proyectos a evaluar (en fase final, solo los finalistas)
 let projectsQuery = supabase
@@ -146,16 +153,19 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
               <ul>
                 <li><strong>Preclasificación:</strong> recorrés los stands de todos los equipos. Podés escuchar la explicación del proyecto, hacer preguntas, pedir aclaraciones y ver la demo o prototipo. Cargás la evaluación desde este panel, con el celular o la notebook, apenas terminás de visitar cada stand.</li>
                 <li><strong>Deliberación:</strong> la votación se pausa. El jurado se reúne con la organización, revisa el orden de mérito y se confirman los {finalistsCount} equipos finalistas.</li>
-                <li><strong>Ronda final:</strong> los finalistas presentan su pitch en el escenario y volvés a evaluarlos, esta vez solo a ellos, con los mismos criterios.</li>
+                <li><strong>Ronda final:</strong> los finalistas presentan su pitch en el escenario y volvés a evaluarlos, esta vez solo a ellos. Se suma el criterio <strong>Comunicación y pitch</strong>, que en la preclasificación no se puntúa.</li>
               </ul>
               <p class="instructivo-note">Evaluá cada proyecto <strong>ni bien lo visitás</strong>, no al final de todo: la impresión fresca es más justa que la memoria. Podés recorrer en conjunto con el resto del jurado o a tu propio ritmo, pero cada proyecto debe recibir la totalidad de las evaluaciones previstas.</p>
             </section>
 
             <section>
-              <h3>2. Los {CRITERIA.length} criterios y qué mirar en cada uno</h3>
+              <h3>2. Los {phaseCriteria.length} criterios y qué mirar en cada uno</h3>
               <p class="instructivo-note">Cada criterio se puntúa de <strong>1 a 5</strong>, donde 1 es insuficiente y 5 es excelente. No todos pesan igual: el peso indica cuánto influye ese criterio en el puntaje final.</p>
+              {rubricPhase === 'preclasificacion' && (
+                <p class="instructivo-note">En esta instancia <strong>no se puntúa el pitch</strong>: como no hay presentación en escenario, ese criterio se suma recién en la ronda final. Acá evaluás el proyecto, no cómo lo cuentan.</p>
+              )}
               <div class="criteria-guide">
-                {CRITERIA.map(c => (
+                {phaseCriteria.map(c => (
                   <div class="criteria-guide-item">
                     <div class="criteria-guide-head">
                       <h4>{c.label}</h4>
@@ -226,10 +236,10 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
               {completedProjects.map(project => {
                 const ev = evaluationsMap[project.id];
                 const scores = Object.fromEntries(
-                  CRITERIA.map(c => [c.key, ev[`score_${c.key}`]])
+                  phaseCriteria.map(c => [c.key, ev[`score_${c.key}`]])
                 );
-                const totalScore = rawScore(scores);
-                const weighted = weightedScore(scores);
+                const totalScore = rawScore(scores, rubricPhase);
+                const weighted = weightedScore(scores, rubricPhase);
                 // El voto ya guardado viaja con la tarjeta para poder precargarlo
                 // en el modal cuando el jurado quiere corregirlo.
                 const votoGuardado = {
@@ -250,7 +260,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
                     <div class="project-footer score-footer">
                       <div class="score-display">
                         <span class="score-label">Tu puntuación:</span>
-                        <span class="score-value">{totalScore}/{MAX_RAW_SCORE}</span>
+                        <span class="score-value">{totalScore}/{phaseMaxRaw}</span>
                         <span class="score-weighted">({weighted.toFixed(1)} pts ponderados)</span>
                       </div>
                       <div class="score-actions">
@@ -312,7 +322,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
             <input type="hidden" id="form-phase" name="phase" value={evaluationPhase} />
 
             <div class="rubric-grid">
-              {CRITERIA.map(c => (
+              {phaseCriteria.map(c => (
                 <div class="rubric-item">
                   <div class="rubric-header">
                     <span class="rubric-legend" id={`label-${c.key}`}>{c.label}</span>
@@ -345,7 +355,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
             <div class="running-total" id="running-total" aria-live="polite">
               <div class="running-total-item">
                 <span class="running-total-label">Suma directa</span>
-                <span class="running-total-value"><span id="total-raw">—</span>/{MAX_RAW_SCORE}</span>
+                <span class="running-total-value"><span id="total-raw">—</span>/{phaseMaxRaw}</span>
               </div>
               <div class="running-total-item">
                 <span class="running-total-label">Puntaje ponderado</span>
@@ -881,12 +891,20 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
 
 <script>
   import { createBrowserClient } from '@supabase/ssr';
-  import { CRITERIA, rawScore, weightedScore } from '../lib/rubric';
+  import { criteriaFor, rawScore, weightedScore } from '../lib/rubric';
 
   const supabase = createBrowserClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY
   );
+
+  // La rúbrica depende de la fase, igual que en el servidor: en preclasificación
+  // no se puntúa el pitch. La fase activa viaja en el input oculto del form.
+  const activePhase =
+    (document.getElementById('form-phase') as HTMLInputElement)?.value === 'final'
+      ? 'final'
+      : 'preclasificacion';
+  const phaseCriteria = criteriaFor(activePhase);
 
   // --- Modal Logic ---
   const modal = document.getElementById('eval-modal');
@@ -939,7 +957,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
     votoEnEdicion = votoGuardado;
 
     if (votoGuardado) {
-      for (const c of CRITERIA) {
+      for (const c of phaseCriteria) {
         const valor = votoGuardado[c.key];
         if (valor == null) continue;
         const radio = form?.querySelector<HTMLInputElement>(
@@ -999,7 +1017,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
 
   function currentScores(): Record<string, number> {
     const scores: Record<string, number> = {};
-    CRITERIA.forEach(c => {
+    phaseCriteria.forEach(c => {
       const checked = document.querySelector<HTMLInputElement>(
         `input[name="score_${c.key}"]:checked`
       );
@@ -1011,12 +1029,12 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
   function refreshTotals() {
     const scores = currentScores();
     const answered = Object.keys(scores).length;
-    const complete = answered === CRITERIA.length;
+    const complete = answered === phaseCriteria.length;
 
-    if (totalRawEl) totalRawEl.textContent = complete ? String(rawScore(scores)) : '—';
-    if (totalWeightedEl) totalWeightedEl.textContent = complete ? weightedScore(scores).toFixed(1) : '—';
+    if (totalRawEl) totalRawEl.textContent = complete ? String(rawScore(scores, activePhase)) : '—';
+    if (totalWeightedEl) totalWeightedEl.textContent = complete ? weightedScore(scores, activePhase).toFixed(1) : '—';
     if (totalHintEl) {
-      const missing = CRITERIA.length - answered;
+      const missing = phaseCriteria.length - answered;
       totalHintEl.textContent = complete
         ? 'Todos los criterios puntuados. Ya podés guardar.'
         : `Falta${missing === 1 ? '' : 'n'} ${missing} criterio${missing === 1 ? '' : 's'} por puntuar.`;
@@ -1048,7 +1066,7 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
 
     // Los radios están ocultos visualmente: validamos acá en lugar de con `required`,
     // que en ese caso bloquea el submit sin mostrar ningún mensaje.
-    const missing = CRITERIA.filter(c => !document.querySelector(`input[name="score_${c.key}"]:checked`));
+    const missing = phaseCriteria.filter(c => !document.querySelector(`input[name="score_${c.key}"]:checked`));
     if (missing.length > 0) {
       showToast(`Falta puntuar: ${missing.map(c => c.label).join(', ')}`, true);
       document
@@ -1069,9 +1087,15 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
       phase: formData.get('phase'),
       feedback: formData.get('feedback')
     };
-    CRITERIA.forEach(c => {
+    phaseCriteria.forEach(c => {
       evaluationData[`score_${c.key}`] = parseInt(formData.get(`score_${c.key}`) as string, 10);
     });
+
+    // En preclasificación el pitch no se puntúa. Va explícito en NULL para que
+    // el upsert no arrastre un valor viejo; la base además lo exige por CHECK.
+    if (activePhase === 'preclasificacion') {
+      evaluationData.score_communication = null;
+    }
 
     // upsert en vez de insert: un solo camino para votar y para corregir.
     // El conflicto lo resuelve el UNIQUE(project_id, judge_id, phase) de la

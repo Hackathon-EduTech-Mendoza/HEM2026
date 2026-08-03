@@ -11,12 +11,19 @@
  *
  * FORMATO OFICIAL DEL PUNTAJE (decidido por el administrador del concurso,
  * 2026-07-29): el resultado oficial es el **puntaje ponderado** normalizado a
- * 100, que es el que ordena el ranking. La suma directa de los 6 criterios
- * (sobre 30) se sigue calculando y mostrando, pero solo como referencia: no
- * define posiciones ni finalistas.
+ * 100, que es el que ordena el ranking. La suma directa de los criterios se
+ * sigue calculando y mostrando, pero solo como referencia: no define
+ * posiciones ni finalistas.
+ *
+ * LA RÚBRICA DEPENDE DE LA FASE (pedido de Martín, 2026-07-30): en
+ * preclasificación **no se puntúa "Comunicación y pitch"**. En esa instancia
+ * los jueces recorren proyecto por proyecto puntuando el material entregado;
+ * no hay pitch, así que el criterio no mediría nada. Su 15% se reparte en
+ * partes iguales entre los otros cinco (+3% a cada uno). En la ronda final,
+ * donde sí hay presentación en vivo, la rúbrica queda como estaba.
  *
  * IMPORTANTE: los pesos deben coincidir con los de la vista SQL
- * `public.project_leaderboard` (ver supabase/migrations/20260724_01_*.sql).
+ * `public.project_leaderboard` (ver supabase/migrations/20260731_01_*.sql).
  * Si cambiás un peso acá, cambialo también en la vista.
  */
 
@@ -28,6 +35,10 @@ export type CriterionKey =
   | 'impact'
   | 'communication';
 
+/** Fases en las que el jurado puntúa. El flujo completo incluye además
+ *  `cerrada` y `deliberacion`, en las que no se vota. */
+export type EvaluationPhase = 'preclasificacion' | 'final';
+
 export interface Criterion {
   /** Sufijo de la columna en `evaluations` (score_<key>) */
   key: CriterionKey;
@@ -35,20 +46,26 @@ export interface Criterion {
   label: string;
   /** Abreviatura para el desglose del ranking en el panel admin */
   short: string;
-  /** Peso sobre el puntaje ponderado (la suma de todos debe dar 1) */
-  weight: number;
+  /**
+   * Peso por fase sobre el puntaje ponderado. `null` = el criterio no se
+   * puntúa en esa fase. Los pesos no nulos de cada fase deben sumar 1.
+   */
+  weights: Record<EvaluationPhase, number | null>;
   /** Pregunta guía que ve el jurado junto al criterio */
   question: string;
   /** Qué mirar concretamente: guía del instructivo del jurado */
   lookFor: string[];
 }
 
+/** Criterio ya resuelto para una fase concreta: `weight` es un número. */
+export type PhaseCriterion = Omit<Criterion, 'weights'> & { weight: number };
+
 export const CRITERIA: Criterion[] = [
   {
     key: 'problem',
     label: 'Problema y contexto educativo',
     short: 'Pro',
-    weight: 0.15,
+    weights: { preclasificacion: 0.18, final: 0.15 },
     question:
       '¿El equipo identifica con claridad un problema real del ámbito educativo y entiende a quién afecta?',
     lookFor: [
@@ -61,7 +78,7 @@ export const CRITERIA: Criterion[] = [
     key: 'solution',
     label: 'Propuesta de solución y valor',
     short: 'Sol',
-    weight: 0.20,
+    weights: { preclasificacion: 0.23, final: 0.20 },
     question:
       '¿La solución responde efectivamente al problema y genera valor concreto para quien la use?',
     lookFor: [
@@ -74,7 +91,7 @@ export const CRITERIA: Criterion[] = [
     key: 'innovation',
     label: 'Nivel de innovación',
     short: 'Inn',
-    weight: 0.15,
+    weights: { preclasificacion: 0.18, final: 0.15 },
     question:
       '¿La propuesta aporta algo original respecto de lo que ya existe para resolver ese problema?',
     lookFor: [
@@ -87,7 +104,7 @@ export const CRITERIA: Criterion[] = [
     key: 'feasibility',
     label: 'Factibilidad y prototipo',
     short: 'Fac',
-    weight: 0.20,
+    weights: { preclasificacion: 0.23, final: 0.20 },
     question:
       '¿Lo que muestran funciona y es realista llevarlo adelante en lo técnico, económico y operativo?',
     lookFor: [
@@ -100,7 +117,7 @@ export const CRITERIA: Criterion[] = [
     key: 'impact',
     label: 'Impacto potencial en educación',
     short: 'Imp',
-    weight: 0.15,
+    weights: { preclasificacion: 0.18, final: 0.15 },
     question:
       '¿Qué alcance puede tener la propuesta si se implementa: a cuántos llega y qué transforma?',
     lookFor: [
@@ -113,7 +130,8 @@ export const CRITERIA: Criterion[] = [
     key: 'communication',
     label: 'Comunicación y pitch',
     short: 'Com',
-    weight: 0.15,
+    // Solo en la final: en preclasificación no hay presentación en vivo.
+    weights: { preclasificacion: null, final: 0.15 },
     question:
       '¿El equipo comunica con claridad, en el tiempo previsto y transmitiendo convicción?',
     lookFor: [
@@ -136,17 +154,38 @@ export const SCALE = [
 export const MIN_SCORE = 1;
 export const MAX_SCORE = 5;
 
-/** Puntaje máximo de la suma directa (sin pesos): 6 criterios x 5 puntos. */
-export const MAX_RAW_SCORE = CRITERIA.length * MAX_SCORE;
-
-/** Suma directa de un conjunto de puntajes (escala 0 a MAX_RAW_SCORE). */
-export function rawScore(scores: Record<string, number>): number {
-  return CRITERIA.reduce((total, c) => total + (Number(scores[c.key]) || 0), 0);
+/**
+ * Criterios que se puntúan en una fase, con el peso ya resuelto.
+ * Preclasificación devuelve 5 (sin comunicación); la final, los 6.
+ */
+export function criteriaFor(phase: EvaluationPhase): PhaseCriterion[] {
+  return CRITERIA.filter((c) => c.weights[phase] !== null).map(
+    ({ weights, ...rest }) => ({ ...rest, weight: weights[phase] as number }),
+  );
 }
 
-/** Puntaje ponderado normalizado a 100. */
-export function weightedScore(scores: Record<string, number>): number {
-  const weighted = CRITERIA.reduce(
+/** Puntaje máximo de la suma directa (sin pesos) en una fase: N criterios x 5. */
+export function maxRawScore(phase: EvaluationPhase): number {
+  return criteriaFor(phase).length * MAX_SCORE;
+}
+
+/** Suma directa de un conjunto de puntajes (escala 0 a maxRawScore(phase)). */
+export function rawScore(
+  scores: Record<string, number>,
+  phase: EvaluationPhase,
+): number {
+  return criteriaFor(phase).reduce(
+    (total, c) => total + (Number(scores[c.key]) || 0),
+    0,
+  );
+}
+
+/** Puntaje ponderado normalizado a 100. Comparable entre fases. */
+export function weightedScore(
+  scores: Record<string, number>,
+  phase: EvaluationPhase,
+): number {
+  const weighted = criteriaFor(phase).reduce(
     (total, c) => total + (Number(scores[c.key]) || 0) * c.weight,
     0,
   );

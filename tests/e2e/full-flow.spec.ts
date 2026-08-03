@@ -13,7 +13,8 @@ import {
   limpiarDatosE2E,
   TestUser,
 } from './utils';
-import { CRITERIA, MAX_RAW_SCORE, rawScore, weightedScore } from '../../src/lib/rubric';
+import { criteriaFor, maxRawScore, rawScore, weightedScore } from '../../src/lib/rubric';
+import type { EvaluationPhase } from '../../src/lib/rubric';
 
 /**
  * Flujo completo de la app con todos los roles:
@@ -48,17 +49,21 @@ test.afterAll(async () => {
 // ── Estado compartido del run ──
 const TEAM_NAME = `Equipo E2E ${RUN_ID}`;
 const PROJECT_TITLE = `Proyecto E2E ${RUN_ID}`;
-// Rúbrica 1 a 5 sin criterio de validación (ver src/lib/rubric.ts)
-const PRE_SCORES = { problem: 4, solution: 3, innovation: 5, feasibility: 4, impact: 3, communication: 5 };
+// Rúbrica 1 a 5 sin criterio de validación (ver src/lib/rubric.ts).
+// La rúbrica depende de la fase: en preclasificación no se puntúa el pitch,
+// así que estos puntajes NO llevan `communication`.
+const PRE_SCORES = { problem: 4, solution: 3, innovation: 5, feasibility: 4, impact: 3 };
 const FINAL_SCORES = { problem: 5, solution: 5, innovation: 4, feasibility: 5, impact: 4, communication: 5 };
-const PRE_TOTAL = rawScore(PRE_SCORES);
-const FINAL_TOTAL = rawScore(FINAL_SCORES);
-const PRE_WEIGHTED = weightedScore(PRE_SCORES);
+const PRE_TOTAL = rawScore(PRE_SCORES, 'preclasificacion');
+const FINAL_TOTAL = rawScore(FINAL_SCORES, 'final');
+const PRE_WEIGHTED = weightedScore(PRE_SCORES, 'preclasificacion');
+const PRE_MAX = maxRawScore('preclasificacion');
+const FINAL_MAX = maxRawScore('final');
 // Puntaje intermedio para probar la corrección de un voto ya guardado.
 // Distinto de PRE_SCORES en todos los criterios, para que no haya falsos verdes.
-const CORRECTED_SCORES = { problem: 2, solution: 5, innovation: 3, feasibility: 2, impact: 5, communication: 3 };
-const CORRECTED_TOTAL = rawScore(CORRECTED_SCORES);
-const CORRECTED_WEIGHTED = weightedScore(CORRECTED_SCORES);
+const CORRECTED_SCORES = { problem: 2, solution: 5, innovation: 3, feasibility: 2, impact: 5 };
+const CORRECTED_TOTAL = rawScore(CORRECTED_SCORES, 'preclasificacion');
+const CORRECTED_WEIGHTED = weightedScore(CORRECTED_SCORES, 'preclasificacion');
 
 let participantB: TestUser;
 let participantC: TestUser;
@@ -73,9 +78,17 @@ async function newPage(browser: Browser): Promise<Page> {
   return context.newPage();
 }
 
-/** Puntúa cada criterio clickeando la opción 1-5 correspondiente. */
-async function fillEvaluation(page: Page, scores: Record<string, number>) {
-  for (const c of CRITERIA) {
+/**
+ * Puntúa cada criterio clickeando la opción 1-5 correspondiente.
+ * Solo recorre los criterios de la fase: en preclasificación el formulario
+ * no renderiza «Comunicación y pitch».
+ */
+async function fillEvaluation(
+  page: Page,
+  scores: Record<string, number>,
+  phase: EvaluationPhase,
+) {
+  for (const c of criteriaFor(phase)) {
     await page
       .locator(`label.scale-option:has(input[name="score_${c.key}"][value="${scores[c.key]}"])`)
       .click();
@@ -288,7 +301,10 @@ test('juez: registro por UI queda en revisión', async ({ browser }) => {
     judge_id: auth!.user!.id,
     phase: 'preclasificacion',
     score_problem: 5, score_solution: 5, score_innovation: 5,
-    score_feasibility: 5, score_impact: 5, score_communication: 5,
+    // Sin score_communication: en preclasificación va NULL por CHECK. Si se
+    // mandara, el insert fallaría por el CHECK y no por RLS, que es lo que
+    // este test quiere probar.
+    score_feasibility: 5, score_impact: 5,
   });
   expect(rlsError).not.toBeNull();
 });
@@ -331,7 +347,7 @@ test('juez vota el proyecto en preclasificación', async ({ browser }) => {
   await card.locator('.evaluate-btn').click();
   await expect(page.locator('#eval-modal')).toBeVisible();
 
-  await fillEvaluation(page, PRE_SCORES);
+  await fillEvaluation(page, PRE_SCORES, 'preclasificacion');
   await page.fill('#feedback', 'Feedback E2E de preclasificación.');
   await page.click('#submit-eval-btn');
 
@@ -340,7 +356,7 @@ test('juez vota el proyecto en preclasificación', async ({ browser }) => {
   await page.waitForLoadState('load');
   const completedCard = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
   await expect(completedCard).toBeVisible({ timeout: 20_000 });
-  await expect(completedCard.locator('.score-value')).toContainText(`${PRE_TOTAL}/${MAX_RAW_SCORE}`);
+  await expect(completedCard.locator('.score-value')).toContainText(`${PRE_TOTAL}/${PRE_MAX}`);
   await page.context().close();
 });
 
@@ -371,7 +387,7 @@ test('juez corrige su voto de preclasificación', async ({ browser }) => {
 
   // El modal llega con el voto anterior ya cargado: si no, el jurado tendría
   // que acordarse de lo que puso y volver a completar los 6 criterios.
-  for (const c of CRITERIA) {
+  for (const c of criteriaFor('preclasificacion')) {
     await expect(
       page.locator(`input[name="score_${c.key}"][value="${PRE_SCORES[c.key as keyof typeof PRE_SCORES]}"]`),
     ).toBeChecked();
@@ -379,7 +395,7 @@ test('juez corrige su voto de preclasificación', async ({ browser }) => {
   await expect(page.locator('#feedback')).toHaveValue('Feedback E2E de preclasificación.');
 
   // Corregir a otro puntaje
-  await fillEvaluation(page, CORRECTED_SCORES);
+  await fillEvaluation(page, CORRECTED_SCORES, 'preclasificacion');
   await page.fill('#feedback', 'Feedback E2E corregido.');
   await page.click('#submit-eval-btn');
   await expect(page.locator('#toast-msg')).toContainText('actualizada', { timeout: 15_000 });
@@ -388,7 +404,7 @@ test('juez corrige su voto de preclasificación', async ({ browser }) => {
   const cardTrasCorregir = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
   await expect(cardTrasCorregir).toHaveCount(1);
   await expect(cardTrasCorregir.locator('.score-value')).toContainText(
-    `${CORRECTED_TOTAL}/${MAX_RAW_SCORE}`,
+    `${CORRECTED_TOTAL}/${PRE_MAX}`,
   );
   // Y no quedó pendiente además de evaluado.
   await expect(page.locator('.project-card:not(.completed)', { hasText: PROJECT_TITLE })).toHaveCount(0);
@@ -401,7 +417,7 @@ test('juez corrige su voto de preclasificación', async ({ browser }) => {
   await openAdminTab(adminPage, 'tab-resultados');
   const row = adminPage.locator('#tab-resultados table').first().locator('tr', { hasText: PROJECT_TITLE });
   await expect(row).toHaveCount(1);
-  await expect(row).toContainText(`${CORRECTED_TOTAL.toFixed(1)}/${MAX_RAW_SCORE}`);
+  await expect(row).toContainText(`${CORRECTED_TOTAL.toFixed(1)}/${PRE_MAX}`);
   await expect(row).toContainText(CORRECTED_WEIGHTED.toFixed(2));
   await adminPage.context().close();
 
@@ -409,14 +425,14 @@ test('juez corrige su voto de preclasificación', async ({ browser }) => {
   await page.goto('/evaluacion');
   await page.locator('.project-card.completed', { hasText: PROJECT_TITLE }).locator('.evaluate-btn').click();
   await expect(page.locator('#eval-modal')).toBeVisible();
-  await fillEvaluation(page, PRE_SCORES);
+  await fillEvaluation(page, PRE_SCORES, 'preclasificacion');
   await page.fill('#feedback', 'Feedback E2E de preclasificación.');
   await page.click('#submit-eval-btn');
   await expect(page.locator('#toast-msg')).toContainText('actualizada', { timeout: 15_000 });
   await page.waitForLoadState('load');
   await expect(
     page.locator('.project-card.completed', { hasText: PROJECT_TITLE }).locator('.score-value'),
-  ).toContainText(`${PRE_TOTAL}/${MAX_RAW_SCORE}`);
+  ).toContainText(`${PRE_TOTAL}/${PRE_MAX}`);
 
   await page.context().close();
 });
@@ -436,7 +452,7 @@ test('admin ve el puntaje, marca finalista y habilita la ronda final', async ({ 
   await expect(row).toHaveCount(1);
   // El ranking ordena por el puntaje ponderado; también muestra la suma directa
   await expect(row).toContainText(PRE_WEIGHTED.toFixed(2));
-  await expect(row).toContainText(`${PRE_TOTAL.toFixed(1)}/${MAX_RAW_SCORE}`);
+  await expect(row).toContainText(`${PRE_TOTAL.toFixed(1)}/${PRE_MAX}`);
 
   // Marcar finalista y guardar
   await row.locator('.finalist-checkbox').check();
@@ -468,14 +484,14 @@ test('juez vota al finalista en la ronda final', async ({ browser }) => {
   await card.locator('.evaluate-btn').click();
   await expect(page.locator('#eval-modal')).toBeVisible();
 
-  await fillEvaluation(page, FINAL_SCORES);
+  await fillEvaluation(page, FINAL_SCORES, 'final');
   await page.fill('#feedback', 'Feedback E2E de ronda final.');
   await page.click('#submit-eval-btn');
 
   await expect(page.locator('#toast-msg')).toContainText('guardada con éxito', { timeout: 15_000 });
   const completedCard = page.locator('.project-card.completed', { hasText: PROJECT_TITLE });
   await expect(completedCard).toBeVisible({ timeout: 20_000 });
-  await expect(completedCard.locator('.score-value')).toContainText(`${FINAL_TOTAL}/${MAX_RAW_SCORE}`);
+  await expect(completedCard.locator('.score-value')).toContainText(`${FINAL_TOTAL}/${FINAL_MAX}`);
   await page.context().close();
 });
 
@@ -521,7 +537,10 @@ test('seguridad: nadie puede votar fuera de la fase activa (RLS)', async () => {
     judge_id: auth!.user!.id,
     phase: 'preclasificacion',
     score_problem: 5, score_solution: 5, score_innovation: 5,
-    score_feasibility: 5, score_impact: 5, score_communication: 5,
+    // Sin score_communication: en preclasificación va NULL por CHECK. Si se
+    // mandara, el insert fallaría por el CHECK y no por RLS, que es lo que
+    // este test quiere probar.
+    score_feasibility: 5, score_impact: 5,
   });
   expect(error).not.toBeNull();
 });

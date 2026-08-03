@@ -175,7 +175,9 @@ necesita `npm run test:e2e`.
 
 **Migraciones aplicadas** (además de las históricas): `20260714_01` (fases y
 criterios), `20260714_02` (juez aprobado), `20260724_01` (rúbrica 1–5
-ponderada), `20260724_02` (`profiles.institution_other`).
+ponderada), `20260724_02` (`profiles.institution_other`), `20260731_01`
+(rúbrica por fase: sin pitch en preclasificación) — **aplicada en dev, falta
+aplicarla en prod**.
 
 ### Auditoría de seguridad del esquema (2026-07-30)
 
@@ -228,17 +230,32 @@ se borra antes que el perfil de su líder.
 
 ## Sistema de evaluación
 
-6 criterios puntuados del 1 al 5, definidos en **`src/lib/rubric.ts`** (fuente
-única de verdad: la usan `/evaluacion`, el ranking del admin y los tests):
+Criterios puntuados del 1 al 5, definidos en **`src/lib/rubric.ts`** (fuente
+única de verdad: la usan `/evaluacion`, el ranking del admin y los tests).
 
-| Criterio | Peso |
-|---|---|
-| Problema y contexto educativo | 15% |
-| Propuesta de solución y valor | 20% |
-| Nivel de innovación | 15% |
-| Factibilidad y prototipo | 20% |
-| Impacto potencial en educación | 15% |
-| Comunicación y pitch | 15% |
+⚠️ **La rúbrica depende de la fase** (pedido de Martín, 2026-07-30): en
+preclasificación **no se puntúa «Comunicación y pitch»**, porque los jueces
+recorren proyecto por proyecto puntuando el material y no hay presentación en
+vivo. Su 15% se reparte en partes iguales entre los otros cinco (+3% a cada uno).
+
+| Criterio | Preclasificación | Final |
+|---|---|---|
+| Problema y contexto educativo | 18% | 15% |
+| Propuesta de solución y valor | 23% | 20% |
+| Nivel de innovación | 18% | 15% |
+| Factibilidad y prototipo | 23% | 20% |
+| Impacto potencial en educación | 18% | 15% |
+| Comunicación y pitch | — | 15% |
+| **Máximo de la suma directa** | **25** | **30** |
+
+Las dos fases normalizan a 100, así que los puntajes ponderados son comparables
+entre sí. `criteriaFor(fase)` devuelve los criterios con el peso ya resuelto:
+el formulario, el ranking y los tests iteran sobre eso, así que **agregar o
+sacar un criterio no requiere tocarlos**.
+
+En la base, `evaluations.score_communication` es **nullable** y el CHECK
+`evaluations_communication_by_phase_check` obliga a que vaya NULL en
+preclasificación y con valor en la final.
 
 Los pesos están **duplicados a propósito** en la vista SQL `project_leaderboard`,
 con comentarios cruzados: si cambiás uno, cambiá el otro.
