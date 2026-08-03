@@ -540,6 +540,8 @@ const projects = allProjects || [];
           </button>
         </div>
 
+        <p class="users-count" id="users-count" aria-live="polite"></p>
+
         <div class="admin-card card">
           <div class="table-responsive">
             <table class="admin-table">
@@ -601,7 +603,11 @@ const projects = allProjects || [];
                           </div>
                         </td>
                         <td data-label="DNI">{p.dni || "-"}</td>
-                        <td data-label="Institución">
+                        <td
+                          data-label="Institución"
+                          class="cell-institucion"
+                          title={p.institution === "otra" ? p.institution_other || "Otra" : undefined}
+                        >
                           {p.institution === "ies_9023_maipu"
                             ? "IES 9-023"
                             : p.institution === "ies_edison"
@@ -2357,6 +2363,65 @@ const projects = allProjects || [];
     border-bottom: 1px solid var(--brd-s);
   }
 
+  /* ── Tabla de Usuarios ─────────────────────────────────────────────
+     Es la única que crece con las inscripciones, así que necesita un
+     tratamiento propio. Al 2026-08-03 son 54 filas. */
+
+  /* Institución es un campo de texto libre y hay valores de 75 caracteres
+     ("Instituto Superior de Formación Docente y Técnica N°9030 …"). Con el
+     `white-space: nowrap` que .admin-table aplica a todo, esa sola columna
+     empujaba la tabla fuera de la pantalla y aparecía scroll horizontal. Se
+     la deja partir en dos o tres líneas y se le pone techo de ancho; el
+     `title` del td tiene el valor completo. */
+  .cell-institucion {
+    white-space: normal;
+    max-width: 24ch;
+    line-height: 1.4;
+  }
+
+  @media (min-width: 769px) {
+    /* El listado scrollea dentro de su propia caja en vez de estirar la
+       página. Así los filtros, el buscador y "Aprobar seleccionados" quedan
+       siempre a la vista: antes, para aprobar a alguien del final había que
+       bajar, tildar y volver a subir. */
+    #tab-usuarios .table-responsive {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    /* Con el cuerpo scrolleando, el encabezado tiene que quedar fijo o se
+       pierde de vista qué columna es cuál.
+       ⚠️ El fondo va con --bg-1, que es el único token de superficie OPACO
+       (#ffffff / #1a1a1a). Ni --bg-card ni el tinte propio de .admin-table th
+       sirven acá: los dos son translúcidos (--bg-card es blanco al 75%) y las
+       filas se ven pasando por detrás del encabezado. */
+    #tab-usuarios .admin-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--bg-1);
+      box-shadow: inset 0 -1px 0 var(--brd);
+    }
+
+    /* Filas más compactas: con 54 inscriptos, 1rem arriba y abajo eran cientos
+       de píxeles de aire. */
+    #tab-usuarios .admin-table th,
+    #tab-usuarios .admin-table td {
+      padding: 0.6rem 1rem;
+    }
+  }
+
+  /* Cuántas filas está mostrando el filtro, para no tener que contarlas. */
+  .users-count {
+    font-size: 0.85rem;
+    color: var(--txt-m);
+    margin: 0 0 0.75rem;
+  }
+
+  .users-count strong {
+    color: var(--txt-1);
+  }
+
   .admin-table th {
     background: rgba(0, 0, 0, 0.02);
     font-family: var(--font-heading);
@@ -3186,8 +3251,27 @@ const projects = allProjects || [];
         if (cb) cb.checked = false;
       }
     });
+    actualizarContador();
     updateBulkBtn();
   }
+
+  // Cuántas filas quedaron a la vista. Con el listado scrolleando dentro de su
+  // caja no se puede estimar el total de un vistazo, y el filtro deja de dar
+  // señal de si acotó mucho o poco.
+  const contador = document.getElementById("users-count");
+
+  function actualizarContador() {
+    if (!contador) return;
+    const visibles = Array.from(rows).filter(
+      (r) => (r as HTMLElement).style.display !== "none",
+    ).length;
+    contador.innerHTML =
+      visibles === rows.length
+        ? `<strong>${rows.length}</strong> usuarios`
+        : `<strong>${visibles}</strong> de ${rows.length} usuarios`;
+  }
+
+  actualizarContador();
 
   filterRole?.addEventListener("change", applyFilters);
   filterStatus?.addEventListener("change", applyFilters);
