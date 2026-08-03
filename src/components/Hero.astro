@@ -1,17 +1,23 @@
 ---
 // src/components/Hero.astro
 
-/* ✨ CONFIGURACIÓN MANUAL DE LA FECHA DEL EVENTO ✨ */
-// Modifica esta variable para ajustar el cronómetro manualmente
-// Formato: AAAA-MM-DDTHH:MM:SS-03:00 (El -03:00 es la zona horaria de Argentina)
-const EVENT_START_DATE = '2026-08-26T21:30:00-03:00';
-
-// Opcional: Fetch de la fecha del evento desde Supabase (actualmente deshabilitado para priorizar la configuración manual)
-// import { supabase } from '../lib/supabase';
-// const { data } = await supabase.from('event_config').select('value').eq('key', 'event_start_datetime').single();
-// const eventDate = data?.value || EVENT_START_DATE;
-
-const eventDate = EVENT_START_DATE;
+/**
+ * Fecha de arranque del evento: la actividad virtual previa del miércoles 26 de
+ * agosto, 21:30 (Art. 2º de las Bases). Alimenta el cronómetro del Hero.
+ *
+ * Formato: AAAA-MM-DDTHH:MM:SS-03:00 (el -03:00 es la zona horaria argentina).
+ *
+ * ⚠️ Vive acá a propósito, no en `event_config`. Hasta acá había un fetch a esa
+ * tabla comentado, con un "opcional" que invitaba a activarlo — y activarlo
+ * habría roto el sitio: `event_start_datetime` en producción todavía tenía la
+ * fecha de la edición anterior (03/06), o sea una fecha pasada, así que el
+ * countdown se habría ido a cero y el Hero mostraría "¡El evento ha comenzado!".
+ *
+ * Si algún día se quiere manejar la fecha desde el admin, el orden es: primero
+ * corregir el dato en las dos bases, después leerlo, y recién ahí borrar esta
+ * constante. Nunca al revés.
+ */
+const eventDate = '2026-08-26T21:30:00-03:00';
 ---
 
 <section class="hero" id="inicio">
