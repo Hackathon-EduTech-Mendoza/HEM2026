@@ -3,7 +3,65 @@
 > Actualizado: **2026-08-03**. Resume dónde está el código, cómo está la base y
 > qué queda pendiente, para poder retomar sin reconstruir el contexto.
 
-### Sesión 2026-08-03 (cierre de la rúbrica por fase)
+### Sesión 2026-08-03 · parte 2 (correcciones de Martín)
+
+Dos noticias nuevas de prensa externa (**mendoza.edu.ar** de la DGE y **Portal
+TIC**), las **Bases reemplazadas por la v11** y el **WhatsApp dado de baja**.
+
+**Bases y Condiciones:** la página pasó de 10 secciones propias a los **16
+artículos de la v11** —la versión presentada a la DES— más dos anexos: el
+cronograma y la rúbrica. El documento original se puede **descargar** desde la
+página (`public/docs/`), que era el punto 6 del brief.
+
+⚠️ **Por qué la rúbrica quedó como Anexo II.** El Art. 11º de la v11 sólo lista
+cuatro aspectos generales y delega la rúbrica a "una comunicación posterior de la
+organización". Si se reemplazaba literal, el sitio dejaba de publicar los seis
+criterios con pesos por fase que el sistema **ya aplica**. El anexo cumple lo que
+el artículo promete sin perder lo aprobado el 30/07. Los pesos están, entonces,
+en tres lados: `src/lib/rubric.ts`, la vista `project_leaderboard` y esta página.
+
+De paso se corrigieron las **sedes**, que en esa página seguían siendo las de una
+versión vieja de las bases ("Espacio Cultural Julio Le Parc" y "Escuela Edison").
+
+**Del brief quedaron sin aplicar los puntos 1 y 2** por decisión de Martín:
+el sistema de representante de equipo y el perfil disciplinar esperan definición.
+El punto 3 (eje temático único) ya estaba aplicado de antes.
+
+#### El WhatsApp se dio de baja y lo reemplaza un formulario
+
+El número salió de `FAQ.astro`, `Footer.astro` y `contacto.ts`: **no se usa más**.
+En su lugar hay un canal de consultas propio:
+
+| Pieza | Qué hace |
+|---|---|
+| `Consultas.astro` | Formulario público, en el home debajo del FAQ (`#consultas`) |
+| `POST /api/consulta` | Valida, filtra spam, guarda y avisa por mail |
+| Tabla `consultas` | Migración `20260803_01`. Badge de "nuevas" en el admin |
+| Pestaña **Consultas** | Listado con estados nueva / respondida / archivada |
+
+⚠️ **La tabla no tiene policy de INSERT, a propósito.** Nadie escribe por
+PostgREST, ni siquiera `anon`: el único camino es el endpoint, que valida, aplica
+el honeypot y el rate limit, y recién ahí escribe con la service role key. Si
+algún día se agrega una policy de INSERT para `anon`, el formulario queda
+expuesto a que lo carguen salteándose todas esas defensas.
+
+⚠️ **El rate limit cuenta consultas guardadas, no intentos.** Son 3 cada 10
+minutos por IP. Contar también los intentos inválidos —que fue la primera
+versión— dejaba 10 minutos afuera a quien se equivocara tres veces tipeando el
+correo, sin haber mandado nada. La memoria vive en el proceso, así que en
+serverless se reinicia con cada instancia fría: frena el reenvío de una persona,
+no un ataque distribuido.
+
+**La consulta se guarda antes de intentar el mail.** Si Brevo falla, la consulta
+ya está en la base y el admin la ve igual; al revés se perdería. El aviso lleva
+`replyTo` con el correo de quien consultó, así que responder el mail le escribe
+directo.
+
+En el FAQ se actualizaron además los **criterios de evaluación** (ahora son los
+cuatro aspectos del Art. 11º, con enlace al Anexo II) y las **certificaciones**
+(aval de la DGE y puntaje docente).
+
+### Sesión 2026-08-03 · parte 1 (cierre de la rúbrica por fase)
 
 | Commit | Qué es |
 |--------|--------|
@@ -196,7 +254,8 @@ necesita `npm run test:e2e`.
 **Migraciones aplicadas** (además de las históricas): `20260714_01` (fases y
 criterios), `20260714_02` (juez aprobado), `20260724_01` (rúbrica 1–5
 ponderada), `20260724_02` (`profiles.institution_other`), `20260731_01`
-(rúbrica por fase: sin pitch en preclasificación) — **aplicada en dev y en prod**.
+(rúbrica por fase: sin pitch en preclasificación) — **aplicada en dev y en prod**,
+y `20260803_01` (tabla `consultas`) — **aplicada en dev, falta en prod**.
 
 ### Auditoría de seguridad del esquema (2026-07-30)
 
@@ -355,9 +414,14 @@ solos; el que no es la config de la colección.
 
 ## Contacto
 
-WhatsApp del evento **+54 9 2615 36-5167** y el mail viven en
-`src/utils/contacto.ts`, y desde ahí los consumen el cierre del FAQ y el footer.
-Si cambian, se tocan en un solo lado.
+Desde el **2026-08-03 no hay WhatsApp**: Martín lo dio de baja porque finalmente
+no se usa. `src/utils/contacto.ts` quedó sólo con el mail
+(`hackathonedutech@gmail.com`), y el canal público es el formulario de consultas
+del home. **No reponer un número ahí sin que la organización lo confirme**:
+publicar un WhatsApp que nadie atiende es peor que no tenerlo.
+
+⚠️ El campo `phone_whatsapp` del perfil es otra cosa y sigue en uso: es el
+teléfono de cada participante, que se pide en el onboarding.
 
 ## Tests
 
@@ -366,7 +430,7 @@ Tres comandos:
 | Comando | Qué corre | Toca la base |
 |---|---|---|
 | `npm run test:unit` | 56 tests de las funciones puras (`src/utils/perfil.ts` y `src/lib/rubric.ts`) | no |
-| `npx playwright test sitio-publico` | 11 tests del sitio público | no |
+| `npx playwright test sitio-publico` | 20 tests del sitio público (noticias, consultas, bases) | no |
 | `npx playwright test admin-metricas` | 5 tests de la pestaña Métricas | solo lee |
 | `npx playwright test admin-evaluacion` | 1 test: el admin no ve la votación | solo lee |
 | `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** (se limpia solo) |
@@ -378,9 +442,9 @@ navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
 contra la base de **desarrollo** (desde el 2026-08-03; antes iban contra prod).
-**Los 32 tests en verde al 2026-08-03**, corridos ese día contra HEM-Dev en 2.8
+**Los 41 tests en verde al 2026-08-03**, corridos ese día contra HEM-Dev en 2.9
 minutos, con la limpieza dejando la base como estaba. Más **56 unitarios** (los
-39 de `perfil.ts` y 17 nuevos de `rubric.ts`).
+39 de `perfil.ts` y 17 de `rubric.ts`).
 
 ### Datos de prueba: la suite se limpia sola
 
