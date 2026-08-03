@@ -1,7 +1,19 @@
 ---
 // src/pages/bases-y-condiciones.astro
+//
+// Fuente: "Hackathon2026 — Descripción del evento y Bases y Condiciones, v11",
+// la versión enviada a la Dirección de Educación Superior (DES). El archivo
+// original se puede descargar desde esta misma página (BASES_ARCHIVO).
+//
+// ⚠️ El Art. 11° de la v11 enumera cuatro aspectos generales y delega la rúbrica
+// específica a una comunicación posterior de la organización. Esa rúbrica es la
+// del Anexo II, que es la que el sistema aplica de verdad (src/lib/rubric.ts).
+// Si cambian los pesos, se tocan los dos lados.
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import { EMAIL } from '../utils/contacto';
+
+const BASES_ARCHIVO = '/docs/hackathon-edutech-2026-bases-y-condiciones-v11.docx';
 ---
 
 <Layout title="Bases y Condiciones | HEM2026">
@@ -12,44 +24,200 @@ import Layout from '../layouts/Layout.astro';
         <h1>Bases y Condiciones</h1>
         <p class="legal-subtitle">Hackathon EduTech Mendoza 2026 — Segunda Edición</p>
 
+        <div class="legal-download">
+          <div class="legal-download-txt">
+            <strong>Descargá las Bases y Condiciones</strong>
+            <span>Versión 11 — la presentada ante la Dirección de Educación Superior (DES).</span>
+          </div>
+          <a href={BASES_ARCHIVO} download class="btn btn-primary legal-download-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar documento
+          </a>
+        </div>
+
         <article class="legal-content">
+          <p class="legal-intro">La participación en la Hackathon EduTech 2026 implica la aceptación plena e incondicional de las presentes bases y condiciones.</p>
+
           <section>
-            <h2>1. Organizadores</h2>
-            <p>La <strong>Hackathon EduTech Mendoza 2026</strong> (en adelante, "el Evento") es organizada de manera conjunta por el <strong>IES N°9-023 de Maipú</strong> y el <strong>IES Tomás Alva Edison</strong>, con el apoyo de diversas instituciones educativas y gubernamentales de la provincia de Mendoza.</p>
+            <h2>Art. 1º — Organización</h2>
+            <p>La Hackathon EduTech 2026 es organizada por el <strong>IES 9-023 de Maipú</strong> y el <strong>IES Tomás Alva Edison</strong>, instituciones de educación superior de gestión estatal y privada de la provincia de Mendoza. Se trata de un evento educativo, colaborativo e intensivo que busca promover el diseño de soluciones innovadoras para problemáticas reales de la educación, articulando miradas pedagógicas, técnicas, tecnológicas, comunicacionales y creativas. Es también una experiencia de aprendizaje colectivo, intercambio entre perfiles diversos, producción de ideas, desarrollo de propuestas y presentación ante jurado. Retoma el espíritu colaborativo de la edición anterior y lo proyecta en una versión más clara, más abierta y más orientada a desafíos actuales del campo educativo.</p>
+            <p>El evento cuenta con el <strong>aval de la Dirección General de Escuelas (DGE)</strong> y se enmarca en la Ley de Educación Nacional N.° 26.206 y la normativa provincial vigente para el nivel superior.</p>
           </section>
 
           <section>
-            <h2>2. Objetivo del Evento</h2>
-            <p>El Evento tiene como finalidad promover el trabajo colaborativo e interdisciplinario entre estudiantes y egresados de Nivel Superior, con el propósito de diseñar soluciones tecnológicas innovadoras que aborden problemáticas reales del ámbito educativo.</p>
-          </section>
-
-          <section>
-            <h2>3. Participantes</h2>
+            <h2>Art. 2º — Denominación y edición</h2>
+            <p>El evento se denomina <strong>Hackathon EduTech Mendoza 2026 – 2.ª edición</strong>. Se desarrollará en la ciudad de Maipú, Mendoza, e incluirá una instancia virtual previa y dos jornadas presenciales:</p>
             <ul>
-              <li>Podrán inscribirse <strong>estudiantes y egresados de instituciones de Nivel Superior</strong> de la provincia de Mendoza.</li>
-              <li>La inscripción es <strong>individual y gratuita</strong>.</li>
-              <li>Los equipos estarán formados por un mínimo de <strong>3</strong> y un máximo de <strong>5</strong> integrantes.</li>
-              <li>La conformación final de los equipos se realizará durante la primera jornada presencial del evento.</li>
+              <li><strong>Miércoles 26 de agosto de 2026:</strong> actividad virtual previa.</li>
+              <li><strong>Viernes 28 de agosto de 2026:</strong> primera jornada presencial.</li>
+              <li><strong>Sábado 29 de agosto de 2026:</strong> segunda jornada presencial, evaluación, presentación final de equipos seleccionados, premiación y cierre.</li>
             </ul>
           </section>
 
           <section>
-            <h2>4. Fechas y Modalidad</h2>
+            <h2>Art. 3º — Objetivos del evento</h2>
+            <p>El evento tiene como objetivo estimular en las y los participantes la capacidad de identificar desafíos actuales de la educación y diseñar soluciones con base tecnológica que sean pertinentes, creativas y con posibilidades reales de aplicación. A la vez, busca fortalecer competencias como el trabajo colaborativo, la comunicación, el pensamiento crítico, la resolución de problemas y la innovación.</p>
+          </section>
+
+          <section>
+            <h2>Art. 4º — Temática</h2>
+            <p>La Hackathon EduTech Mendoza 2026 trabajará sobre una <strong>temática transversal única</strong>: la innovación y tecnologías digitales aplicadas a la resolución de desafíos educativos actuales de la educación.</p>
+            <p>Todas las propuestas deberán partir de una problemática o necesidad vinculada al campo educativo y ofrecer una respuesta con base tecnológica, pertinente, creativa y con posibilidades reales de aplicación.</p>
+          </section>
+
+          <section>
+            <h2>Art. 5º — Participantes: perfil habilitado</h2>
+            <p>Podrán participar en los equipos:</p>
             <ul>
-              <li><strong>Miércoles 26 de agosto:</strong> Jornada virtual sincrónica — Presentación de bases y condiciones.</li>
-              <li><strong>Viernes 28 de agosto:</strong> Jornada presencial — Espacio Cultural Julio Le Parc.</li>
-              <li><strong>Sábado 29 de agosto:</strong> Jornada presencial — Escuela Edison (mañana) y Le Parc (tarde, pitch final y premiación).</li>
+              <li>Estudiantes regulares de Tecnicaturas Superiores, Profesorados y otras carreras de nivel superior de las instituciones organizadoras y de otras instituciones de nivel superior invitadas.</li>
+              <li>Docentes, técnicos y personal de apoyo de las instituciones participantes, en carácter de integrantes de equipo (<strong>1 integrante egresado como máximo por equipo</strong>).</li>
+            </ul>
+            <p>No podrán participar equipos conformados exclusivamente por profesionales egresados. La participación será libre, gratuita y voluntaria.</p>
+            <p>Podrán participar como <strong>mentores</strong>: docentes, técnicos, profesionales, especialistas y/o referentes de las temáticas abordadas por los equipos.</p>
+          </section>
+
+          <section>
+            <h2>Art. 6º — Conformación de equipos</h2>
+            <p>Cada equipo estará integrado por <strong>3 (tres) integrantes como mínimo y 5 (cinco) personas como máximo</strong>, con la siguiente composición orientativa:</p>
+            <div class="legal-tabla-wrap">
+              <table class="legal-tabla">
+                <thead>
+                  <tr><th>N.º</th><th>Perfil</th><th>Ejemplos</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>2</td><td>Pedagógico / docente</td><td>Profesorados de cualquier área y nivel</td></tr>
+                  <tr><td>2</td><td>Técnico / tecnológico</td><td>Desarrollo de software, robótica, redes, diseño digital, contabilidad, marketing</td></tr>
+                  <tr><td>1</td><td>Complementario</td><td>Comunicación, psicología, otra tecnicatura, profesorado adicional o egresado (máx. 1)</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Los participantes podrán inscribirse tanto de forma individual como grupal, según lo determine la organización en el formulario de inscripción. La organización conformará los grupos respetando la composición requerida: equipos diversos e interdisciplinarios, combinando en la medida de lo posible perfiles pedagógicos, técnicos, tecnológicos, comunicacionales, creativos u otros afines, para enriquecer el abordaje de las problemáticas y fortalecer la calidad de las propuestas.</p>
+          </section>
+
+          <section>
+            <h2>Art. 7º — Inscripción</h2>
+            <p>La inscripción será <strong>gratuita</strong> y se realizará a través del formulario oficial del evento, que será comunicado oportunamente por la organización. Cada participante deberá completar los datos requeridos para formalizar su participación en la Hackathon.</p>
+          </section>
+
+          <section>
+            <h2>Art. 8º — Dinámica del evento</h2>
+            <p>La Hackathon se desarrollará en tres momentos:</p>
+            <ul>
+              <li><strong>Actividad virtual previa:</strong> espacio de presentación general, encuadre metodológico y socialización de las bases y condiciones, a cargo de la facilitadora estratégica Celina Páez.</li>
+              <li><strong>Primera jornada presencial — viernes 28 de agosto:</strong> apertura institucional, reunión de equipos al inicio del evento, introducción a la metodología de trabajo y comienzo del proceso de ideación.</li>
+              <li><strong>Segunda jornada presencial — sábado 29 de agosto:</strong> continuidad del trabajo en equipos, acompañamiento de mentores, evaluación de propuestas, selección de equipos finalistas, pitch final, premiación y cierre.</li>
+            </ul>
+            <p>Durante el evento, los equipos contarán con acompañamiento de mentores técnicos y pedagógicos. El jurado intervendrá formalmente en el proceso de evaluación desde la jornada del viernes y continuará su trabajo durante el sábado.</p>
+          </section>
+
+          <section>
+            <h2>Art. 9º — Entregables</h2>
+            <p>No se establece un único formato de solución. Cada equipo podrá presentar la propuesta que considere más adecuada para responder a la temática general planteada por la Hackathon. A modo orientativo, podrán desarrollarse aplicaciones, prototipos, mockups, recursos digitales, propuestas metodológicas, modelos de gestión, campañas, dispositivos, estrategias o combinaciones de estos formatos.</p>
+            <p>La propuesta deberá mostrar con claridad qué problemática educativa aborda, cuál es la respuesta tecnológica que propone y qué posibilidades reales tiene de aplicación.</p>
+            <p>Cada equipo deberá entregar, <strong>antes de las 14:00 hs. del sábado 29 de agosto</strong> por correo electrónico oficial:</p>
+            <ul>
+              <li>Prototipo funcional, mockup navegable o propuesta documentada de la solución, en el formato que el equipo elija.</li>
+              <li>Descripción del problema abordado y justificación pedagógica de la solución (máx. 1 carilla o equivalente en formato digital).</li>
+              <li>Materiales de apoyo para la presentación oral (slides, demo, video o similar).</li>
             </ul>
           </section>
 
           <section>
-            <h2>5. Temática</h2>
-            <p>Cada equipo deberá identificar una problemática del campo educativo y proponer una solución con base tecnológica. Los proyectos serán evaluados en función de su pertinencia pedagógica, innovación, viabilidad y calidad de presentación.</p>
+            <h2>Art. 10º — Selección de equipos finalistas y presentación final</h2>
+            <p>Durante la segunda jornada del evento, el jurado evaluará las propuestas presentadas por todos los equipos participantes y seleccionará <strong>10 equipos finalistas</strong>, que serán los que accederán a la instancia de pitch final.</p>
+            <p>Cada uno de los 10 equipos finalistas contará con:</p>
+            <ul>
+              <li><strong>3 minutos</strong> para realizar su pitch.</li>
+              <li><strong>Hasta 3 minutos</strong> para responder preguntas del jurado.</li>
+            </ul>
+            <p>El tiempo será controlado por la organización. Todos los integrantes del equipo deberán estar presentes al momento de la presentación final, salvo situaciones excepcionales debidamente justificadas.</p>
           </section>
 
           <section>
-            <h2>6. Evaluación y Criterios</h2>
-            <p>Un jurado designado por la organización evaluará los proyectos en base a los siguientes criterios. Cada criterio se puntúa del <strong>1 (insuficiente) al 5 (excelente)</strong> y tiene un peso distinto sobre el puntaje final:</p>
+            <h2>Art. 11º — Criterios de evaluación</h2>
+            <p>El jurado estará integrado por perfiles generales vinculados a educación, tecnología, innovación, comunicación, gestión, vinculación institucional y desarrollo de proyectos.</p>
+            <p>El mismo evaluará las presentaciones a partir de criterios generales que serán comunicados por la organización. Entre ellos, se contemplarán especialmente los siguientes aspectos:</p>
+            <ul>
+              <li><strong>Identificación del problema e innovación.</strong> Capacidad para reconocer una problemática educativa relevante y proponer una solución original y pertinente.</li>
+              <li><strong>Viabilidad pedagógica y técnica.</strong> Coherencia entre el problema detectado, la propuesta desarrollada y sus posibilidades reales de implementación.</li>
+              <li><strong>Presentación oral.</strong> Claridad, síntesis, calidad de la comunicación y solidez de la exposición en la instancia final.</li>
+              <li><strong>Proceso colaborativo.</strong> Trabajo en equipo, articulación entre perfiles diversos, organización del proceso y construcción conjunta de la propuesta.</li>
+            </ul>
+            <p>La rúbrica de evaluación específica y la asignación de puntajes son definidas y comunicadas por la organización: se detallan en el <a href="#anexo-rubrica">Anexo II</a> de este documento. Las decisiones del jurado son <strong>definitivas e inapelables</strong>. El jurado podrá otorgar menciones especiales a criterio propio.</p>
+          </section>
+
+          <section>
+            <h2>Art. 12º — Premios y reconocimientos</h2>
+            <p>Todas las personas participantes recibirán una <strong>certificación</strong> por su participación en la Hackathon EduTech 2026, de acuerdo con el siguiente esquema:</p>
+            <ul>
+              <li><strong>Docentes del sistema educativo provincial</strong> (niveles secundario y superior), directivos y supervisores: certificación con aval de la Dirección General de Escuelas (DGE) y <strong>puntaje docente</strong>, conforme a la resolución específica de asignación de puntaje (en trámite).</li>
+              <li><strong>Profesionales que ejercen o desean ejercer la docencia sin título de profesor:</strong> certificación con aval de la DGE, conforme a la resolución que otorga dicho aval (en trámite).</li>
+              <li><strong>Egresados técnicos y estudiantes avanzados de tecnicaturas superiores afines:</strong> certificación con aval de la DGE, conforme a la resolución que otorga dicho aval (en trámite).</li>
+              <li><strong>Estudiantes de profesorados, mentores y demás perfiles:</strong> certificación emitida por los IES organizadores (IES 9-023 e IES Tomás Alva Edison).</li>
+            </ul>
+            <p>Para estudiantes de profesorados y de tecnicaturas, la participación puede computar además como <strong>Práctica Profesionalizante</strong>, conforme la conducción de cada IES.</p>
+            <p>Los equipos seleccionados finalistas y el equipo ganador recibirán distinciones especiales. Los premios específicos serán comunicados oportunamente por los canales oficiales del evento.</p>
+          </section>
+
+          <section>
+            <h2>Art. 13º — Propiedad de los proyectos</h2>
+            <p>Los prototipos, soluciones y propuestas producidas durante el evento son <strong>propiedad de los equipos que los desarrollaron</strong>. La organización podrá difundir los proyectos con fines académicos, institucionales y de comunicación, con mención expresa de sus autores. <strong>No existe cesión de derechos a favor de la organización.</strong></p>
+          </section>
+
+          <section>
+            <h2>Art. 14º — Código de convivencia</h2>
+            <p>El hackathon es un espacio de aprendizaje colaborativo y de convivencia respetuosa. No se tolerará ninguna forma de discriminación, violencia, acoso o conducta que obstaculice la participación plena de cualquier persona. La organización podrá excluir del evento a quienes incumplan estas condiciones.</p>
+            <p>Se espera de todas y todos los participantes una actitud de cuidado del espacio, del tiempo compartido, del trabajo colectivo y de la diversidad de perfiles que forman parte de la experiencia.</p>
+          </section>
+
+          <section>
+            <h2>Art. 15º — Uso de imagen y producciones</h2>
+            <p>La inscripción y participación en el evento implican la autorización para el registro fotográfico, audiovisual y comunicacional de las actividades con fines institucionales y de difusión no comercial, salvo manifestación expresa en contrario por parte de la persona participante.</p>
+          </section>
+
+          <section>
+            <h2>Art. 16º — Disposiciones generales</h2>
+            <ul>
+              <li>La participación implica la aceptación plena de las presentes bases y condiciones.</li>
+              <li>La organización se reserva el derecho de modificar fechas, sedes o condiciones por razones de fuerza mayor, comunicando los cambios con la mayor anticipación posible.</li>
+              <li>Toda situación no prevista en estas bases será resuelta por la comisión organizadora, cuya decisión será definitiva.</li>
+            </ul>
+          </section>
+
+          <section class="legal-anexo">
+            <h2 id="anexo-cronograma">Anexo I — Cronograma general del evento</h2>
+
+            <h3>1. Miércoles 26 de agosto — Actividad previa virtual</h3>
+            <p><strong>21:30 a 23:00 hs.</strong> Modalidad virtual sincrónica.</p>
+            <p>Charla virtual de bases y condiciones a cargo de la facilitadora Celina Páez. El objetivo es preparar estratégicamente a las y los participantes antes del evento, presentar el encuadre general de la Hackathon y comunicar la hoja de ruta de trabajo.</p>
+
+            <h3>2. Viernes 28 de agosto — Primera jornada presencial</h3>
+            <p><strong>15:00 a 20:30 hs.</strong> Sede: IES 9-023 (Dionisio Herrero 303, Maipú, Mendoza).</p>
+            <ul>
+              <li><strong>15:00 a 16:00:</strong> recepción, acreditación y conformación de equipos, a partir de una dinámica coordinada por la organización.</li>
+              <li><strong>16:00 a 16:15:</strong> acto breve de apertura con autoridades.</li>
+              <li><strong>16:15 a 17:45:</strong> charla metodológica: introducción al Design Sprint, a cargo de Celina Páez.</li>
+              <li><strong>17:45 a 18:15:</strong> recreo.</li>
+              <li><strong>18:15 a 20:30:</strong> Bloque de Trabajo 1 — Ideación. Elección de la problemática, definición de las personas destinatarias, ideación inicial y primer enfoque de solución. Hay mentores disponibles y el jurado comienza su intervención formal de observación y evaluación.</li>
+            </ul>
+
+            <h3>3. Sábado 29 de agosto — Segunda jornada presencial</h3>
+            <p><strong>8:30 a 18:00 hs.</strong> Sedes: IES 9-023 (Dionisio Herrero 303) por la mañana y Auditorio Municipal de Maipú, Marciano Cantero (Mercedes Tomasa de San Martín 1050) para el cierre.</p>
+            <ul>
+              <li><strong>08:30 a 09:00:</strong> recepción en el IES 9-023.</li>
+              <li><strong>09:00 a 10:00:</strong> instancia formativa sobre pitch y presentación, a cargo de Celina Páez, destinada a todas y todos los participantes.</li>
+              <li><strong>10:00 a 14:00:</strong> Bloque de Trabajo 2 — Desarrollo. Trabajo con mentores técnicos y docentes, revisión y mejora de la propuesta, optimización del prototipo y ajuste en función de los criterios de evaluación.</li>
+              <li><strong>10:15 a 10:45:</strong> entrenamiento específico para voceros, a cargo de Celina Páez. El resto de cada equipo continúa trabajando.</li>
+              <li><strong>Hasta las 14:00:</strong> envío del prototipo o propuesta final por correo electrónico.</li>
+              <li><strong>14:00 a 15:30:</strong> almuerzo y descanso.</li>
+              <li><strong>15:30 a 17:00:</strong> Bloque de Trabajo 3 — Pitch final de proyectos, en el Auditorio Municipal Marciano Cantero. Los equipos finalistas presentan ante el jurado, con tiempo cronometrado.</li>
+              <li><strong>17:00 a 18:00:</strong> premiación y acto de cierre.</li>
+            </ul>
+          </section>
+
+          <section class="legal-anexo">
+            <h2 id="anexo-rubrica">Anexo II — Rúbrica de evaluación</h2>
+            <p>Es la rúbrica específica que menciona el Art. 11º, y la que el jurado aplica en la plataforma. Cada criterio se puntúa del <strong>1 (insuficiente) al 5 (excelente)</strong> y tiene un peso propio sobre el puntaje final:</p>
             <ul>
               <li><strong>Problema y contexto educativo:</strong> claridad con la que se identifica un problema real del ámbito educativo y comprensión de a quién afecta.</li>
               <li><strong>Propuesta de solución y valor:</strong> en qué medida la solución responde al problema y genera valor concreto para quien la use.</li>
@@ -59,36 +227,31 @@ import Layout from '../layouts/Layout.astro';
               <li><strong>Comunicación y pitch:</strong> claridad del relato, respeto de los tiempos y solvencia al responder al jurado. <em>Se puntúa únicamente en la instancia final.</em></li>
             </ul>
             <p>La evaluación se desarrolla en <strong>dos instancias</strong>, y <strong>el peso de cada criterio cambia según la instancia</strong>:</p>
+            <div class="legal-tabla-wrap">
+              <table class="legal-tabla">
+                <thead>
+                  <tr><th>Criterio</th><th>Preclasificación</th><th>Final</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Problema y contexto educativo</td><td>18 %</td><td>15 %</td></tr>
+                  <tr><td>Propuesta de solución y valor</td><td>23 %</td><td>20 %</td></tr>
+                  <tr><td>Nivel de innovación</td><td>18 %</td><td>15 %</td></tr>
+                  <tr><td>Factibilidad y prototipo</td><td>23 %</td><td>20 %</td></tr>
+                  <tr><td>Impacto potencial en educación</td><td>18 %</td><td>15 %</td></tr>
+                  <tr><td>Comunicación y pitch</td><td>no se puntúa</td><td>15 %</td></tr>
+                </tbody>
+              </table>
+            </div>
             <ul>
-              <li><strong>Primera instancia (preclasificación):</strong> el jurado recorre a la totalidad de los equipos y puntúa el proyecto y su prototipo. Como en esta etapa no hay presentación ante el jurado, <strong>no se puntúa «Comunicación y pitch»</strong>. Los pesos son: problema 18%, solución 23%, innovación 18%, factibilidad 23% e impacto 18%. A partir del orden de mérito resultante se preseleccionan los <strong>diez (10) equipos finalistas</strong>.</li>
-              <li><strong>Segunda instancia (final):</strong> los equipos finalistas presentan su pitch ante el jurado y son evaluados nuevamente, esta vez con los seis criterios. Los pesos son: problema 15%, solución 20%, innovación 15%, factibilidad 20%, impacto 15% y comunicación 15%. Allí se define el resultado final.</li>
+              <li><strong>Primera instancia (preclasificación):</strong> el jurado recorre a la totalidad de los equipos y puntúa el proyecto y su prototipo. Como en esta etapa no hay presentación ante el jurado, <strong>no se puntúa «Comunicación y pitch»</strong> y su peso se reparte en partes iguales entre los otros cinco criterios. A partir del orden de mérito resultante se preseleccionan los <strong>diez (10) equipos finalistas</strong> (Art. 10º).</li>
+              <li><strong>Segunda instancia (final):</strong> los equipos finalistas presentan su pitch ante el jurado y son evaluados nuevamente, esta vez con los seis criterios. Allí se define el resultado final.</li>
             </ul>
             <p>En ambas instancias el puntaje se normaliza sobre 100 puntos, de modo que los resultados de una y otra son comparables entre sí.</p>
-          </section>
-
-          <section>
-            <h2>7. Premiación</h2>
-            <p>Se premiarán los <strong>tres primeros lugares</strong>. Los premios serán anunciados por la organización antes del inicio del evento. La decisión del jurado es inapelable.</p>
-          </section>
-
-          <section>
-            <h2>8. Propiedad Intelectual</h2>
-            <p>Cada equipo conserva la propiedad intelectual de su proyecto. Al participar, los equipos autorizan a la organización a difundir material audiovisual del evento y los nombres de los proyectos con fines comunicacionales e institucionales.</p>
-          </section>
-
-          <section>
-            <h2>9. Código de Conducta</h2>
-            <p>Se espera de todos los participantes un comportamiento respetuoso, colaborativo y responsable. La organización se reserva el derecho de excluir a cualquier participante que incumpla las normas de convivencia o ponga en riesgo el desarrollo del evento.</p>
-          </section>
-
-          <section>
-            <h2>10. Aceptación de las Bases</h2>
-            <p>La inscripción al Evento implica la aceptación total de las presentes bases y condiciones. La organización se reserva el derecho de modificarlas si circunstancias excepcionales lo requirieran, notificando a los inscriptos con anticipación razonable.</p>
           </section>
         </article>
 
         <div class="legal-contact">
-          <p>¿Tenés alguna duda? Escribinos a <a href="mailto:hackathonedutech@gmail.com">hackathonedutech@gmail.com</a></p>
+          <p>¿Tenés alguna duda? Escribinos a <a href={`mailto:${EMAIL}`}>{EMAIL}</a> o dejanos tu consulta en <a href="/#consultas">el formulario del sitio</a>.</p>
         </div>
       </div>
     </div>
@@ -134,8 +297,100 @@ import Layout from '../layouts/Layout.astro';
     border-bottom: 1px solid var(--brd);
   }
 
+  /* Bloque de descarga del documento original (Art. 6 del brief: las bases
+     tienen que poder consultarse y tenerse a mano). */
+  .legal-download {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+    border: 1px solid var(--brd);
+    border-radius: var(--r-md);
+    background: var(--bg-2);
+  }
+
+  .legal-download-txt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .legal-download-txt strong {
+    font-size: 0.95rem;
+    color: var(--txt-1);
+  }
+
+  .legal-download-txt span {
+    font-size: 0.85rem;
+    color: var(--txt-m);
+  }
+
+  .legal-download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
   .legal-content section {
     margin-bottom: 2rem;
+  }
+
+  .legal-intro {
+    font-style: italic;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--brd);
+  }
+
+  /* Los anexos se despegan del articulado para que se lean como lo que son. */
+  .legal-anexo {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--brd);
+  }
+
+  .legal-content h3 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--txt-1);
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  /* La tabla scrollea dentro de su caja: en un teléfono, el ancho de tres
+     columnas de texto no entra y si no, empuja toda la página. */
+  .legal-tabla-wrap {
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  .legal-tabla {
+    width: 100%;
+    min-width: 380px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .legal-tabla th,
+  .legal-tabla td {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--brd);
+    color: var(--txt-2);
+    line-height: 1.5;
+  }
+
+  .legal-tabla th {
+    font-weight: 700;
+    color: var(--txt-1);
+    white-space: nowrap;
+  }
+
+  .legal-tabla tbody tr:last-child td {
+    border-bottom: none;
   }
 
   .legal-content h2 {

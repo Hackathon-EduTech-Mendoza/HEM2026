@@ -1,6 +1,9 @@
 ---
 // src/components/FAQ.astro
-import { WHATSAPP_URL, WHATSAPP_VISIBLE, EMAIL } from '../utils/contacto';
+//
+// El bloque de contacto que cerraba esta sección se fue a Consultas.astro, que
+// va inmediatamente debajo en el home: desde el 2026-08-03 no hay WhatsApp y el
+// canal es el formulario.
 ---
 
 <section class="faq" id="faq">
@@ -58,7 +61,8 @@ import { WHATSAPP_URL, WHATSAPP_VISIBLE, EMAIL } from '../utils/contacto';
                     <span class="faq-ico">+</span>
                 </button>
                 <div class="faq-a">
-                    <p>El jurado evaluará los proyectos basándose en cuatro pilares: pertinencia pedagógica, innovación tecnológica, viabilidad de implementación y calidad de la presentación (pitch).</p>
+                    <p>El jurado evalúa cuatro aspectos: <strong>identificación del problema e innovación</strong> (reconocer una problemática educativa relevante y proponer una solución original y pertinente), <strong>viabilidad pedagógica y técnica</strong> (coherencia entre el problema, la propuesta y sus posibilidades reales de implementación), <strong>presentación oral</strong> (claridad y solidez de la exposición final) y <strong>proceso colaborativo</strong> (trabajo en equipo, articulación entre perfiles diversos y construcción conjunta de la propuesta).</p>
+                    <p>La rúbrica específica y la asignación de puntajes están detalladas en el <a href="/bases-y-condiciones#anexo-rubrica">Anexo II de las Bases y Condiciones</a>.</p>
                 </div>
             </div>
 
@@ -88,7 +92,7 @@ import { WHATSAPP_URL, WHATSAPP_VISIBLE, EMAIL } from '../utils/contacto';
                     <span class="faq-ico">+</span>
                 </button>
                 <div class="faq-a">
-                    <p>Sí, todos los participantes que asistan a las jornadas del evento y completen la entrega de sus proyectos recibirán una certificación oficial emitida por el IES 9-023 y el IES Tomás Alva Edison.</p>
+                    <p>Sí, todos los participantes que asistan a las jornadas del evento y completen la entrega de sus proyectos recibirán una certificación emitida por el IES 9-023 y el IES Tomás Alva Edison que contará con el <strong>aval de la Dirección General de Escuelas</strong> y con <strong>puntaje docente</strong> para quienes acrediten serlo en forma fehaciente.</p>
                 </div>
             </div>
 
@@ -112,85 +116,10 @@ import { WHATSAPP_URL, WHATSAPP_VISIBLE, EMAIL } from '../utils/contacto';
                 </div>
             </div>
         </div>
-
-        <div class="faq-contacto card reveal rd2">
-            <div class="faq-contacto-txt">
-                <h3>¿Te quedó alguna duda?</h3>
-                <p>Escribinos al WhatsApp del evento y te respondemos.</p>
-            </div>
-            <div class="faq-contacto-acciones">
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" class="btn btn-primary faq-whatsapp">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.896 9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.358.101 11.943c0 2.096.549 4.142 1.595 5.945L0 24l6.305-1.654a11.9 11.9 0 0 0 5.734 1.46h.005c6.584 0 11.946-5.359 11.949-11.945a11.9 11.9 0 0 0-3.473-8.412"/></svg>
-                    {WHATSAPP_VISIBLE}
-                </a>
-                <a href={`mailto:${EMAIL}`} class="faq-contacto-mail">o escribinos por mail</a>
-            </div>
-        </div>
     </div>
 </section>
 
 <style>
-    .faq-contacto {
-        margin-top: 4rem;
-        padding: 2.5rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 1.75rem;
-        border: 1px solid var(--brd);
-        background: var(--bg-card);
-    }
-
-    @media (min-width: 768px) {
-        .faq-contacto {
-            flex-direction: row;
-            justify-content: space-between;
-            text-align: left;
-        }
-    }
-
-    .faq-contacto-txt h3 {
-        font-family: var(--font-heading);
-        font-size: 1.35rem;
-        color: var(--txt-1);
-        margin: 0 0 0.4rem 0;
-    }
-
-    .faq-contacto-txt p {
-        margin: 0;
-        color: var(--txt-2);
-        font-size: 0.95rem;
-    }
-
-    .faq-contacto-acciones {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-        flex-shrink: 0;
-    }
-
-    .faq-whatsapp {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.6rem;
-        white-space: nowrap;
-    }
-
-    .faq-contacto-mail {
-        font-size: 0.82rem;
-        color: var(--txt-m);
-        text-decoration: none;
-        border-bottom: 1px solid transparent;
-        transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
-    }
-
-    .faq-contacto-mail:hover {
-        color: var(--c1);
-        border-bottom-color: currentColor;
-    }
-
     .faq {
         padding: var(--section-pad-y) 0;
     }
