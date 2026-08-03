@@ -439,6 +439,22 @@ solos; el que no es la config de la colección.
 
 ## Contacto
 
+⚠️ **La casilla publicada estuvo rota desde el commit `5db7ffd` hasta el
+2026-08-03.** Decía `hackathonedutech@gmail.com`, que **no existe**: Gmail la
+rechaza con *hard bounce*. Estuvo a la vista en el footer, el bloque de contacto
+y las Bases, y llegó a producción, así que **todo el que escribió ahí recibió un
+rebote**. La real es `hackathoneducacionmendoza@gmail.com`, la dueña de la cuenta
+de Brevo y su único remitente verificado.
+
+Se descubrió porque el aviso del formulario de consultas no llegaba: el primer
+envío rebotó y Brevo puso la dirección en su **lista de bloqueados**, así que los
+siguientes ni se intentaron (`event: blocked` en
+`/v3/smtp/statistics/events`). Verificado después del cambio: `event: delivered`.
+
+**Si alguna vez cambia la casilla, mandar un correo de prueba y confirmar el
+evento `delivered` antes de publicarla.** Un `HTTP 201` de la API de Brevo sólo
+dice que aceptó el pedido, no que se entregó.
+
 Desde el **2026-08-03 no hay WhatsApp**: Martín lo dio de baja porque finalmente
 no se usa. `src/utils/contacto.ts` quedó sólo con el mail
 (`hackathonedutech@gmail.com`), y el canal público es el formulario de consultas

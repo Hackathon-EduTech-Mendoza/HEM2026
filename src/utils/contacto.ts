@@ -11,4 +11,11 @@
 // El campo `phone_whatsapp` del perfil es otra cosa: es el teléfono de cada
 // participante, y sigue en uso.
 
-export const EMAIL = 'hackathonedutech@gmail.com';
+// ⚠️ Hasta el 2026-08-03 acá decía `hackathonedutech@gmail.com`, que **no
+// existe**: Gmail la rechazó con hard bounce y Brevo la puso en su lista de
+// bloqueados. Estuvo publicada en el footer, el bloque de consultas y las Bases
+// desde el commit 5db7ffd, así que todo el que escribió ahí recibió un rebote.
+// La casilla real es la que es dueña de la cuenta de Brevo y el único remitente
+// verificado. Si alguna vez cambia, verificar que la nueva reciba de verdad
+// antes de publicarla.
+export const EMAIL = 'hackathoneducacionmendoza@gmail.com';
