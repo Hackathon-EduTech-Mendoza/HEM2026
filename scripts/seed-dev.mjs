@@ -154,7 +154,10 @@ const USUARIOS = [
     dni: '45333444',
     phone_whatsapp: '2615000013',
     institution: 'otra',
-    institution_other: 'IES 9-012 Tupungato',
+    // A propósito el nombre más largo que hay cargado en producción (75
+    // caracteres). Con él la tabla de Usuarios del admin generaba scroll
+    // horizontal; queda como caso de prueba para que no vuelva a pasar.
+    institution_other: 'Instituto Superior de Formación Docente y Técnica N°9030 "Del Bicentenario"',
     disciplinary_profile: 'otro',
     year_of_study: 'primero',
     is_egresado: false,

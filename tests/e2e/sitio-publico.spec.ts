@@ -173,6 +173,28 @@ test.describe('feed RSS', () => {
   });
 });
 
+test.describe('cronómetro del Hero', () => {
+  /**
+   * La fecha vive en `Hero.astro`, no en `event_config`. Hubo un fetch a esa
+   * tabla comentado que, de activarse, habría leído la fecha de la edición
+   * anterior y dejado el countdown en cero. Este test fija el valor bueno.
+   */
+  test('apunta al 26 de agosto de 2026, 21:30', async ({ page }) => {
+    await page.goto('/');
+    const countdown = page.locator('#countdown');
+    await expect(countdown).toHaveAttribute('data-target-date', '2026-08-26T21:30:00-03:00');
+  });
+
+  test('la cuenta regresiva corre y el evento todavía no arrancó', async ({ page }) => {
+    await page.goto('/');
+    // Si la fecha quedara en el pasado, el Hero mostraría el cartel de inicio
+    // y los dígitos se irían a cero.
+    await expect(page.locator('#countdown-message')).toBeHidden();
+    const dias = await page.locator('#cdD').textContent();
+    expect(Number(dias)).toBeGreaterThan(0);
+  });
+});
+
 test.describe('canal de consultas', () => {
   /**
    * El WhatsApp del evento se dio de baja el 2026-08-03 y lo reemplaza el
