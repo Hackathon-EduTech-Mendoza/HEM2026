@@ -1,7 +1,24 @@
 # Estado actual del repositorio
 
-> Actualizado: **2026-07-30**. Resume dónde está el código, cómo está la base y
+> Actualizado: **2026-08-03**. Resume dónde está el código, cómo está la base y
 > qué queda pendiente, para poder retomar sin reconstruir el contexto.
+
+### Sesión 2026-08-03 (cierre de la rúbrica por fase)
+
+| Commit | Qué es |
+|--------|--------|
+| `3d2c822` | Rúbrica dependiente de la fase: en preclasificación no se puntúa el pitch |
+
+La migración `20260731_01_rubrica_por_fase.sql` quedó **aplicada en las dos
+bases**: en dev el 2026-07-31 y en **prod el 2026-08-03**, por el SQL Editor del
+dashboard. Verificado contra prod: `score_communication` nullable, el CHECK de
+coherencia fase/criterio presente, y `project_leaderboard` recreada con los pesos
+por fase y `security_invoker = true`.
+
+**La separación dev/prod quedó operativa.** "Confirm email" está en OFF en
+HEM-Dev y la suite completa corrió entera contra dev: **32 E2E en verde** (2.8m,
+con la limpieza del `afterAll` funcionando) más **56 unitarios**. Los tests ya no
+tocan producción.
 
 ## Git
 
@@ -44,12 +61,15 @@ git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.g
 | `90dc9ab` | Segmento de comunicados para el recordatorio a los registros incompletos |
 | `7d65fa4` | Bootstrap de HEM-Dev con el esquema de prod, sin datos personales |
 
-### ⏸️ Separación HEM-Prod / HEM-Dev: EN CURSO, cortada a la mitad
+### ✅ Separación HEM-Prod / HEM-Dev: OPERATIVA desde el 2026-08-03
+
+> Lo que sigue de esta sección describe cómo se llegó. Lo único abierto es el
+> **branch protection** de `main` (necesita `gh` instalado).
 
 | Proyecto | `project_ref` | Estado |
 |---|---|---|
 | **HEM-Prod** | `cotwhywqcocutrkmrpiw` | La base real, 54 perfiles |
-| **HEM-Dev** | `mhipqazqvnuvtlrbqdce` | Creado y **vacío**. Todavía sin esquema |
+| **HEM-Dev** | `mhipqazqvnuvtlrbqdce` | Esquema completo, sin datos personales. Es contra la que corren los tests |
 
 **Por qué:** hasta ahora `npm run test:e2e` corría **contra producción** — cada
 corrida creaba 4 cuentas reales, 1 equipo, 1 proyecto y 2 evaluaciones, y las
@@ -60,11 +80,11 @@ bootstrap del admin de pruebas y un README con los 5 pasos. `.mcp.json` tiene do
 servidores: `supabase-dev` (completo) y `supabase-prod` (**`read_only=true`**,
 solo `docs,database,debugging`, para que auditarlo no pueda escribirlo).
 
-**Dónde retomar:** los MCP están configurados pero **sin autenticar**. Hay que
-correr `claude /mcp` en una **terminal normal** (no la extensión del IDE),
-autenticar los dos y **reiniciar la sesión** — Claude Code los carga al arrancar.
-Después: aplicar `01` → `02` → `03` en dev, apuntar `.env` y los secrets del CI, y
-correr la suite completa contra dev.
+⚠️ **Ese `read_only=true` implica que las migraciones de prod se aplican a mano**,
+por el SQL Editor del dashboard. Es a propósito, y es lo que se hizo con
+`20260731_01`. Si algún día hace falta escribir prod desde una sesión, hay que
+sacarle el flag a `supabase-prod` en `.mcp.json` y **reiniciar la sesión**
+(Claude Code lee los MCP al arrancar), y conviene reponerlo después.
 
 ⚠️ **Vercel no se tocó**: producción sigue apuntando a HEM-Prod.
 
@@ -176,8 +196,7 @@ necesita `npm run test:e2e`.
 **Migraciones aplicadas** (además de las históricas): `20260714_01` (fases y
 criterios), `20260714_02` (juez aprobado), `20260724_01` (rúbrica 1–5
 ponderada), `20260724_02` (`profiles.institution_other`), `20260731_01`
-(rúbrica por fase: sin pitch en preclasificación) — **aplicada en dev, falta
-aplicarla en prod**.
+(rúbrica por fase: sin pitch en preclasificación) — **aplicada en dev y en prod**.
 
 ### Auditoría de seguridad del esquema (2026-07-30)
 
@@ -346,7 +365,7 @@ Tres comandos:
 
 | Comando | Qué corre | Toca la base |
 |---|---|---|
-| `npm run test:unit` | 39 tests de las funciones puras (`src/utils/perfil.ts`) | no |
+| `npm run test:unit` | 56 tests de las funciones puras (`src/utils/perfil.ts` y `src/lib/rubric.ts`) | no |
 | `npx playwright test sitio-publico` | 11 tests del sitio público | no |
 | `npx playwright test admin-metricas` | 5 tests de la pestaña Métricas | solo lee |
 | `npx playwright test admin-evaluacion` | 1 test: el admin no ve la votación | solo lee |
@@ -358,9 +377,10 @@ navegador ni dev server) para no sumar otra dependencia. Corren en ~1 segundo.
 `tests/e2e/full-flow.spec.ts` son 19 tests **seriales** que cubren registro,
 onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
-contra la base real. **Los 32 tests en verde al 2026-07-30**, corridos ese día:
-la suite completa se corrió entera después de tocar el middleware, y la limpieza
-dejó la base como estaba. Más los 39 unitarios.
+contra la base de **desarrollo** (desde el 2026-08-03; antes iban contra prod).
+**Los 32 tests en verde al 2026-08-03**, corridos ese día contra HEM-Dev en 2.8
+minutos, con la limpieza dejando la base como estaba. Más **56 unitarios** (los
+39 de `perfil.ts` y 17 nuevos de `rubric.ts`).
 
 ### Datos de prueba: la suite se limpia sola
 
