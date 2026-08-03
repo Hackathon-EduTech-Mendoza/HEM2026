@@ -22,10 +22,33 @@ test.describe('navegación a noticias', () => {
 
   test('/noticias se alcanza directo y lista las noticias', async ({ page }) => {
     await page.goto('/noticias');
-    // Hay al menos las cinco notas cargadas al momento de escribir el test.
+    // Hay al menos las siete notas cargadas al momento de escribir el test.
     const tarjetas = page.locator('.news-grid .news-card');
-    expect(await tarjetas.count()).toBeGreaterThanOrEqual(5);
+    expect(await tarjetas.count()).toBeGreaterThanOrEqual(7);
   });
+});
+
+test.describe('cobertura de la convocatoria', () => {
+  /**
+   * Las dos notas que sumó Martín el 2026-08-03. Van como prensa externa, así
+   * que la tarjeta apunta al medio y no se genera página propia.
+   */
+  const coberturas = [
+    { medio: 'mendoza.edu.ar', slug: 'dge-abren-inscripciones-segunda-edicion' },
+    { medio: 'portaltic.com.ar', slug: 'portaltic-mendoza-lanza-hackathon-2026' },
+  ];
+
+  for (const { medio, slug } of coberturas) {
+    test(`la nota de ${medio} aparece y apunta al medio`, async ({ page }) => {
+      await page.goto('/noticias');
+      const link = page.locator(`a[href*="${medio}"]`).first();
+      await expect(link).toHaveAttribute('href', new RegExp(medio.replace('.', '\\.')));
+      await expect(link).toHaveAttribute('target', '_blank');
+
+      const respuesta = await page.request.get(`/noticias/${slug}`);
+      expect(respuesta.status()).toBe(404);
+    });
+  }
 });
 
 test.describe('miniaturas de las tarjetas', () => {
@@ -147,5 +170,84 @@ test.describe('feed RSS', () => {
     await page.goto('/');
     const link = page.locator('link[rel="alternate"][type="application/rss+xml"]');
     await expect(link).toHaveAttribute('href', '/rss.xml');
+  });
+});
+
+test.describe('canal de consultas', () => {
+  /**
+   * El WhatsApp del evento se dio de baja el 2026-08-03 y lo reemplaza el
+   * formulario. El test cubre las dos mitades: que el número no vuelva y que
+   * el formulario esté donde tiene que estar.
+   */
+  test('no queda ningún enlace a WhatsApp en el sitio público', async ({ page }) => {
+    for (const ruta of ['/', '/noticias', '/bases-y-condiciones']) {
+      await page.goto(ruta);
+      await expect(page.locator('a[href*="wa.me"]'), `${ruta} todavía linkea a WhatsApp`).toHaveCount(0);
+    }
+  });
+
+  test('el formulario de consultas está en el home y el footer lo enlaza', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#consultas')).toHaveCount(1);
+    await expect(page.locator('#consultas-form #consulta-nombre')).toBeVisible();
+    await expect(page.locator('#consultas-form #consulta-email')).toBeVisible();
+    await expect(page.locator('#consultas-form #consulta-mensaje')).toBeVisible();
+    await expect(page.locator('.ftr-links a[href="/#consultas"]')).toHaveCount(1);
+  });
+
+  test('el honeypot no es visible ni tabulable', async ({ page }) => {
+    await page.goto('/');
+    const trampa = page.locator('#consulta-website');
+    await expect(trampa).toHaveCount(1);
+    await expect(trampa).not.toBeInViewport();
+    await expect(trampa).toHaveAttribute('tabindex', '-1');
+  });
+
+  test('la validación del cliente frena un envío incompleto', async ({ page }) => {
+    await page.goto('/');
+    await page.fill('#consulta-nombre', 'A');
+    await page.fill('#consulta-email', 'no-es-un-mail');
+    await page.fill('#consulta-mensaje', 'corto');
+
+    // Si algo se escapa a la validación, esto lo detecta: no debe salir request.
+    let hubieraEnviado = false;
+    page.on('request', (r) => {
+      if (r.url().includes('/api/consulta')) hubieraEnviado = true;
+    });
+
+    await page.click('#consulta-enviar');
+    await expect(page.locator('#consulta-estado')).toHaveClass(/is-error/);
+    expect(hubieraEnviado).toBe(false);
+  });
+
+  test('el endpoint rechaza un GET', async ({ page }) => {
+    const respuesta = await page.request.get('/api/consulta');
+    expect(respuesta.status()).toBe(405);
+  });
+});
+
+test.describe('bases y condiciones', () => {
+  test('se puede descargar el documento y están los dos anexos', async ({ page }) => {
+    await page.goto('/bases-y-condiciones');
+
+    const descarga = page.locator('a.legal-download-btn');
+    await expect(descarga).toHaveAttribute('href', /\.docx$/);
+    const archivo = await page.request.get(
+      (await descarga.getAttribute('href')) as string,
+    );
+    expect(archivo.status()).toBe(200);
+
+    await expect(page.locator('#anexo-cronograma')).toHaveCount(1);
+    await expect(page.locator('#anexo-rubrica')).toHaveCount(1);
+  });
+
+  test('el articulado es el de la v11 y ya no tiene las sedes viejas', async ({ page }) => {
+    await page.goto('/bases-y-condiciones');
+    const texto = (await page.locator('.legal-content').textContent()) ?? '';
+
+    expect(texto).toContain('Art. 16º');
+    expect(texto).toContain('Auditorio Municipal de Maipú');
+    // Sede de una versión anterior de las bases: si vuelve, algo se revirtió.
+    expect(texto).not.toContain('Le Parc');
   });
 });

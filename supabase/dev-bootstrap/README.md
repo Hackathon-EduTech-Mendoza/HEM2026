@@ -29,6 +29,7 @@ bootstrapea en el paso 3.
 | `02-complemento.sql` | Lo que el dump de `public` no puede traer (ver abajo). |
 | `03-admin-e2e.sql` | Promueve a admin la cuenta de pruebas de la suite. |
 | `04-rubrica-por-fase.sql` | Rúbrica dependiente de la fase: en preclasificación no se puntúa el pitch. Es posterior al dump, por eso va aparte. |
+| `05-consultas.sql` | Tabla `consultas` del formulario público del sitio. También posterior al dump. |
 
 ### ⚠️ Por qué hace falta el complemento
 
@@ -50,7 +51,9 @@ que verifiqué contra prod:
    `01-esquema-public.sql`, después `02-complemento.sql`. En ese orden: el
    complemento referencia funciones que crea el primero. Después
    `04-rubrica-por-fase.sql`, que va al final porque modifica la tabla
-   `evaluations` y recrea la vista `project_leaderboard` que trae el dump.
+   `evaluations` y recrea la vista `project_leaderboard` que trae el dump, y por
+   último `05-consultas.sql`, que crea una tabla nueva y no depende de nada del
+   dump más que de `profiles`.
 
 2. **Crear el usuario de pruebas** (ver las instrucciones dentro de
    `03-admin-e2e.sql`) y después correr ese archivo.
