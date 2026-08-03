@@ -1,6 +1,7 @@
 ---
 // src/pages/onboarding.astro
 import Layout from '../layouts/Layout.astro';
+import { INSTITUCIONES_SUGERIDAS } from '../utils/instituciones';
 
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -128,17 +129,29 @@ const email = user.email || '';
               </select>
             </div>
 
-            <!-- Nombre de la institución (solo si eligió "Otra institución") -->
+            <!-- Nombre de la institución (solo si eligió "Otra institución")
+                 El `list` sugiere mientras se escribe, pero NO cierra el campo:
+                 un mentor puede venir de una empresa y un docente, del jardín
+                 donde trabaja. Ver src/utils/instituciones.ts. -->
             <div class="form-group" id="institution-other-group" style="display: none;">
-              <label for="institution_other">¿Cuál es tu institución?</label>
+              <label for="institution_other">¿Cuál es tu institución u organización?</label>
               <input
                 type="text"
                 id="institution_other"
                 name="institution_other"
-                placeholder="Ej: Escuela Técnica N° 4-115 Pedro Vargas"
+                list="instituciones-sugeridas"
+                placeholder="Empezá a escribir y elegí de la lista, o escribila completa"
                 maxlength="120"
+                autocomplete="off"
                 disabled
               />
+              <datalist id="instituciones-sugeridas">
+                {INSTITUCIONES_SUGERIDAS.map((nombre) => <option value={nombre} />)}
+              </datalist>
+              <small class="form-hint">
+                Si aparece en la lista, elegila de ahí: así no queda la misma
+                institución cargada de dos formas distintas.
+              </small>
             </div>
 
             <!-- Perfil Disciplinar -->
@@ -378,6 +391,14 @@ const email = user.email || '';
     color: var(--txt-1);
   }
 
+  /* Aclaración bajo un campo. No reemplaza al placeholder: éste sigue visible
+     una vez que la persona empezó a escribir. */
+  .form-hint {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--txt-m);
+  }
+
   .form-group input,
   .form-group select {
     font-family: var(--font-body);
@@ -513,6 +534,7 @@ const email = user.email || '';
 <script>
   import { createBrowserClient } from '@supabase/ssr';
   import { normalizeInstagram, normalizePhone } from '../utils/perfil';
+  import { normalizarInstitucion, esInstitucionValida } from '../utils/instituciones';
 
   const supabase = createBrowserClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
@@ -696,7 +718,9 @@ const email = user.email || '';
     const institution = (document.getElementById('institution') as HTMLSelectElement).value;
     const disciplinary_profile = (document.getElementById('disciplinary_profile') as HTMLSelectElement).value;
 
-    const institution_other = institutionOtherInput?.value.trim() || '';
+    // Se guarda normalizado: espacios de sobra, comillas envolventes y
+    // puntuación colgada no deben partir una institución en dos.
+    const institution_other = normalizarInstitucion(institutionOtherInput?.value);
 
     if (!first_name || !last_name || !dni || !phone_whatsapp || !institution || !disciplinary_profile) {
       errorDiv.textContent = 'Por favor, completá todos los campos obligatorios.';
@@ -707,6 +731,15 @@ const email = user.email || '';
     if (institution === 'otra' && !institution_other) {
       errorDiv.textContent = 'Contanos el nombre de tu institución.';
       errorDiv.style.display = 'block';
+      return;
+    }
+
+    // Ataja el relleno para zafar del campo obligatorio: hay perfiles cargados
+    // con "-" y con "A" de antes de esta validación.
+    if (institution === 'otra' && !esInstitucionValida(institution_other)) {
+      errorDiv.textContent = 'Escribí el nombre de tu institución u organización (al menos 3 caracteres).';
+      errorDiv.style.display = 'block';
+      institutionOtherInput?.focus();
       return;
     }
 
