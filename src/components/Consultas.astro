@@ -1,0 +1,264 @@
+---
+// src/components/Consultas.astro
+//
+// Canal de consultas del sitio (pedido de Martín, 2026-08-03: se dio de baja el
+// WhatsApp del evento y hacía falta un espacio visible para eventuales
+// interesados). Va inmediatamente debajo del FAQ, que es donde la duda aparece.
+//
+// El envío pega en POST /api/consulta, que guarda en la tabla `consultas` y
+// avisa por mail. El `mailto` queda a la vista como salida alternativa: si el
+// formulario falla, la persona no se queda sin forma de escribir.
+import { EMAIL } from '../utils/contacto';
+---
+
+<section class="consultas" id="consultas">
+    <div class="container">
+        <div class="consultas-card card reveal">
+            <div class="consultas-intro">
+                <span class="section-label">Contacto</span>
+                <h2 class="section-title">¿Te quedó alguna duda?</h2>
+                <p class="section-desc">Dejanos tu consulta y te respondemos por correo. Si preferís escribirnos directo, es a <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
+            </div>
+
+            <form class="consultas-form" id="consultas-form" novalidate>
+                <div class="consultas-fila">
+                    <div class="consultas-campo">
+                        <label for="consulta-nombre">Nombre</label>
+                        <input type="text" id="consulta-nombre" name="nombre" autocomplete="name" maxlength="120" required />
+                    </div>
+                    <div class="consultas-campo">
+                        <label for="consulta-email">Correo electrónico</label>
+                        <input type="email" id="consulta-email" name="email" autocomplete="email" maxlength="254" required />
+                    </div>
+                </div>
+
+                <div class="consultas-campo">
+                    <label for="consulta-mensaje">Tu consulta</label>
+                    <textarea id="consulta-mensaje" name="mensaje" rows="5" maxlength="2000" required placeholder="Contanos en qué podemos ayudarte."></textarea>
+                    <span class="consultas-contador" id="consulta-contador" aria-live="polite">0 / 2000</span>
+                </div>
+
+                <!--
+                  Honeypot: invisible para una persona, tentador para un bot.
+                  Va fuera de pantalla en vez de display:none porque hay bots que
+                  ignoran los campos ocultos. aria-hidden + tabindex lo sacan del
+                  paso de lectores de pantalla y del tabulado.
+                -->
+                <div class="consultas-hp" aria-hidden="true">
+                    <label for="consulta-website">No completes este campo</label>
+                    <input type="text" id="consulta-website" name="website" tabindex="-1" autocomplete="off" />
+                </div>
+
+                <div class="consultas-acciones">
+                    <button type="submit" class="btn btn-primary" id="consulta-enviar">Enviar consulta</button>
+                    <p class="consultas-estado" id="consulta-estado" role="status" aria-live="polite"></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+    const form = document.getElementById('consultas-form') as HTMLFormElement | null;
+    const boton = document.getElementById('consulta-enviar') as HTMLButtonElement | null;
+    const estado = document.getElementById('consulta-estado');
+    const mensaje = document.getElementById('consulta-mensaje') as HTMLTextAreaElement | null;
+    const contador = document.getElementById('consulta-contador');
+
+    if (mensaje && contador) {
+        const actualizar = () => {
+            contador.textContent = `${mensaje.value.length} / 2000`;
+        };
+        mensaje.addEventListener('input', actualizar);
+        actualizar();
+    }
+
+    if (form && boton && estado) {
+        const mostrar = (texto: string, tipo: 'ok' | 'error' | '') => {
+            estado.textContent = texto;
+            estado.className = tipo ? `consultas-estado is-${tipo}` : 'consultas-estado';
+        };
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const datos = new FormData(form);
+            const payload = {
+                nombre: String(datos.get('nombre') ?? '').trim(),
+                email: String(datos.get('email') ?? '').trim(),
+                mensaje: String(datos.get('mensaje') ?? '').trim(),
+                website: String(datos.get('website') ?? ''),
+            };
+
+            // Se valida acá también para no gastar un viaje al servidor en algo
+            // que ya sabemos que va a rebotar. El servidor revalida igual.
+            if (payload.nombre.length < 2) return mostrar('Escribinos tu nombre.', 'error');
+            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(payload.email)) {
+                return mostrar('Revisá el correo: no parece una dirección válida.', 'error');
+            }
+            if (payload.mensaje.length < 10) {
+                return mostrar('Contanos un poco más: la consulta necesita al menos 10 caracteres.', 'error');
+            }
+
+            boton.disabled = true;
+            const textoOriginal = boton.textContent;
+            boton.textContent = 'Enviando…';
+            mostrar('', '');
+
+            try {
+                const res = await fetch('/api/consulta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                const cuerpo = await res.json().catch(() => ({}));
+
+                if (res.ok && cuerpo.success) {
+                    form.reset();
+                    if (contador) contador.textContent = '0 / 2000';
+                    mostrar('¡Listo! Recibimos tu consulta y te respondemos por correo.', 'ok');
+                } else {
+                    mostrar(cuerpo.error ?? 'No pudimos enviar tu consulta. Probá de nuevo en un rato.', 'error');
+                }
+            } catch {
+                mostrar('No pudimos conectarnos. Revisá tu conexión y probá de nuevo.', 'error');
+            } finally {
+                boton.disabled = false;
+                boton.textContent = textoOriginal;
+            }
+        });
+    }
+</script>
+
+<style>
+    .consultas {
+        padding: 0 0 6rem;
+    }
+
+    .consultas-card {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 2.5rem;
+        border: 1px solid var(--brd);
+        background: var(--bg-card);
+    }
+
+    .consultas-intro {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .consultas-intro .section-title {
+        margin: 0.5rem 0 0.75rem;
+    }
+
+    .consultas-intro .section-desc {
+        margin: 0;
+    }
+
+    .consultas-intro a {
+        color: var(--c1);
+        font-weight: 600;
+    }
+
+    .consultas-intro a:hover {
+        text-decoration: underline;
+    }
+
+    .consultas-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .consultas-fila {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .consultas-fila {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .consultas-campo {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        position: relative;
+    }
+
+    .consultas-campo label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--txt-1);
+    }
+
+    .consultas-campo input,
+    .consultas-campo textarea {
+        width: 100%;
+        padding: 0.75rem 0.9rem;
+        font: inherit;
+        font-size: 0.95rem;
+        color: var(--txt-1);
+        background: var(--bg-2);
+        border: 1px solid var(--brd);
+        border-radius: var(--r-sm);
+        transition: border-color var(--t-fast);
+    }
+
+    .consultas-campo textarea {
+        resize: vertical;
+        min-height: 120px;
+        line-height: 1.6;
+    }
+
+    .consultas-campo input:focus,
+    .consultas-campo textarea:focus {
+        outline: none;
+        border-color: var(--c1);
+    }
+
+    .consultas-contador {
+        align-self: flex-end;
+        font-size: 0.75rem;
+        color: var(--txt-m);
+    }
+
+    /* Fuera de pantalla, no display:none: hay bots que saltean lo oculto. */
+    .consultas-hp {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    .consultas-acciones {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    .consultas-estado {
+        margin: 0;
+        font-size: 0.9rem;
+        text-align: center;
+        min-height: 1.2em;
+        color: var(--txt-2);
+    }
+
+    .consultas-estado.is-ok {
+        color: var(--ok, #16a34a);
+        font-weight: 600;
+    }
+
+    .consultas-estado.is-error {
+        color: var(--err, #dc2626);
+        font-weight: 600;
+    }
+</style>

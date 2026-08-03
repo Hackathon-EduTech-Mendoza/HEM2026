@@ -13,6 +13,7 @@ import Organizers from '../components/Organizers.astro';
 import Allies from '../components/Allies.astro';
 import NewsSection from '../components/NewsSection.astro';
 import VibeCheck from '../components/VibeCheck.astro';
+import Consultas from '../components/Consultas.astro';
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -75,6 +76,7 @@ const jsonLd = {
 		<Allies />
 		<VibeCheck />
 		<FAQ />
+		<Consultas />
 	</div>
 	<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Layout>

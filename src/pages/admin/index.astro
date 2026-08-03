@@ -56,6 +56,32 @@ const registeredProfiles = profiles.filter(isProfileComplete);
 /** Cuentas creadas que nunca llenaron el formulario. No hay nada que aprobarles. */
 const abandonedProfiles = profiles.filter((p) => !isProfileComplete(p));
 
+// ──────────────────────────────────────────────────
+// Consultas del formulario público (pestaña "Consultas")
+// Las escribe /api/consulta con la service role key; acá se leen con los
+// permisos del admin (policy "admins_read_consultas").
+// ──────────────────────────────────────────────────
+const { data: consultasData, error: consultasError } = await supabase
+  .from("consultas")
+  .select("id, nombre, email, mensaje, estado, created_at, responded_at")
+  .order("created_at", { ascending: false });
+
+if (consultasError) {
+  console.error("Error fetching consultas:", consultasError);
+}
+
+const consultas = consultasData || [];
+const consultasNuevas = consultas.filter((c) => c.estado === "nueva").length;
+
+const fmtFechaHora = (iso: string) =>
+  new Date(iso).toLocaleString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
 // Conteos para el módulo de comunicados masivos
 const approvedProfiles = profiles.filter(p => p.registration_status === 'aprobado');
 const countAllApproved = approvedProfiles.length;
@@ -308,6 +334,10 @@ const projects = allProjects || [];
         <button class="tab-btn" data-target="tab-resultados">Resultados</button>
         <button class="tab-btn" data-target="tab-comunicados">Comunicados</button>
         <button class="tab-btn" data-target="tab-presentaciones">Presentaciones</button>
+        <button class="tab-btn" data-target="tab-consultas">
+          Consultas
+          {consultasNuevas > 0 && <span class="tab-badge">{consultasNuevas}</span>}
+        </button>
       </div>
 
       <div class="tab-content active" id="tab-metricas">
@@ -1436,6 +1466,83 @@ const projects = allProjects || [];
     </div>
   </div>
 
+  <div class="tab-content" id="tab-consultas">
+    <div class="admin-actions" style="justify-content: space-between;">
+      <h2 class="tab-title">Consultas del sitio</h2>
+      <button class="btn btn-outline" onclick="window.location.reload();">Actualizar</button>
+    </div>
+
+    <p class="consultas-ayuda">
+      Llegan del formulario público del home. Respondelas por correo —
+      contestando el aviso que llega a la casilla del evento le escribís directo
+      a quien consultó— y después marcalas acá para no perder de vista lo
+      pendiente.
+    </p>
+
+    <div class="admin-card card">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>De</th>
+              <th>Consulta</th>
+              <th style="text-align: center;">Estado</th>
+              <th style="text-align: center; width: 220px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              consultas.length === 0 ? (
+                <tr>
+                  <td colspan="5" class="empty-state" style="text-align: center; color: var(--txt-m); padding: 40px 0;">
+                    Todavía no llegó ninguna consulta.
+                  </td>
+                </tr>
+              ) : (
+                consultas.map((c) => (
+                  <tr class="user-row" data-consulta-id={c.id}>
+                    <td data-label="Fecha" style="white-space: nowrap;">{fmtFechaHora(c.created_at)}</td>
+                    <td data-label="De">
+                      <strong style="color: var(--txt-1);">{c.nombre}</strong>
+                      <br />
+                      <a href={`mailto:${c.email}`} class="consulta-mail">{c.email}</a>
+                    </td>
+                    <td data-label="Consulta" class="consulta-mensaje">{c.mensaje}</td>
+                    <td data-label="Estado" style="text-align: center;">
+                      <span class={`consulta-badge is-${c.estado}`}>
+                        {c.estado === "nueva" ? "Nueva" : c.estado === "respondida" ? "Respondida" : "Archivada"}
+                      </span>
+                    </td>
+                    <td data-label="Acciones" style="text-align: center;">
+                      <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                        {c.estado !== "respondida" && (
+                          <button class="btn btn-primary btn-sm js-consulta-estado" data-id={c.id} data-estado="respondida">
+                            Marcar respondida
+                          </button>
+                        )}
+                        {c.estado !== "archivada" && (
+                          <button class="btn btn-outline btn-sm js-consulta-estado" data-id={c.id} data-estado="archivada">
+                            Archivar
+                          </button>
+                        )}
+                        {c.estado !== "nueva" && (
+                          <button class="btn btn-outline btn-sm js-consulta-estado" data-id={c.id} data-estado="nueva">
+                            Reabrir
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
     </div>
 
     <!-- Dialog de Guía de Ayuda -->
@@ -1741,6 +1848,78 @@ const projects = allProjects || [];
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* --- Consultas del sitio --- */
+
+  /* Contador de consultas sin atender, pegado al nombre del tab. */
+  .tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.35rem;
+    margin-left: 0.4rem;
+    border-radius: 999px;
+    background: var(--c1);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .consultas-ayuda {
+    margin: 0 0 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--txt-2);
+    max-width: 70ch;
+  }
+
+  /* El mensaje puede ser largo: se le pone techo para que la tabla no se
+     deforme, y respeta los saltos de línea que escribió la persona. */
+  .consulta-mensaje {
+    white-space: pre-wrap;
+    max-width: 46ch;
+    line-height: 1.6;
+  }
+
+  .consulta-mail {
+    font-size: 0.85rem;
+    color: var(--c1);
+  }
+
+  .consulta-mail:hover {
+    text-decoration: underline;
+  }
+
+  .consulta-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+
+  .consulta-badge.is-nueva {
+    background: color-mix(in srgb, var(--c1) 15%, transparent);
+    border-color: var(--c1);
+    color: var(--c1);
+  }
+
+  .consulta-badge.is-respondida {
+    background: color-mix(in srgb, var(--ok, #16a34a) 15%, transparent);
+    border-color: var(--ok, #16a34a);
+    color: var(--ok, #16a34a);
+  }
+
+  .consulta-badge.is-archivada {
+    background: transparent;
+    border-color: var(--brd);
+    color: var(--txt-m);
   }
 
   /* Aclaración chica dentro de un encabezado de tabla (oficial / referencia) */
@@ -2870,6 +3049,54 @@ const projects = allProjects || [];
       toast.classList.remove("show");
     }, 3000);
   }
+
+  // ──────────────────────────────────────────────────
+  // Consultas del sitio: cambiar el estado
+  // El CHECK `consultas_respondida_check` exige que responded_at vaya con
+  // valor sólo cuando el estado es 'respondida', así que se manda siempre
+  // el par completo y no sólo el estado.
+  // ──────────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>(".js-consulta-estado").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const nuevoEstado = btn.dataset.estado;
+      if (!id || !nuevoEstado) return;
+
+      const fila = btn.closest("tr");
+      const botones = fila?.querySelectorAll<HTMLButtonElement>(".js-consulta-estado");
+      botones?.forEach((b) => (b.disabled = true));
+
+      const { data: { user: adminUser } } = await supabase.auth.getUser();
+
+      const { error } = await supabase
+        .from("consultas")
+        .update({
+          estado: nuevoEstado,
+          responded_at: nuevoEstado === "respondida" ? new Date().toISOString() : null,
+          responded_by: nuevoEstado === "respondida" ? adminUser?.id ?? null : null,
+        })
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error al actualizar la consulta:", error);
+        showToast("No se pudo actualizar la consulta.", true);
+        botones?.forEach((b) => (b.disabled = false));
+        return;
+      }
+
+      showToast(
+        nuevoEstado === "respondida"
+          ? "Consulta marcada como respondida."
+          : nuevoEstado === "archivada"
+            ? "Consulta archivada."
+            : "Consulta reabierta.",
+      );
+
+      // Se recarga en vez de repintar la fila a mano: el badge del tab, el
+      // contador de nuevas y los botones disponibles dependen del estado.
+      setTimeout(() => window.location.reload(), 700);
+    });
+  });
 
   // Escuchar cambios en los selects de rol y estado
   document

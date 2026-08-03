@@ -1,13 +1,21 @@
 // src/utils/contacto.ts
 // Datos de contacto del evento, definidos una sola vez para que no queden
 // versiones distintas dadas vueltas por el sitio.
+//
+// ⚠️ El WhatsApp del evento se dio de baja el 2026-08-03 (decisión de Martín:
+// finalmente no se usa). El canal público es el formulario de consultas
+// (`Consultas.astro` → POST /api/consulta) más este mail. No reponer un número
+// acá sin que la organización lo confirme: publicar un WhatsApp que nadie
+// atiende es peor que no tenerlo.
+//
+// El campo `phone_whatsapp` del perfil es otra cosa: es el teléfono de cada
+// participante, y sigue en uso.
 
-/** Como se muestra en pantalla. */
-export const WHATSAPP_VISIBLE = '+54 9 2615 36-5167';
-
-/** Solo dígitos con código de país: es el formato que exige wa.me. */
-const WHATSAPP_DIGITOS = '5492615365167';
-
-export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_DIGITOS}`;
-
-export const EMAIL = 'hackathonedutech@gmail.com';
+// ⚠️ Hasta el 2026-08-03 acá decía `hackathonedutech@gmail.com`, que **no
+// existe**: Gmail la rechazó con hard bounce y Brevo la puso en su lista de
+// bloqueados. Estuvo publicada en el footer, el bloque de consultas y las Bases
+// desde el commit 5db7ffd, así que todo el que escribió ahí recibió un rebote.
+// La casilla real es la que es dueña de la cuenta de Brevo y el único remitente
+// verificado. Si alguna vez cambia, verificar que la nueva reciba de verdad
+// antes de publicarla.
+export const EMAIL = 'hackathoneducacionmendoza@gmail.com';
