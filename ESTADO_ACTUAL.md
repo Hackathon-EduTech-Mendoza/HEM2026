@@ -129,6 +129,31 @@ git remote set-url origin https://github.com/Hackathon-EduTech-Mendoza/HEM2026.g
 | **HEM-Prod** | `cotwhywqcocutrkmrpiw` | La base real, 54 perfiles |
 | **HEM-Dev** | `mhipqazqvnuvtlrbqdce` | Esquema completo, sin datos personales. Es contra la que corren los tests |
 
+### Perfiles de prueba en dev (`npm run seed:dev`)
+
+Desde el 2026-08-03 dev tiene **7 cuentas de prueba** —1 superadmin, 1 admin, 1
+juez, 1 mentor y 3 participantes— para poder probar la app con `npm run dev` sin
+inventar datos a mano cada vez. Los correos son del estilo `usertest1@gmail.com`,
+`mentortest@gmail.com`, `admin@gmail.com`.
+
+**Las credenciales están en `CREDENCIALES-DEV.local.md`, que no se versiona**
+(`*.local.md` está en el `.gitignore`). El script lo regenera cuando haga falta.
+
+```bash
+npm run seed:dev                    # muestra qué haría, no toca nada
+npm run seed:dev -- --si            # crea, o repone la contraseña si ya existen
+npm run seed:dev -- --borrar --si   # borra las 7 cuentas
+```
+
+⚠️ **El script aborta si el `.env` no apunta a HEM-Dev**: compara el
+`project_ref` antes de escribir. No es paranoia — usa la service role key, que
+saltea todo el RLS, y ese mismo `.env` apuntaba a producción hasta el 2026-07-30.
+
+⚠️ **El juez y el mentor se siembran ya aprobados a propósito.** Si quedaran
+pendientes, el juez no podría votar (lo frena el RLS) y el mentor no aparecería
+en el desplegable de Mentoría — que es exactamente el problema que hoy bloquea el
+evento en producción, y que en dev no querés reproducir cada vez.
+
 **Por qué:** hasta ahora `npm run test:e2e` corría **contra producción** — cada
 corrida creaba 4 cuentas reales, 1 equipo, 1 proyecto y 2 evaluaciones, y las
 borraba al terminar. Funcionaba, pero no es lo que querés durante el evento.

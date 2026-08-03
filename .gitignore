@@ -198,6 +198,10 @@ DESIGN.md
 # 404 en producción, aunque local pasaba porque el archivo estaba en disco.
 /docs/
 
+# Notas locales que no van al repo (credenciales de dev, apuntes sueltos).
+# CREDENCIALES-DEV.local.md lo genera `npm run seed:dev`.
+*.local.md
+
 # Auiditoria
 .unlighthouse
 
