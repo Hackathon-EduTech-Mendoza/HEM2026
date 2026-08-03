@@ -150,6 +150,38 @@ test('participante A: registro por UI → onboarding → dashboard confirmado', 
   await page.context().close();
 });
 
+/**
+ * Las páginas públicas se prerenderizan, así que el servidor no sabe quién sos y
+ * el HTML sale siempre con los botones de "Iniciar Sesión / Registro". Ocultarlos
+ * cuando hay sesión es tarea del navbar en el cliente.
+ *
+ * Estuvo roto hasta el 2026-08-03: la regla que los ocultaba apuntaba a
+ * `#nav-auth-buttons`, un id que no existe, así que el `display: flex !important`
+ * de `.desktop-only` le ganaba al estilo inline que pone checkAuth(). En
+ * /dashboard y /admin no se notaba porque ahí el bloque se renderiza vacío.
+ */
+test('con sesión iniciada, las páginas públicas no ofrecen iniciar sesión', async ({ browser }) => {
+  const page = await newPage(browser);
+  await loginUi(page, participantAEmail, E2E_PASSWORD);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  // El 404 incluido: también lleva el navbar.
+  for (const ruta of ['/', '/noticias', '/ediciones', '/ruta-que-no-existe']) {
+    await page.goto(ruta);
+
+    await expect(
+      page.locator('#nav-auth-buttons-desktop'),
+      `${ruta} sigue ofreciendo iniciar sesión`,
+    ).toBeHidden();
+
+    // Y en su lugar tiene que estar el menú de usuario.
+    await expect(page.locator('#userDropdown'), `${ruta} no muestra el menú de usuario`).toBeVisible();
+  }
+
+  await page.context().close();
+});
+
 // ═══════════════════════════════════════════════════════════
 // 2. EQUIPO: crear y unirse
 // ═══════════════════════════════════════════════════════════

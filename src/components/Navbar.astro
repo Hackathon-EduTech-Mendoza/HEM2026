@@ -120,6 +120,32 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
     </div>
 </nav>
 
+<script is:inline>
+    /**
+     * Marca el navbar como "con sesión" ANTES de que cargue nada, si hay una
+     * cookie de sesión de Supabase.
+     *
+     * Por qué inline y por qué acá: en las páginas prerenderizadas el servidor
+     * no sabe quién sos, así que el HTML sale siempre con los botones públicos.
+     * Quien confirma la sesión es checkAuth(), pero primero tiene que bajar el
+     * módulo y resolver getSession() — varios cientos de milisegundos en los que
+     * un usuario logueado ve "Iniciar Sesión / Registro".
+     *
+     * Esto es solo una pista para pintar bien de entrada: mirar la cookie no
+     * valida nada. La verdad la sigue diciendo checkAuth(), que saca la clase si
+     * la sesión resultó inválida o vencida.
+     */
+    (function () {
+        try {
+            if (/(^|;\s*)sb-[^=]*-auth-token[^=]*=/.test(document.cookie)) {
+                document.getElementById('navbar')?.classList.add('logged-in');
+            }
+        } catch (e) {
+            /* Sin cookies accesibles no se pinta nada: checkAuth() lo resuelve igual. */
+        }
+    })();
+</script>
+
 <style>
     .navbar {
         position: fixed;
@@ -417,8 +443,19 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         .mobile-menu-footer {
             display: none !important;
         }
-        /* Ocultar botones de Auth en PC si está logueado */
-        .navbar.logged-in #nav-auth-buttons {
+        /* Ocultar los botones de Auth en PC cuando hay sesión.
+           ⚠️ Tiene que ser por clase y con !important, no alcanza con el
+           `style.display = 'none'` que pone checkAuth(): `.desktop-only` lleva
+           `display: flex !important`, y un !important del CSS le gana a un
+           estilo inline sin !important. La clase `logged-in` la agrega
+           checkAuth() al <nav> apenas confirma la sesión.
+           Hasta el 2026-08-03 esta regla apuntaba a `#nav-auth-buttons`, un id
+           que no existe —los reales son `-desktop` y `-mobile`—, así que nunca
+           se aplicaba: en las páginas prerenderizadas (home, noticias,
+           ediciones, 404) los botones "Iniciar Sesión / Registro" quedaban a la
+           vista aunque la sesión estuviera iniciada. En /dashboard y /admin no
+           se notaba porque ahí el div se renderiza vacío. */
+        .navbar.logged-in #nav-auth-buttons-desktop {
             display: none !important;
         }
     }

@@ -572,20 +572,23 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-3. ⚠️ **Los 7 pendientes son 4 mentores y 3 jueces, y bloquean el evento.**
-   Verificado en el admin el 2026-07-30. Es por diseño: el trigger
+3. **Jueces y mentores se aprueban a mano, y eso es correcto.** El trigger
    `auto_approve_participant` aprueba solo a los participantes con DNI e
-   institución; jueces y mentores quedan en revisión manual. Consecuencias hoy:
+   institución; jueces y mentores quedan en revisión manual **por diseño**.
 
-   - **Los 3 jueces no pueden evaluar nada**: la policy RLS exige juez
-     *aprobado*. Si llega el 28/08 sin aprobarlos, el jurado no puede votar.
-   - **Los 4 mentores no se pueden asignar**: el desplegable de Mentoría solo
-     lista mentores aprobados (por eso "Mentores aprobados: 0").
+   Al 2026-08-03: los **jueces ya están aprobados** y los **4 mentores siguen
+   pendientes a propósito** — la organización está verificando sus datos
+   (confirmado por Nahuel ese día). ✅ **No es un olvido ni un bug: no hace
+   falta reportarlo como pendiente.**
 
-   Es un clic por persona en la pestaña Usuarios.
-4. Ítems restantes del `BACKLOG.md`: validación del campo libre de institución
-   (hay un perfil con `-`), recordatorio a los registros abandonados y el orden
-   del historial de migraciones.
+   Lo único que conviene tener presente es la consecuencia mientras dure: el
+   desplegable de Mentoría solo lista mentores *aprobados*, así que hasta que se
+   aprueben no se pueden asignar a ningún equipo. Si llega el 28/08 sin
+   aprobarlos, la mentoría no se puede repartir.
+4. Ítem restante del `BACKLOG.md`: recordatorio a los registros abandonados y el
+   orden del historial de migraciones. La validación del campo libre de
+   institución **quedó resuelta el 2026-08-03** (ver el campo asistido, más
+   abajo).
 
 Las **estadísticas de visitas propias** quedaron **descartadas** el 2026-07-29:
 las visitas se siguen mirando en Vercel. El análisis de qué haría falta quedó en
