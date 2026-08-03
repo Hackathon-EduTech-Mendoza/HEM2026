@@ -2,7 +2,13 @@
 // src/pages/admin/index.astro
 import Layout from "../../layouts/Layout.astro";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
-import { CRITERIA, MAX_RAW_SCORE } from "../../lib/rubric";
+import { criteriaFor, maxRawScore } from "../../lib/rubric";
+
+// La rúbrica depende de la fase: en preclasificación no se puntúa el pitch.
+const preCriteria = criteriaFor("preclasificacion");
+const finalCriteria = criteriaFor("final");
+const preMaxRaw = maxRawScore("preclasificacion");
+const finalMaxRaw = maxRawScore("final");
 import { isProfileComplete } from "../../utils/perfil";
 
 const user = Astro.locals.user;
@@ -1038,11 +1044,16 @@ const projects = allProjects || [];
 
     <p style="margin: 0 0 1.5rem; font-size: 0.9rem; color: var(--txt-2); line-height: 1.6;">
       Cada criterio se puntúa de 1 a 5. El <strong>resultado oficial del concurso es el puntaje
-      ponderado</strong>: aplica el peso de cada criterio y lo normaliza a 100
-      ({CRITERIA.map((c) => `${c.short} ${Math.round(c.weight * 100)}%`).join(" · ")}). El ranking
-      se ordena por ese puntaje. La <strong>suma directa</strong> —el promedio de los
-      {CRITERIA.length} criterios sumados sin pesos, sobre {MAX_RAW_SCORE}— se sigue mostrando
-      solo como referencia y no define posiciones.
+      ponderado</strong>: aplica el peso de cada criterio y lo normaliza a 100. El ranking
+      se ordena por ese puntaje. La <strong>suma directa</strong> —los criterios sumados sin
+      pesos— se sigue mostrando solo como referencia y no define posiciones.
+      <br />
+      <strong>La rúbrica cambia según la fase.</strong> En preclasificación no se puntúa
+      «Comunicación y pitch», porque no hay presentación en vivo, y su peso se reparte entre
+      los otros cinco: {preCriteria.map((c) => `${c.short} ${Math.round(c.weight * 100)}%`).join(" · ")}.
+      En la final entran los {finalCriteria.length} criterios:
+      {finalCriteria.map((c) => `${c.short} ${Math.round(c.weight * 100)}%`).join(" · ")}.
+      Ambas fases normalizan a 100, así que los puntajes son comparables.
     </p>
 
     <!-- Fase 1: Preclasificación -->
@@ -1066,7 +1077,7 @@ const projects = allProjects || [];
               <th>Proyecto</th>
               <th>Equipo</th>
               <th>Evaluaciones</th>
-              <th class="desktop-only">Desglose ({CRITERIA.map((c) => c.short).join(" / ")})</th>
+              <th class="desktop-only">Desglose ({preCriteria.map((c) => c.short).join(" / ")})</th>
               <th>Suma directa <span class="th-note">(referencia)</span></th>
               <th>Puntaje Ponderado <span class="th-note">(oficial)</span></th>
               <th>Finalista</th>
@@ -1114,12 +1125,12 @@ const projects = allProjects || [];
                       <td data-label="Evaluaciones">{row.evaluations_count}</td>
                       <td data-label="Desglose" class="desktop-only">
                         <div style="font-size: 0.85rem; color: var(--txt-2);">
-                          {CRITERIA.map((c) => Number(row[`avg_${c.key}`]).toFixed(1)).join(" / ")}
+                          {preCriteria.map((c) => Number(row[`avg_${c.key}`]).toFixed(1)).join(" / ")}
                         </div>
                       </td>
                       <td data-label="Suma directa">
                         <span style="color: var(--txt-2);">
-                          {Number(row.raw_score).toFixed(1)}/{MAX_RAW_SCORE}
+                          {Number(row.raw_score).toFixed(1)}/{preMaxRaw}
                         </span>
                       </td>
                       <td data-label="Puntaje Ponderado">
@@ -1159,7 +1170,7 @@ const projects = allProjects || [];
               <th>Proyecto</th>
               <th>Equipo</th>
               <th>Evaluaciones</th>
-              <th class="desktop-only">Desglose ({CRITERIA.map((c) => c.short).join(" / ")})</th>
+              <th class="desktop-only">Desglose ({finalCriteria.map((c) => c.short).join(" / ")})</th>
               <th>Suma directa <span class="th-note">(referencia)</span></th>
               <th>Puntaje Ponderado <span class="th-note">(oficial)</span></th>
             </tr>
@@ -1206,12 +1217,12 @@ const projects = allProjects || [];
                       <td data-label="Evaluaciones">{row.evaluations_count}</td>
                       <td data-label="Desglose" class="desktop-only">
                         <div style="font-size: 0.85rem; color: var(--txt-2);">
-                          {CRITERIA.map((c) => Number(row[`avg_${c.key}`]).toFixed(1)).join(" / ")}
+                          {finalCriteria.map((c) => Number(row[`avg_${c.key}`]).toFixed(1)).join(" / ")}
                         </div>
                       </td>
                       <td data-label="Suma directa">
                         <span style="color: var(--txt-2);">
-                          {Number(row.raw_score).toFixed(1)}/{MAX_RAW_SCORE}
+                          {Number(row.raw_score).toFixed(1)}/{finalMaxRaw}
                         </span>
                       </td>
                       <td data-label="Puntaje Ponderado">
