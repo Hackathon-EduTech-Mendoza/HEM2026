@@ -1,125 +1,244 @@
 ---
 // src/components/Organizers.astro
+import { Image } from "astro:assets";
+import logo9023 from "../assets/instituciones/ies-9023.webp";
+import logoEdison from "../assets/instituciones/edison.webp";
 ---
 
 <section class="organizers" id="organizan">
-    <div class="container">
-        <div class="org-hdr reveal">
-            <span class="section-label">Instituciones</span>
-            <h2 class="section-title">Organizan</h2>
-            <p class="section-desc">La Hackathon EduTech es posible gracias al trabajo conjunto de dos instituciones de Nivel Superior de Mendoza.</p>
-        </div>
-
-        <div class="org-grid">
-            <a href="https://ies9023-infd.mendoza.edu.ar/sitio/" target="_blank" rel="noopener noreferrer" class="card org-card reveal rd1">
-                <div class="org-ico">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 6 3 6 3s6-1 6-3v-5"/></svg>
-                </div>
-                <h3>IES N°9-023</h3>
-                <p>Instituto de Educación Superior de Maipú, Mendoza. Formación docente y técnica con compromiso social e innovación pedagógica.</p>
-                <span class="org-link">Visitar sitio &rarr;</span>
-            </a>
-
-            <a href="https://superior.fundacionedison.org.ar/" target="_blank" rel="noopener noreferrer" class="card org-card reveal rd2">
-                <div class="org-ico">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 6 3 6 3s6-1 6-3v-5"/></svg>
-                </div>
-                <h3>IES Tomás Alva Edison</h3>
-                <p>Instituto de Educación Superior ubicado en Guaymallén, Mendoza. Referente en formación técnica, tecnológica e innovación educativa.</p>
-                <span class="org-link">Visitar sitio &rarr;</span>
-            </a>
-        </div>
+  <div class="container">
+    <div class="org-hdr reveal">
+      <span class="section-label">Instituciones</span>
+      <h2 class="section-title">Organizan</h2>
+      <p class="section-desc">
+        La Hackathon EduTech es posible gracias al trabajo conjunto de dos
+        instituciones de Nivel Superior de Mendoza.
+      </p>
     </div>
+
+    <div class="org-grid">
+      <a
+        href="https://ies9023-infd.mendoza.edu.ar/sitio/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="org-card reveal rd1"
+      >
+        <div class="org-logo">
+          {
+            /* `alt` vacío a propósito: el nombre de la institución está en
+                        el <h3> de acá abajo, dentro del mismo link, así que ponerlo
+                        también en el logo se lo hace escuchar dos veces al lector de
+                        pantalla. El alto de cada logo se ajusta en el <style>. */
+          }
+          {/* `sizes` es el ancho al que se muestra (135px de alto x 0.76 de
+              aspecto) y `widths` el doble, para pantallas retina. */}
+          <Image
+            src={logo9023}
+            alt=""
+            widths={[210]}
+            sizes="105px"
+            loading="lazy"
+          />
+        </div>
+        <h3>IES N°9-023</h3>
+        <p>
+          Instituto de Educación Superior de Maipú, Mendoza. Formación docente y
+          técnica con compromiso social e innovación pedagógica.
+        </p>
+        <span class="org-link">Visitar sitio &rarr;</span>
+      </a>
+
+      <a
+        href="https://superior.fundacionedison.org.ar/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="org-card reveal rd2"
+      >
+        <div class="org-logo">
+          <Image
+            src={logoEdison}
+            alt=""
+            widths={[300]}
+            sizes="150px"
+            loading="lazy"
+          />
+        </div>
+        <h3>IES Tomás Alva Edison</h3>
+        <p>
+          Instituto de Educación Superior ubicado en Guaymallén, Mendoza.
+          Referente en formación técnica, tecnológica e innovación educativa.
+        </p>
+        <span class="org-link">Visitar sitio &rarr;</span>
+      </a>
+    </div>
+  </div>
 </section>
 
 <style>
-    .organizers {
-        padding: var(--section-pad-y) 0;
-    }
+  .organizers {
+    padding: var(--section-pad-y) 0;
+  }
 
-    .org-hdr {
-        margin-bottom: 6rem;
-    }
+  .org-hdr {
+    margin-bottom: 6rem;
+  }
 
+  .org-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* Sin card ni recuadro: los logos vienen sin fondo y apoyan directo sobre la
+     página. La única ayuda que necesitan es la del tema oscuro, más abajo. */
+  .org-card {
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* Alto fijo, aunque adentro no haya caja: sin él cada logo mide distinto y
+     empuja su <h3> a otra altura, y los dos títulos dejan de alinear entre
+     columnas. */
+  .org-logo {
+    height: 170px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Los archivos vienen recortados al ras del dibujo, sin borde transparente.
+     Importa: el del 9-023 traía 9px de aire arriba y 21px abajo, así que
+     centrar el lienzo dejaba el dibujo visiblemente alto. Con el lienzo al ras,
+     centrar el archivo es centrar el logo. Si alguna vez se reemplaza alguno de
+     los dos, recortarlo igual antes de subirlo.
+
+     Los altos se igualan por peso óptico, no por píxeles: el sello de Edison es
+     un círculo macizo y el del 9-023 un lockup apilado y más angosto. */
+  .org-logo :global(img) {
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    transition:
+      transform var(--t-base),
+      filter var(--t-base);
+  }
+
+  .org-card:nth-child(1) .org-logo :global(img) {
+    height: 135px;
+  }
+
+  .org-card:nth-child(2) .org-logo :global(img) {
+    height: 144px;
+  }
+
+  /* En tema oscuro solo el 9-023 necesita ayuda: es bordó plano y sobre el
+     fondo del sitio da 1.86:1, por debajo del 3:1 que pide WCAG para gráficos.
+     Pasado a blanco da 17:1, y como el logo es monocromo la silueta no pierde
+     nada — es la versión en negativo. Edison se queda a todo color porque da
+     4.47:1 por sí solo, y como es multicolor cualquier filtro lo arruinaría:
+     el blanco de la nube y del texto se le daría vuelta a negro. */
+  :global([data-theme="brand-dark"])
+    .org-card:nth-child(1)
+    .org-logo
+    :global(img) {
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+  }
+
+  /* La card ya no levanta al pasar por encima, así que el aviso de que esto es
+     clickeable lo dan el logo y el link. */
+  .org-card:hover .org-logo :global(img) {
+    transform: scale(1.04);
+  }
+
+  :global([data-theme="brand-dark"]) .org-card:nth-child(1):hover .org-logo :global(img) {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .org-logo :global(img),
+    .org-card:hover .org-logo :global(img) {
+      transition: none;
+      transform: none;
+    }
+  }
+
+  .org-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    color: var(--txt-1);
+  }
+
+  .org-card p {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--txt-2);
+    margin: 0 0 1.5rem;
+  }
+
+  .org-link {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--c1);
+    letter-spacing: 0.05em;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.35em;
+    transition:
+      color var(--t-fast),
+      text-decoration-color var(--t-fast);
+  }
+
+  .org-card:nth-child(2) .org-link {
+    color: var(--c2);
+  }
+
+  .org-card:hover .org-link {
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+  }
+
+  /* El teclado no dispara :hover, así que el foco tiene que verse solo. Va en
+     el link entero, que es lo que realmente recibe el foco. */
+  .org-card:focus-visible {
+    outline: 2px solid var(--c1);
+    outline-offset: 8px;
+    border-radius: var(--r-md);
+  }
+
+  .org-card:nth-child(2):focus-visible {
+    outline-color: var(--c2);
+  }
+
+  @media (min-width: 768px) {
     .org-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        max-width: 800px;
-        margin: 0 auto;
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* En una sola columna los logos quedan uno encima del otro, así que el alto
+     fijo ya no sirve para alinear nada y solo estira la sección. Se achica todo
+     y el aire entre instituciones lo da el `gap`. */
+  @media (max-width: 767px) {
+    .org-hdr {
+      margin-bottom: 3.5rem;
     }
 
-    .org-card {
-        padding: 2.5rem;
-        text-align: center;
-        text-decoration: none;
-        color: inherit;
-        transition: transform var(--ease) 0.3s, box-shadow var(--ease) 0.3s, border-color var(--ease) 0.3s;
+    .org-logo {
+      height: 130px;
+      margin-bottom: 1.5rem;
     }
 
-    .org-card:hover {
-        transform: translateY(-4px);
-        border-color: var(--c1);
+    .org-card:nth-child(1) .org-logo :global(img) {
+      height: 108px;
     }
 
-    .org-card:nth-child(2):hover {
-        border-color: var(--c2);
+    .org-card:nth-child(2) .org-logo :global(img) {
+      height: 115px;
     }
-
-    .org-ico {
-        width: 64px;
-        height: 64px;
-        border-radius: var(--r-md);
-        background: rgba(var(--c1r), 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        transition: background var(--t-theme);
-    }
-
-    .org-ico svg {
-        stroke: var(--c1);
-        transition: stroke var(--t-theme);
-    }
-
-    .org-card:nth-child(2) .org-ico {
-        background: rgba(var(--c2r), 0.1);
-    }
-
-    .org-card:nth-child(2) .org-ico svg {
-        stroke: var(--c2);
-    }
-
-    .org-card h3 {
-        font-family: var(--font-heading);
-        font-size: 1.3rem;
-        margin-bottom: 0.75rem;
-        color: var(--txt-1);
-    }
-
-    .org-card p {
-        font-size: 0.95rem;
-        line-height: 1.75;
-        color: var(--txt-2);
-        margin: 0 0 1.5rem;
-    }
-
-    .org-link {
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        color: var(--c1);
-        letter-spacing: 0.05em;
-        transition: color var(--t-fast);
-    }
-
-    .org-card:nth-child(2) .org-link {
-        color: var(--c2);
-    }
-
-    @media (min-width: 768px) {
-        .org-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
+  }
 </style>
