@@ -14,6 +14,9 @@ import Layout from '../layouts/Layout.astro';
 import { EMAIL } from '../utils/contacto';
 
 const BASES_ARCHIVO = '/docs/hackathon-edutech-2026-bases-y-condiciones-v11.docx';
+// RESOL-2026-180-E-GDEMZA-CGES#DGE, del 3/8/2026: otorga puntaje al curso N° 7812.
+// Reemplaza los "(en trámite)" del Art. 12º, que quedaron viejos cuando salió.
+const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
 ---
 
 <Layout title="Bases y Condiciones | HEM2026">
@@ -146,15 +149,18 @@ const BASES_ARCHIVO = '/docs/hackathon-edutech-2026-bases-y-condiciones-v11.docx
             <p>La rúbrica de evaluación específica y la asignación de puntajes son definidas y comunicadas por la organización: se detallan en el <a href="#anexo-rubrica">Anexo II</a> de este documento. Las decisiones del jurado son <strong>definitivas e inapelables</strong>. El jurado podrá otorgar menciones especiales a criterio propio.</p>
           </section>
 
-          <section>
+          <section id="art-premios">
             <h2>Art. 12º — Premios y reconocimientos</h2>
             <p>Todas las personas participantes recibirán una <strong>certificación</strong> por su participación en la Hackathon EduTech 2026, de acuerdo con el siguiente esquema:</p>
             <ul>
-              <li><strong>Docentes del sistema educativo provincial</strong> (niveles secundario y superior), directivos y supervisores: certificación con aval de la Dirección General de Escuelas (DGE) y <strong>puntaje docente</strong>, conforme a la resolución específica de asignación de puntaje (en trámite).</li>
-              <li><strong>Profesionales que ejercen o desean ejercer la docencia sin título de profesor:</strong> certificación con aval de la DGE, conforme a la resolución que otorga dicho aval (en trámite).</li>
-              <li><strong>Egresados técnicos y estudiantes avanzados de tecnicaturas superiores afines:</strong> certificación con aval de la DGE, conforme a la resolución que otorga dicho aval (en trámite).</li>
-              <li><strong>Estudiantes de profesorados, mentores y demás perfiles:</strong> certificación emitida por los IES organizadores (IES 9-023 e IES Tomás Alva Edison).</li>
+              <li><strong>Docentes del sistema educativo provincial</strong> (niveles secundario y superior), directivos y supervisores: certificación con aval de la Dirección General de Escuelas (DGE) y <strong>puntaje docente</strong>, conforme a la <a href={RESOLUCION_URL}>Resolución N.º 0180/2026</a> de la Dirección de Educación Superior.</li>
+              <li><strong>Profesionales que ejercen o desean ejercer la docencia sin título de profesor:</strong> certificación con aval de la DGE, acreditando título profesional e interés en la formación para roles educativos.</li>
+              <li><strong>Egresados técnicos y estudiantes avanzados de tecnicaturas superiores afines:</strong> certificación con aval de la DGE.</li>
+              <li><strong>Estudiantes de profesorados:</strong> certificación con aval de la DGE, siendo estudiante regular de un profesorado de Nivel Superior de Mendoza y teniendo aprobadas al menos el <strong>50 % de las asignaturas</strong> del plan de estudios al momento de la inscripción.</li>
+              <li><strong>Mentores y demás perfiles:</strong> certificación emitida por los IES organizadores (IES 9-023 e IES Tomás Alva Edison).</li>
             </ul>
+            <p>La <a href={RESOLUCION_URL}>Resolución N.º 0180/2026</a> aprueba el curso N.º 7812 «Hackathon EduTech Mendoza — Innovación y Tecnologías Digitales aplicadas a la Educación», presentado por el IES 9-023, con una duración de 2 horas presenciales y 10 no presenciales en modalidad combinada. Tiene <strong>vigencia de dos años</strong> desde su emisión y fue comunicada a las Juntas Calificadoras de Méritos para que el antecedente pueda computarse.</p>
+            <p><strong>El puntaje no es automático por asistir.</strong> Para acceder a la certificación con puntaje, la resolución exige: <strong>80 % de asistencia</strong> y participación efectiva en la actividad virtual previa y en ambas jornadas presenciales; entrega en tiempo y forma del prototipo o propuesta documentada del equipo; y participación en la instancia de presentación final (pitch).</p>
             <p>Para estudiantes de profesorados y de tecnicaturas, la participación puede computar además como <strong>Práctica Profesionalizante</strong>, conforme la conducción de cada IES.</p>
             <p>Los equipos seleccionados finalistas y el equipo ganador recibirán distinciones especiales. Los premios específicos serán comunicados oportunamente por los canales oficiales del evento.</p>
           </section>
@@ -422,6 +428,19 @@ const BASES_ARCHIVO = '/docs/hackathon-edutech-2026-bases-y-condiciones-v11.docx
 
   .legal-content strong {
     color: var(--txt-1);
+  }
+
+  /* Sin esto los enlaces del articulado salen del color del texto y no se ven:
+     le pasaba al del Anexo II en el Art. 11º y a los de la Res. 0180 en el 12º. */
+  .legal-content a {
+    color: var(--c1);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity var(--t-fast);
+  }
+
+  .legal-content a:hover {
+    opacity: 0.8;
   }
 
   .legal-contact {
