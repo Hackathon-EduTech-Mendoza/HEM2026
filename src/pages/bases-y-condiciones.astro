@@ -13,7 +13,12 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import { EMAIL } from '../utils/contacto';
 
-const BASES_ARCHIVO = '/docs/hackathon-edutech-2026-bases-y-condiciones-v11.docx';
+// El PDF lo genera `npm run docs:bases` imprimiendo esta misma página, así que
+// incluye el Anexo II. Regenerarlo cuando cambie el articulado o la rúbrica.
+const BASES_PDF = '/docs/hackathon-edutech-2026-bases-y-condiciones.pdf';
+// El .docx queda disponible aparte: es la v11 tal cual se presentó a la DES, y
+// su Art. 11º delega la rúbrica a "una comunicación posterior" — no la trae.
+const BASES_DOCX = '/docs/hackathon-edutech-2026-bases-y-condiciones-v11.docx';
 // RESOL-2026-180-E-GDEMZA-CGES#DGE, del 3/8/2026: otorga puntaje al curso N° 7812.
 // Reemplaza los "(en trámite)" del Art. 12º, que quedaron viejos cuando salió.
 const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
@@ -30,13 +35,17 @@ const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
         <div class="legal-download">
           <div class="legal-download-txt">
             <strong>Descargá las Bases y Condiciones</strong>
-            <span>Versión 11 — la presentada ante la Dirección de Educación Superior (DES).</span>
+            <span>Documento completo en PDF: los 16 artículos, el cronograma y la rúbrica de evaluación.</span>
           </div>
-          <a href={BASES_ARCHIVO} download class="btn btn-primary legal-download-btn">
+          <a href={BASES_PDF} download class="btn btn-primary legal-download-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Descargar documento
+            Descargar PDF
           </a>
         </div>
+        <p class="legal-download-alt">
+          También podés descargar la <a href={BASES_DOCX} download>versión 11 en Word</a>,
+          tal como se presentó ante la Dirección de Educación Superior.
+        </p>
 
         <article class="legal-content">
           <p class="legal-intro">La participación en la Hackathon EduTech 2026 implica la aceptación plena e incondicional de las presentes bases y condiciones.</p>
@@ -428,6 +437,41 @@ const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
 
   .legal-content strong {
     color: var(--txt-1);
+  }
+
+  /* En el PDF sobran el "volver" y la caja de descarga: uno no navega ni se
+     descarga a sí mismo. La tarjeta pierde el marco para no encajonar cada hoja. */
+  .legal-download-alt {
+    margin: 0.75rem 0 0;
+    font-size: 0.85rem;
+    color: var(--txt-m);
+  }
+
+  .legal-download-alt a {
+    color: var(--c1);
+  }
+
+  @media print {
+    .legal-back,
+    .legal-download,
+    .legal-download-alt {
+      display: none !important;
+    }
+
+    .legal-page {
+      padding: 0 !important;
+    }
+
+    .legal-card {
+      border: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      background: #fff !important;
+    }
+
+    .legal-content a {
+      color: #000;
+    }
   }
 
   /* Sin esto los enlaces del articulado salen del color del texto y no se ven:
