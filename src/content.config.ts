@@ -53,6 +53,19 @@ const noticias = defineCollection({
           }),
       )
       .default([]),
+    /**
+     * Audios de la nota: entrevistas de radio y podcasts. Cada uno lleva
+     * `spotify` (ID, URI o URL del episodio) y se embebe el reproductor del
+     * medio, que ya trae sus propios controles y su portada.
+     */
+    audios: z
+      .array(
+        z.object({
+          titulo: z.string(),
+          spotify: z.string(),
+        }),
+      )
+      .default([]),
   }),
 });
 

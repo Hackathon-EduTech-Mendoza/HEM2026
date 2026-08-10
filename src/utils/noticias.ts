@@ -28,28 +28,6 @@ export function enlaceDeNoticia(noticia: Noticia): string | undefined {
   return undefined;
 }
 
-/**
- * Acepta el ID pelado o cualquier forma de URL de YouTube (watch, youtu.be,
- * shorts, embed) y devuelve el ID para armar el iframe.
- */
-export function idDeYoutube(valor: string): string {
-  const limpio = valor.trim();
-  // Ya es un ID: 11 caracteres sin barras ni puntos.
-  if (/^[\w-]{11}$/.test(limpio)) return limpio;
-  const patrones = [
-    /[?&]v=([\w-]{11})/,
-    /youtu\.be\/([\w-]{11})/,
-    /\/(?:embed|shorts|live|v)\/([\w-]{11})/,
-  ];
-  for (const patron of patrones) {
-    const match = limpio.match(patron);
-    if (match) return match[1];
-  }
-  // Sin coincidencia devolvemos lo recibido: el iframe fallará de forma
-  // visible en vez de romper el build.
-  return limpio;
-}
-
 /** Todas las noticias, de la más nueva a la más vieja. */
 export async function getNoticias(limite?: number): Promise<Noticia[]> {
   const noticias = await getCollection('noticias');

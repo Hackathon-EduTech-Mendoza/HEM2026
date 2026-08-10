@@ -7,6 +7,7 @@ export const prerender = true;
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import NewsVideoPlayer from '../../components/NewsVideoPlayer.astro';
+import NewsAudioPlayer from '../../components/NewsAudioPlayer.astro';
 import { formatearFecha, tieneNotaInterna } from '../../utils/noticias';
 
 export async function getStaticPaths() {
@@ -18,8 +19,17 @@ export async function getStaticPaths() {
 
 const { noticia } = Astro.props;
 const { Content } = await render(noticia);
-const { titulo, fecha, categoria, extracto, imagen, imagenAlt, galeria, videos } =
-  noticia.data;
+const {
+  titulo,
+  fecha,
+  categoria,
+  extracto,
+  imagen,
+  imagenAlt,
+  galeria,
+  videos,
+  audios,
+} = noticia.data;
 ---
 
 <Layout
@@ -54,6 +64,8 @@ const { titulo, fecha, categoria, extracto, imagen, imagenAlt, galeria, videos }
       </div>
 
       <NewsVideoPlayer videos={videos} />
+
+      <NewsAudioPlayer audios={audios} />
 
       {galeria.length > 0 && (
         <section class="nota-galeria" aria-label="Galería de fotos">
