@@ -1,7 +1,49 @@
 # Estado actual del repositorio
 
-> Actualizado: **2026-08-03**. Resume dónde está el código, cómo está la base y
+> Actualizado: **2026-08-10**. Resume dónde está el código, cómo está la base y
 > qué queda pendiente, para poder retomar sin reconstruir el contexto.
+
+### Sesión 2026-08-10 (Res 0180, PDF de las Bases y bajas en prod)
+
+**Noticias.** Se sumó la entrevista a **Virginia Hernández en Aconcagua Radio**
+(06/08). Es un episodio de Spotify y la colección solo sabía embeber video, así
+que se agregó **soporte de audio**: campo `audios: [{ titulo, spotify }]` y
+`NewsAudioPlayer.astro`, más corto que el de video porque el iframe de Spotify
+trae sus propios controles. `idDeYoutube` se mudó junto a `idDeSpotify` a
+`src/utils/media.ts`, porque `utils/noticias.ts` importa `astro:content` y eso
+dejaba a los extractores fuera del alcance de los unitarios.
+
+⚠️ **El CSP de `vercel.json` no declaraba `frame-src`**, así que los embeds de
+YouTube ya venían violando la política. No se notaba porque el header está en
+`Content-Security-Policy-Report-Only`: reporta y no bloquea. **Un embed de un
+dominio nuevo hay que declararlo ahí** o funciona hasta que alguien lo ponga en
+modo enforcing.
+
+**Res 0180 y puntaje docente.** El Art. 12º decía **"(en trámite)" tres veces**
+sobre el aval y el puntaje, pero la resolución se firmó el 3/8/2026: el sitio
+prometía menos de lo que ya tenía. En paralelo la FAQ afirmaba aval y puntaje
+**sin respaldo ni condiciones**. La resolución se publicó en `public/docs/` sin
+editar —es un acto oficial y no trae correos, teléfonos ni DNI— y se la cita
+desde el **footer**, la **FAQ** y el **Art. 12º** (ancla `#art-premios`), con
+los destinatarios y los requisitos de acreditación.
+
+⚠️ El puntaje real para asistentes es **0,00399 / 0,021** según el título de
+base. Es chico, lo normal para 12 horas: conviene no publicitarlo a secas.
+
+**Bases descargables en PDF.** El `.docx` es la v11 presentada a la DES y su
+Art. 11º delega la rúbrica a "una comunicación posterior": **no la trae**, y
+tiene un solo anexo. La página sí publica el Anexo II, así que citaba un anexo
+que el documento no tenía. Ahora el descargable principal es un **PDF de 169 KB
+y 10 páginas** que genera `npm run docs:bases` imprimiendo la propia página; el
+`.docx` queda como alternativa. ⚠️ **Es manual: regenerarlo cuando cambie el
+articulado o la rúbrica.** Ver la sección "Bases y Condiciones" más abajo.
+
+**Bajas en producción.** A pedido de Martín se borraron **Nydia Vitale** y
+**Luciano Ordas** (Martín lo escribe "Ordaz"), que se habían inscripto con el
+perfil equivocado. 147 → 145 perfiles. ⚠️ **Borrar siempre por UUID:** un match
+por nombre se llevaba puesta a *Nidia Solórzano*, que es otra persona, y había
+una tercera cuenta con el mismo apellido —`nvitale@colegionorbridge.edu.ar`— que
+era la propia interesada rehaciendo la inscripción y **no** había que tocar.
 
 ### Sesión 2026-08-03 · parte 2 (correcciones de Martín)
 
@@ -83,18 +125,22 @@ tocan producción.
 | | |
 |---|---|
 | Rama de trabajo | `Nahuel_Develop` |
-| Último commit | ver la tabla de la sesión 2026-07-30, más abajo |
-| Estado | ⚠️ la sesión 2026-07-30 está **commiteada localmente pero sin pushear** |
+| Último commit | `9990590` — PDF descargable de las Bases |
+| Estado al 2026-08-10 | pusheado, con el **PR #41 abierto** contra `main` |
 
-El PR **#32 fue mergeado a `main` y está deployado**. Encima de eso está el
-trabajo de la sesión 2026-07-29, en el **PR #33, abierto y a la espera de
-revisión**.
+**El flujo es siempre el mismo:** se reusa `Nahuel_Develop` para cada PR contra
+`main`. Del #35 al #41 salieron todos de esa rama. Después de un merge, la rama
+local se pone al día con `git merge --ff-only origin/main`.
 
-⚠️ **`develop` NO tiene este trabajo.** Quedó en una línea divergente
-(`689ac41`, con los componentes de Seba). Si el flujo del equipo sigue usando
-`develop`, hay que decidir si se sincroniza con `main` o si se descarta esa rama.
-Otras ramas remotas activas: `Gustavo_develop` (exportar Excel/PDF en admin) y
-`seba/feat/componentes-orden`.
+| PR | Contenido | Estado |
+|---|---|---|
+| #39 | Notas de prensa del 07/08, El Cruce MDZ, logos institucionales | mergeado 08/08 |
+| #40 | Aconcagua Radio, soporte de audio y `frame-src` del CSP | mergeado 10/08 (`1b3acff`) |
+| #41 | Res 0180 en footer/FAQ/Art. 12º y PDF de las Bases | ⏳ **abierto** |
+
+⚠️ **`develop` ya no existe.** Se eliminó en el remoto, igual que
+`Gustavo_develop` y `seba/feat/componentes-orden` (verificado con
+`git fetch --prune` el 2026-08-10). Ya no hay que decidir nada sobre esa rama.
 
 El `origin` ya apunta directo a `Hackathon-EduTech-Mendoza/HEM2026` (se corrigió
 el 2026-07-29). Antes apuntaba a `Nahuelito22/HEM2026` y funcionaba por el
@@ -231,13 +277,22 @@ de QA. Detalle en el historial (`d8ee95b`…`c39bb2d`).
 
 ## Base de datos (Supabase `cotwhywqcocutrkmrpiw`, región us-east-2)
 
-**Contenido al 2026-07-30:** **54 filas en `profiles`** — 35 inscriptos reales y
-19 registros abandonados — y **0 equipos, 0 proyectos, 0 evaluaciones**. De los
-35: 28 aprobados y 7 pendientes; por institución, 21 del IES 9-023 y 4 de Edison.
+**Contenido al 2026-08-10** (leído con el MCP `supabase-prod`): **158 filas en
+`profiles`** — 122 con el perfil completo y 36 registros abandonados —, **119
+aprobados** y 39 pendientes. **2 equipos, 0 proyectos, 0 evaluaciones.**
+`evaluation_phase` está en `cerrada`.
+
+> La inscripción está viva: ese mismo día la tabla pasó de 145 a 158 en unas
+> horas. Cualquier número de esta sección envejece rápido — volver a contarlo
+> antes de usarlo.
+
+**Contenido al 2026-07-30 (histórico):** 54 filas, 35 inscriptos reales y 19
+abandonados; 28 aprobados y 7 pendientes.
 
 ### Registros abandonados
 
-**19 de las 54 filas son cuentas que nunca completaron el onboarding.** No
+**Al 2026-08-10 son 36 de 158** (eran 19 de 54 al 2026-07-30): cuentas que
+nunca completaron el onboarding. No
 tienen ni `first_name`, así que no hay nada que aprobarles. Como quedan en
 estado `pendiente`, antes inflaban la cola de revisión: mostraba 26 cuando la
 real era 7.
@@ -389,6 +444,61 @@ deseado.
 Corregir **no suma una evaluación nueva**: `evaluations_count` del ranking sigue
 en 1. Hay un test E2E que lo verifica (`juez corrige su voto de preclasificación`).
 
+## Bases y Condiciones
+
+`/bases-y-condiciones` publica los **16 artículos de la v11** —la versión que la
+organización presentó a la DES— más **Anexo I** (cronograma) y **Anexo II**
+(rúbrica). El Art. 12º tiene ancla `#art-premios`, que usan el footer y la FAQ.
+
+⚠️ **El Art. 11º de la v11 no trae la rúbrica:** lista cuatro aspectos generales
+y la delega a "una comunicación posterior de la organización". Esa rúbrica es la
+del Anexo II, que es la que el sistema aplica de verdad (`src/lib/rubric.ts`).
+**Los pesos viven en tres lados** —`rubric.ts`, la vista SQL
+`project_leaderboard` y esta página—; si cambian, se tocan los tres. Verificado
+el 2026-08-10: los tres coinciden.
+
+### Descargables (`public/docs/`)
+
+| Archivo | Qué es |
+|---|---|
+| `hackathon-edutech-2026-bases-y-condiciones.pdf` | **El principal.** 169 KB, 10 páginas, completo con Anexo I y II |
+| `hackathon-edutech-2026-bases-y-condiciones-v11.docx` | La v11 tal cual se presentó a la DES. **No tiene la rúbrica** y trae un solo anexo |
+| `resolucion-0180-2026-puntaje-docente.pdf` | La resolución que otorga el puntaje docente |
+
+El `.docx` **no lo hicimos nosotros**: lo generó un script (`dc:creator:
+python-docx`) y lo editó Gabriela Linares en Word el 20–21/07.
+
+### Cómo se regenera el PDF
+
+```bash
+npm run build && npm run docs:bases
+```
+
+Imprime `/bases-y-condiciones` con puppeteer (`scripts/generar-bases-pdf.mjs`).
+⚠️ **Es manual: hay que correrlo cuando cambie el articulado o la rúbrica.**
+`astro preview` no sirve —el adapter de Vercel no lo soporta—, así que el script
+levanta su propio servidor estático sobre `dist/client` y necesita el build.
+
+**El formato sale de las reglas `@media print` de `src/styles/global.css`.** Si
+el PDF sale feo, se corrige ahí, no en el script.
+
+⚠️ **Las cuatro trampas de imprimir este sitio.** Entre las tres primeras el PDF
+pesaba **32 MB**; la cuarta hacía que arreglarlas no sirviera de nada:
+
+1. **`body::before` es una textura de grano `feTurbulence`.** Se rasteriza en
+   cada página y, al ser ruido, no comprime: **2,4 MB por página**.
+2. **`.gooey-bg-container`** es un `<canvas>` con filtro SVG que también se
+   rasteriza entero por página.
+3. **`.card` tiene `backdrop-filter`** sobre un alto de varias páginas, lo que
+   obliga a rasterizar toda el área.
+4. **`.card` tiene `transition: all`**, así que al pasar a `media print` las
+   propiedades *animan* y la impresión captura un fotograma intermedio: el
+   `backdrop-filter` quedaba en `blur(8.3px)` en vez de `none`. **Sin cortar las
+   transiciones, los arreglos 2 y 3 no se aplican** aunque el CSS esté bien.
+
+Y una de especificidad: los tokens de tema se definen sobre `[data-theme]`, que
+le gana a `:root` a secas. Un override de impresión tiene que igualar ese selector.
+
 ## Noticias (sitio público)
 
 Las noticias son una **content collection de Astro**: un `.md` por noticia en
@@ -414,9 +524,25 @@ a medida que se carguen fotos.
 
 Piezas: `NewsCard.astro` (tarjeta compartida), `NewsSection.astro` (bloque del
 home, muestra las 3 más recientes + "Ver todas" si hay más), `/noticias`
-(listado completo), `/noticias/[slug]` (nota interna) y `NewsVideoPlayer.astro`
-(escenario + playlist, encadena la parte siguiente al terminar una).
-`src/utils/noticias.ts` centraliza orden, formato de fecha y resolución de enlace.
+(listado completo), `/noticias/[slug]` (nota interna), `NewsVideoPlayer.astro`
+(escenario + playlist, encadena la parte siguiente al terminar una) y
+`NewsAudioPlayer.astro`. `src/utils/noticias.ts` centraliza orden, formato de
+fecha y resolución de enlace.
+
+**Audio (desde el 2026-08-10).** Mismo criterio que el video —el medio se
+escucha en el sitio, no se manda a la gente a la plataforma—: se declara
+`audios: [{ titulo, spotify }]` y el campo acepta el ID, el URI
+`spotify:episode:<id>` o cualquier URL. El reproductor es mucho más corto que el
+de video porque el iframe de Spotify ya trae controles, portada y duración.
+
+⚠️ **`src/utils/noticias.ts` importa `astro:content`, así que no se puede
+importar desde los unitarios.** Los extractores de ID puros viven en
+**`src/utils/media.ts`**, que sí es testeable (`tests/unit/media.spec.ts`).
+Cualquier helper nuevo que no necesite la colección va ahí.
+
+⚠️ **El CSP de `vercel.json` es `Content-Security-Policy-Report-Only`:** reporta
+y no bloquea. Un embed de un dominio nuevo hay que sumarlo a `frame-src`, que
+hoy tiene `youtube-nocookie.com` y `open.spotify.com`.
 
 ### Medios
 
@@ -470,8 +596,8 @@ Tres comandos:
 
 | Comando | Qué corre | Toca la base |
 |---|---|---|
-| `npm run test:unit` | 56 tests de las funciones puras (`src/utils/perfil.ts` y `src/lib/rubric.ts`) | no |
-| `npx playwright test sitio-publico` | 20 tests del sitio público (noticias, consultas, bases) | no |
+| `npm run test:unit` | 82 tests de las funciones puras (`src/utils/perfil.ts`, `src/lib/rubric.ts`, `src/utils/instituciones.ts` y `src/utils/media.ts`) | no |
+| `npx playwright test sitio-publico` | 22 tests del sitio público (noticias, consultas, bases) | no |
 | `npx playwright test admin-metricas` | 5 tests de la pestaña Métricas | solo lee |
 | `npx playwright test admin-evaluacion` | 1 test: el admin no ve la votación | solo lee |
 | `npm run test:e2e` | todo, incluido el flujo serial completo | **sí, escribe** (se limpia solo) |
@@ -484,8 +610,11 @@ onboarding, equipos, entrega de proyecto, aprobación de juez, votación en dos
 fases, finalistas y seguridad (middleware, RLS y escalación de rol). Corren
 contra la base de **desarrollo** (desde el 2026-08-03; antes iban contra prod).
 **Los 41 tests en verde al 2026-08-03**, corridos ese día contra HEM-Dev en 2.9
-minutos, con la limpieza dejando la base como estaba. Más **56 unitarios** (los
-39 de `perfil.ts` y 17 de `rubric.ts`).
+minutos, con la limpieza dejando la base como estaba.
+
+Al **2026-08-10**: **82 unitarios** y los **22 del sitio público** en verde. La
+suite completa no se volvió a correr desde el 03/08 — el trabajo posterior es
+todo del sitio público y no toca la base.
 
 ### Datos de prueba: la suite se limpia sola
 
@@ -566,13 +695,24 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
    el cupo es configurable (`finalists_count`). Si alguien lo cambia durante el
    evento, el sitio dice una cosa y el sistema hace otra.
 
+2. **¿Se alinea el `.docx` v11 con la página?** Abierto desde el 2026-08-10. La
+   página tiene el Anexo II con la rúbrica; el `.docx` presentado a la DES no.
+   Hoy el descargable principal es el PDF generado desde la página, así que el
+   hueco no se ve, pero los dos documentos **no dicen exactamente lo mismo**.
+   Alinearlos implicaría una **v12** del documento y volver a presentarla.
+
+3. **Publicar los avales: RESUELTO el 2026-08-10.** La Res 0180 se publica y se
+   cita desde footer, FAQ y Art. 12º. El **aval técnico queda interno**: es la
+   impresión de un correo de la DES con direcciones personales, y no agrega nada
+   que la resolución no pruebe mejor.
+
 ### Bugs y mejoras abiertos
 
-2. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
+4. **`event_config` con fechas viejas**: `event_start_datetime` (2026-06-03) y
    `submission_deadline` (2026-06-06) son de la edición anterior. Hoy **no se usan**
    (el countdown del Hero tiene 2026-08-26 hardcodeada), pero rompen si alguien
    reactiva el fetch comentado en `Hero.astro`.
-3. **Jueces y mentores se aprueban a mano, y eso es correcto.** El trigger
+5. **Jueces y mentores se aprueban a mano, y eso es correcto.** El trigger
    `auto_approve_participant` aprueba solo a los participantes con DNI e
    institución; jueces y mentores quedan en revisión manual **por diseño**.
 
@@ -585,7 +725,7 @@ agrega una variable a los tests, hay que sumarla en los dos lugares.
    desplegable de Mentoría solo lista mentores *aprobados*, así que hasta que se
    aprueben no se pueden asignar a ningún equipo. Si llega el 28/08 sin
    aprobarlos, la mentoría no se puede repartir.
-4. Ítem restante del `BACKLOG.md`: recordatorio a los registros abandonados y el
+6. Ítem restante del `BACKLOG.md`: recordatorio a los registros abandonados y el
    orden del historial de migraciones. La validación del campo libre de
    institución **quedó resuelta el 2026-08-03** (ver el campo asistido, más
    abajo).
@@ -596,7 +736,11 @@ las visitas se siguen mirando en Vercel. El análisis de qué haría falta qued�
 
 ### Higiene
 
-6. **Rotar la service role key y la contraseña de la base**: quedaron expuestas
+7. **Rotar la service role key y la contraseña de la base**: quedaron expuestas
    en una sesión de trabajo del 2026-07-24.
-7. Aprobación visual del rediseño del tab "Mi Perfil" (commit `663b09e`; si no
+8. Aprobación visual del rediseño del tab "Mi Perfil" (commit `663b09e`; si no
    convence, `git revert 663b09e`).
+9. **Branch protection en `main`** con los checks `Tests unitarios`, `Build` y
+   `E2E del sitio público`. ⚠️ No exigir `E2E completo (escribe en la base real)`:
+   solo corre con `workflow_dispatch`, nunca en un PR, así que bloquearía todos
+   los merges para siempre.
