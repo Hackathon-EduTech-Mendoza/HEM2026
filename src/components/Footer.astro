@@ -57,6 +57,11 @@ import { EMAIL } from '../utils/contacto';
         </div>
         <div class="ftr-bot">
             <div class="ftr-copy ftr-credits">
+                <span class="ftr-aval">
+                    Actividad con <strong>puntaje docente</strong> otorgado por la Dirección de Educación Superior (DGE) —
+                    <a href="/docs/resolucion-0180-2026-puntaje-docente.pdf" target="_blank" rel="noopener noreferrer">Res. N.º 0180/2026</a>, curso N.º 7812.
+                    Sujeto a <a href="/bases-y-condiciones#art-premios">requisitos de acreditación</a>.
+                </span>
                 <span>&copy; 2026 Hackathon EduTech Mendoza. Todos los derechos reservados.</span>
                 <span>Plataforma diseñada y desarrollada por <a href="https://www.linkedin.com/in/nahuel-ghilardi/" target="_blank" rel="noopener noreferrer" class="author-link">Matías Nahuel Ghilardi</a>.</span>
                 <span>Testing y QA por el Equipo EduTech.</span>
@@ -199,6 +204,29 @@ import { EMAIL } from '../utils/contacto';
         text-align: center;
         color: var(--txt-2);
         margin: 0;
+    }
+
+    /* La línea del aval es una oración, no un crédito: sale del mono y del
+       letter-spacing de .ftr-copy, que a dos renglones se leen pesados. */
+    .ftr-aval {
+        font-family: var(--font-body, inherit);
+        font-size: 0.75rem;
+        letter-spacing: normal;
+        line-height: 1.7;
+        max-width: 68ch;
+        margin: 0 auto 0.5rem;
+        color: var(--txt-2);
+    }
+
+    .ftr-aval a {
+        color: var(--txt-2);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        transition: color var(--t-fast);
+    }
+
+    .ftr-aval a:hover {
+        color: var(--c1);
     }
 
     .author-link {

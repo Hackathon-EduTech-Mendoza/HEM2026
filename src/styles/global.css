@@ -364,3 +364,95 @@ input:-webkit-autofill:active {
     -webkit-text-fill-color: var(--txt-1) !important;
     transition: background-color 5000s ease-in-out 0s;
 }
+
+/* ---------------------------------------------------------------------------
+   Impresión / exportación a PDF
+   ---------------------------------------------------------------------------
+   El PDF descargable de las Bases se genera imprimiendo /bases-y-condiciones
+   con puppeteer (scripts/generar-bases-pdf.mjs), así que estas reglas son la
+   fuente del formato de ese documento — no solo un extra para quien haga
+   Ctrl+P. Si cambian, cambia el PDF.
+--------------------------------------------------------------------------- */
+@media print {
+    /* ⚠️ Primero que nada, cortar animaciones y transiciones. `.card` tiene
+       `transition: all`, así que al pasar a media print sus propiedades
+       *animan* hacia el valor nuevo y la impresión captura un fotograma
+       intermedio: el backdrop-filter aparecía como blur(8.3px) en vez de
+       none, y el PDF seguía pesando 11 MB. */
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    /* La navegación y el pie no significan nada en papel. */
+    .navbar,
+    .site-footer,
+    .skip-link,
+    .theme-toggle {
+        display: none !important;
+    }
+
+    /* Forzamos el tema claro: el oscuro imprime cajas negras enormes.
+       Va también sobre [data-theme] porque ahí es donde el sitio define los
+       tokens, y ese selector le gana por especificidad a :root a secas. */
+    :root,
+    [data-theme] {
+        --bg-1: #fff;
+        --bg-2: #fff;
+        --bg-card: #fff;
+        --txt-1: #000;
+        --txt-2: #1a1a1a;
+        --txt-m: #444;
+    }
+
+    /* ⚠️ `backdrop-filter` sobre una tarjeta que mide varias páginas de alto
+       obliga a Chrome a rasterizar toda esa área al imprimir: el PDF de las
+       Bases pasaba de 0,3 MB a más de 11 MB por esta sola propiedad. */
+    .card {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+    }
+
+    body {
+        background: #fff !important;
+        color: #000;
+    }
+
+    main {
+        padding: 0 !important;
+    }
+
+    /* El fondo animado se va, y no es solo estético: es un <canvas> con un
+       filtro SVG que Chrome rasteriza entero en CADA página. */
+    .gooey-bg-container {
+        display: none !important;
+    }
+
+    /* ⚠️ La textura de grano de `body::before` es ruido `feTurbulence` a pantalla
+       completa. Al imprimir se rasteriza como una imagen RGB con alfa por cada
+       página, y al ser ruido no comprime: 2,4 MB × 10 páginas. Era el 99 % del
+       peso del PDF de las Bases (32 MB → 0,3 MB). A 0,015 de opacidad ni se ve. */
+    body::before {
+        display: none !important;
+    }
+
+    /* Un título no puede quedar solo al pie de una página. */
+    h1, h2, h3 {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    table,
+    figure,
+    li {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    a {
+        text-decoration: underline;
+    }
+}

@@ -252,12 +252,21 @@ test.describe('bases y condiciones', () => {
   test('se puede descargar el documento y están los dos anexos', async ({ page }) => {
     await page.goto('/bases-y-condiciones');
 
+    // El descargable principal es el PDF que genera `npm run docs:bases`; el
+    // .docx v11 queda como alternativa porque es lo presentado ante la DES.
     const descarga = page.locator('a.legal-download-btn');
-    await expect(descarga).toHaveAttribute('href', /\.docx$/);
-    const archivo = await page.request.get(
+    await expect(descarga).toHaveAttribute('href', /\.pdf$/);
+    const pdf = await page.request.get(
       (await descarga.getAttribute('href')) as string,
     );
-    expect(archivo.status()).toBe(200);
+    expect(pdf.status()).toBe(200);
+
+    const alternativa = page.locator('.legal-download-alt a');
+    await expect(alternativa).toHaveAttribute('href', /\.docx$/);
+    const docx = await page.request.get(
+      (await alternativa.getAttribute('href')) as string,
+    );
+    expect(docx.status()).toBe(200);
 
     await expect(page.locator('#anexo-cronograma')).toHaveCount(1);
     await expect(page.locator('#anexo-rubrica')).toHaveCount(1);
