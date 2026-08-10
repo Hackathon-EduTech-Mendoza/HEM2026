@@ -1,0 +1,71 @@
+---
+// src/components/NewsAudioPlayer.astro
+// Audios de una nota: entrevistas de radio y podcasts. A diferencia del de
+// video no hace falta playlist ni escenario propio — el iframe de Spotify ya
+// trae sus controles, su portada y su duración, así que acá solo lo encuadramos
+// con los tokens del sitio.
+import { idDeSpotify } from '../utils/media';
+
+interface Audio {
+  titulo: string;
+  spotify: string;
+}
+
+interface Props {
+  audios: Audio[];
+}
+
+const { audios } = Astro.props;
+
+const items = audios.map((a) => ({
+  titulo: a.titulo,
+  embed: `https://open.spotify.com/embed/episode/${idDeSpotify(a.spotify)}`,
+}));
+---
+
+{items.length > 0 && (
+  <section class="audio-player" aria-label="Audios de la nota">
+    {items.map((item) => (
+      <figure class="audio-item">
+        <iframe
+          src={item.embed}
+          title={item.titulo}
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        ></iframe>
+        <figcaption>{item.titulo}</figcaption>
+      </figure>
+    ))}
+  </section>
+)}
+
+<style>
+  .audio-player {
+    margin: 3rem 0 0 0;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .audio-item {
+    margin: 0;
+  }
+
+  /* 152px es la altura del reproductor compacto de Spotify: por debajo de eso
+     recorta los controles. */
+  .audio-item iframe {
+    display: block;
+    width: 100%;
+    height: 152px;
+    border: 0;
+    border-radius: var(--r-md, 12px);
+  }
+
+  .audio-item figcaption {
+    margin: 1rem 0 0 0;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--txt-1);
+  }
+</style>
