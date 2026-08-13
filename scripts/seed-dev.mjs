@@ -121,6 +121,38 @@ const USUARIOS = [
     registration_status: 'aprobado',
   },
   {
+    email: 'jueztest2@gmail.com',
+    role: 'juez',
+    first_name: 'Ramiro',
+    last_name: 'Ledesma',
+    dni: '26555666',
+    phone_whatsapp: '2615000005',
+    institution: 'ies_9023_maipu',
+    disciplinary_profile: 'docente',
+    year_of_study: 'otro',
+    is_egresado: true,
+    professional_title: 'Profesor de Tecnología',
+    // Un segundo juez hace falta para mostrar el promedio entre jurados: con
+    // uno solo el ranking del admin es la nota de esa única persona.
+    registration_status: 'aprobado',
+  },
+  {
+    email: 'mentortest2@gmail.com',
+    role: 'mentor',
+    first_name: 'Carla',
+    last_name: 'Bustos',
+    dni: '29666777',
+    phone_whatsapp: '2615000006',
+    institution: 'ies_edison',
+    disciplinary_profile: 'docente',
+    year_of_study: 'otro',
+    is_egresado: true,
+    professional_title: 'Especialista en Didáctica',
+    // Ocupa el slot mentor_id_2 del equipo 1, que es el único modo de ver en
+    // Mentoría el badge "Mentor Pedagógico (Slot 2)".
+    registration_status: 'aprobado',
+  },
+  {
     email: 'usertest1@gmail.com',
     role: 'usuario',
     first_name: 'Lucía',
@@ -163,9 +195,115 @@ const USUARIOS = [
     is_egresado: false,
     registration_status: 'aprobado',
   },
+  {
+    email: 'usertest4@gmail.com',
+    role: 'usuario',
+    first_name: 'Tomás',
+    last_name: 'Aguirre',
+    dni: '45444555',
+    phone_whatsapp: '2615000014',
+    institution: 'ies_9023_maipu',
+    disciplinary_profile: 'docente',
+    year_of_study: 'segundo',
+    is_egresado: false,
+    registration_status: 'aprobado',
+  },
+  {
+    email: 'usertest5@gmail.com',
+    role: 'usuario',
+    first_name: 'Julieta',
+    last_name: 'Vega',
+    dni: '45555666',
+    phone_whatsapp: '2615000015',
+    institution: 'ies_edison',
+    disciplinary_profile: 'tecnico',
+    year_of_study: 'tercero',
+    is_egresado: false,
+    registration_status: 'aprobado',
+  },
+  {
+    email: 'usertest6@gmail.com',
+    role: 'usuario',
+    first_name: 'Bruno',
+    last_name: 'Correa',
+    dni: '45666777',
+    phone_whatsapp: '2615000016',
+    institution: 'otra',
+    institution_other: 'Escuela Técnica N°4-121 Ing. Vicente Cicchitti',
+    disciplinary_profile: 'otro',
+    year_of_study: 'primero',
+    // El único egresado de la tanda: con dos en el mismo equipo, join_team
+    // rebota al segundo (max_egresados_per_team = 1).
+    is_egresado: true,
+    professional_title: 'Técnico en Programación',
+    registration_status: 'aprobado',
+  },
+  {
+    email: 'usertest7@gmail.com',
+    role: 'usuario',
+    first_name: 'Camila',
+    last_name: 'Ojeda',
+    dni: '45777888',
+    phone_whatsapp: '2615000017',
+    institution: 'ies_9023_maipu',
+    disciplinary_profile: 'otro',
+    year_of_study: 'primero',
+    is_egresado: false,
+    // Queda A PROPÓSITO sin equipo: es la cuenta para mostrar en vivo el alta
+    // con código de unión. Si se la mete a un equipo, el tutorial pierde ese
+    // paso y hay que volver a correr el seed para recuperarlo.
+    registration_status: 'aprobado',
+  },
 ];
 
 const EMAILS = USUARIOS.map((u) => u.email);
+
+// ── Los equipos a sembrar ──
+// Los códigos son fijos (y no los seis caracteres aleatorios que genera
+// create_team) para poder tipearlos en cámara y para que este script sepa
+// cuáles son suyos a la hora de borrar.
+const EQUIPOS = [
+  {
+    join_code: 'DEMO01',
+    name: 'Aula Viva',
+    lider: 'usertest1@gmail.com',
+    miembros: ['usertest1@gmail.com', 'usertest2@gmail.com', 'usertest3@gmail.com'],
+    mentor: 'mentortest@gmail.com',
+    mentor_2: 'mentortest2@gmail.com',
+    proyecto: {
+      title: 'Cuaderno Vivo',
+      description_problem:
+        'En los primeros años del profesorado, la devolución de los trabajos prácticos llega dos o tres semanas después de la entrega. Para entonces el tema ya se cerró y la corrección no cambia nada: el estudiante la lee, la archiva y sigue arrastrando el mismo error.',
+      description_solution:
+        'Un cuaderno digital donde cada consigna se entrega por partes y el docente devuelve sobre el fragmento, no sobre el trabajo terminado. El estudiante ve la marca en el momento en que todavía puede corregirla, y el docente llega a la entrega final sin una pila de veinte trabajos para leer de cero.',
+      url_prototype: 'https://www.figma.com/proto/hem2026-demo-cuaderno-vivo',
+      url_support_material: 'https://drive.google.com/drive/folders/hem2026-demo-cuaderno-vivo',
+      submitted: true,
+    },
+  },
+  {
+    join_code: 'DEMO02',
+    name: 'Ruta Maker',
+    lider: 'usertest4@gmail.com',
+    miembros: ['usertest4@gmail.com', 'usertest5@gmail.com', 'usertest6@gmail.com'],
+    mentor: 'mentortest@gmail.com',
+    mentor_2: null,
+    proyecto: {
+      title: 'Taller Abierto',
+      description_problem:
+        'Las escuelas técnicas del Valle de Uco tienen equipamiento de taller que se usa pocas horas por semana, pero ninguna sabe qué tiene la de al lado. Cuando a una le falta una máquina para un proyecto, el proyecto se recorta.',
+      description_solution:
+        'Un registro compartido del equipamiento disponible por escuela, con un calendario de préstamo entre instituciones y una ficha de seguridad por máquina. Arranca con las seis escuelas técnicas del departamento y no necesita comprar nada nuevo para funcionar.',
+      url_prototype: 'https://www.figma.com/proto/hem2026-demo-taller-abierto',
+      // A propósito sin material de apoyo: así se ve cómo muestra el panel un
+      // campo opcional vacío.
+      url_support_material: null,
+      submitted: true,
+    },
+  },
+];
+
+const JOIN_CODES = EQUIPOS.map((e) => e.join_code);
 
 /** La Admin API no filtra por email, así que se pagina y se busca a mano. */
 async function buscarCuenta(email) {
@@ -183,10 +321,28 @@ async function buscarCuenta(email) {
 // ── Modo borrado ──
 if (BORRAR) {
   if (!CONFIRMAR) {
-    console.log('\nBorraría estas cuentas de HEM-Dev:');
+    console.log('\nBorraría de HEM-Dev estos equipos (y con ellos su proyecto):');
+    for (const t of EQUIPOS) console.log(`  ${t.join_code}  ${t.name}`);
+    console.log('\nY estas cuentas:');
     for (const e of EMAILS) console.log(`  ${e}`);
-    console.log('\nAgregá --si para borrarlas de verdad.\n');
+    console.log('\nAgregá --si para borrarlos de verdad.\n');
     process.exit(0);
+  }
+
+  // Los equipos van PRIMERO: teams_leader_id_fkey no tiene ON DELETE, así que
+  // borrar al líder antes que a su equipo falla con violación de FK. Al equipo
+  // sí le cascadean projects, help_requests y las evaluations de esos
+  // proyectos, y profiles.team_id queda en NULL.
+  const { data: borrados, error: errEquipos } = await db
+    .from('teams')
+    .delete()
+    .in('join_code', JOIN_CODES)
+    .select('join_code, name');
+
+  if (errEquipos) {
+    console.log(`  ✗  equipos: ${errEquipos.message}`);
+  } else {
+    for (const t of borrados ?? []) console.log(`  ✓  equipo ${t.join_code} (${t.name}) borrado`);
   }
 
   for (const email of EMAILS) {
@@ -210,11 +366,18 @@ if (!CONFIRMAR) {
     console.log(`  ${u.role.padEnd(11)} ${u.email.padEnd(34)} ${u.first_name} ${u.last_name}`);
   }
   console.log(`\nTodos con la contraseña: ${PASSWORD}`);
+  console.log(`\nY estos ${EQUIPOS.length} equipos, cada uno con su proyecto entregado:\n`);
+  for (const t of EQUIPOS) {
+    console.log(`  ${t.join_code}  ${t.name.padEnd(12)} ${t.miembros.length} integrantes  →  «${t.proyecto.title}»`);
+  }
   console.log('\nAgregá --si para crearlos de verdad.\n');
   process.exit(0);
 }
 
 console.log(`\nSembrando en HEM-Dev (${DEV_REF})…\n`);
+
+/** email → id de la cuenta, para armar los equipos más abajo. */
+const IDS = new Map();
 
 for (const { email, role, ...perfil } of USUARIOS) {
   let cuenta = await buscarCuenta(email);
@@ -261,7 +424,85 @@ for (const { email, role, ...perfil } of USUARIOS) {
     continue;
   }
 
+  IDS.set(email, cuenta.id);
   console.log(`  ✓  ${role.padEnd(11)} ${email}`);
+}
+
+// ── Equipos y proyectos ──
+// Se escriben a mano en vez de llamar a create_team/join_team porque esas dos
+// RPC son SECURITY DEFINER y trabajan sobre auth.uid(), que con la service role
+// key es NULL. Sembrar directo también permite fijar el join_code.
+console.log('');
+
+for (const equipo of EQUIPOS) {
+  const idsMiembros = equipo.miembros.map((e) => IDS.get(e));
+  if (idsMiembros.some((id) => !id)) {
+    console.log(`  ✗  ${equipo.name}: falta alguna de las cuentas de sus integrantes`);
+    continue;
+  }
+
+  const { data: fila, error: errEquipo } = await db
+    .from('teams')
+    .upsert(
+      {
+        name: equipo.name,
+        join_code: equipo.join_code,
+        leader_id: IDS.get(equipo.lider),
+        mentor_id: equipo.mentor ? IDS.get(equipo.mentor) : null,
+        mentor_id_2: equipo.mentor_2 ? IDS.get(equipo.mentor_2) : null,
+      },
+      { onConflict: 'join_code' }
+    )
+    .select('id')
+    .single();
+
+  if (errEquipo) {
+    console.log(`  ✗  equipo ${equipo.name}: ${errEquipo.message}`);
+    continue;
+  }
+
+  const { error: errMiembros } = await db
+    .from('profiles')
+    .update({ team_id: fila.id })
+    .in('id', idsMiembros);
+
+  if (errMiembros) {
+    console.log(`  ✗  ${equipo.name}: integrantes no asignados — ${errMiembros.message}`);
+    continue;
+  }
+
+  const { submitted, ...proyecto } = equipo.proyecto;
+  const { error: errProyecto } = await db.from('projects').upsert(
+    {
+      ...proyecto,
+      team_id: fila.id,
+      // Sin submitted_at el proyecto figura como borrador y el equipo lo sigue
+      // editando; con fecha queda entregado, que es el estado desde el que el
+      // jurado lo ve completo.
+      submitted_at: submitted ? new Date().toISOString() : null,
+    },
+    { onConflict: 'team_id' }
+  );
+
+  if (errProyecto) {
+    console.log(`  ✗  proyecto de ${equipo.name}: ${errProyecto.message}`);
+    continue;
+  }
+
+  console.log(
+    `  ✓  equipo ${equipo.join_code}  ${equipo.name.padEnd(12)} ${idsMiembros.length} integrantes  →  «${proyecto.title}»`
+  );
+}
+
+// Las cuentas que ningún equipo sembrado reclama vuelven a quedar sueltas. Sin
+// esto, una corrida anterior donde Camila se unió a un equipo durante el
+// tutorial dejaría el seed sin la cuenta libre que ese mismo paso necesita.
+const CON_EQUIPO = new Set(EQUIPOS.flatMap((t) => t.miembros));
+const SUELTOS = EMAILS.filter((e) => !CON_EQUIPO.has(e)).map((e) => IDS.get(e)).filter(Boolean);
+
+if (SUELTOS.length) {
+  const { error } = await db.from('profiles').update({ team_id: null }).in('id', SUELTOS);
+  if (error) console.log(`\n  ✗  no se pudo dejar sin equipo a las cuentas sueltas: ${error.message}`);
 }
 
 console.log('\nListo. Las credenciales están en CREDENCIALES-DEV.local.md (no versionado).\n');
