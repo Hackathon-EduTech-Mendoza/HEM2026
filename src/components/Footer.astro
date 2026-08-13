@@ -56,14 +56,15 @@ import { EMAIL } from '../utils/contacto';
             </div>
         </div>
         <div class="ftr-bot">
+            <p class="ftr-aval">
+                Propuesta avalada y autorizada por la <strong>Dirección de Educación Superior (DGE)</strong>,
+                con <strong>puntaje docente y técnico</strong> —
+                <a href="/docs/resolucion-0180-2026-puntaje-docente.pdf" target="_blank" rel="noopener noreferrer">Res. N.º 0180/2026</a>, curso N.º 7812.
+                Sujeto a <a href="/bases-y-condiciones#art-premios">requisitos de acreditación</a>.
+            </p>
+            <p class="ftr-copy ftr-copyright">&copy; 2026 Hackathon EduTech Mendoza. Todos los derechos reservados.</p>
             <div class="ftr-copy ftr-credits">
-                <span class="ftr-aval">
-                    Actividad con <strong>puntaje docente</strong> otorgado por la Dirección de Educación Superior (DGE) —
-                    <a href="/docs/resolucion-0180-2026-puntaje-docente.pdf" target="_blank" rel="noopener noreferrer">Res. N.º 0180/2026</a>, curso N.º 7812.
-                    Sujeto a <a href="/bases-y-condiciones#art-premios">requisitos de acreditación</a>.
-                </span>
-                <span>&copy; 2026 Hackathon EduTech Mendoza. Todos los derechos reservados.</span>
-                <span>Plataforma diseñada y desarrollada por <a href="https://www.linkedin.com/in/nahuel-ghilardi/" target="_blank" rel="noopener noreferrer" class="author-link">Matías Nahuel Ghilardi</a>.</span>
+                <span>Plataforma diseñada y desarrollada por<br /><span class="ftr-author"><a href="https://www.linkedin.com/in/nahuel-ghilardi/" target="_blank" rel="noopener noreferrer" class="author-link">Matías Nahuel Ghilardi</a>.</span></span>
                 <span>Testing y QA por el Equipo EduTech.</span>
             </div>
         </div>
@@ -187,21 +188,37 @@ import { EMAIL } from '../utils/contacto';
         color: var(--c1);
     }
 
+    /* Tres columnas con el copyright exactamente al medio de la página: el
+       `auto` del centro se lleva su ancho de contenido y los dos `1fr` se
+       reparten el resto en partes iguales.
+       `baseline` y no `center`: las tres columnas tienen distinta cantidad de
+       renglones, así que centrarlas dejaba el copyright a la altura del último
+       renglón de los costados. Alineado por línea de base, arranca parejo con
+       el primero de cada columna aunque cambien las tipografías y los cuerpos. */
     .ftr-bot {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: baseline;
+        gap: 1rem 2.5rem;
         padding-top: 1rem;
         border-top: 1px solid var(--brd-s);
-        flex-wrap: wrap;
-        gap: 1rem;
+    }
+
+    .ftr-copyright {
+        text-align: center;
+        margin: 0;
+    }
+
+    /* El nombre no se parte: sin esto el apellido cae solo a un renglón. */
+    .ftr-author {
+        white-space: nowrap;
     }
 
     .ftr-credits {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
-        text-align: center;
+        text-align: right;
         color: var(--txt-2);
         margin: 0;
     }
@@ -213,8 +230,8 @@ import { EMAIL } from '../utils/contacto';
         font-size: 0.75rem;
         letter-spacing: normal;
         line-height: 1.7;
-        max-width: 68ch;
-        margin: 0 auto 0.5rem;
+        max-width: 46ch;
+        margin: 0;
         color: var(--txt-2);
     }
 
@@ -246,6 +263,29 @@ import { EMAIL } from '../utils/contacto';
         letter-spacing: 0.05em;
     }
 
+    /* Por debajo de ~900px las tres columnas dejan el aval en una tira de 4 o 5
+       renglones. Se apila y se centra, con el copyright al final: en columna, el
+       orden útil es información primero y firma después. */
+    @media (max-width: 900px) {
+        .ftr-bot {
+            grid-template-columns: 1fr;
+            justify-items: center;
+            text-align: center;
+            gap: 1.25rem;
+        }
+        .ftr-aval {
+            order: 1;
+            max-width: 60ch;
+        }
+        .ftr-credits {
+            order: 2;
+            text-align: center;
+        }
+        .ftr-copyright {
+            order: 3;
+        }
+    }
+
     @media (max-width: 767px) {
         .ftr-top {
             flex-direction: column;
@@ -255,10 +295,6 @@ import { EMAIL } from '../utils/contacto';
             width: 100%;
             gap: 2.5rem;
             flex-direction: column;
-        }
-        .ftr-bot {
-            flex-direction: column;
-            text-align: center;
         }
     .ftr-col li:has(.ftr-instagram-link) {
         display: flex;
