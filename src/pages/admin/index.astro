@@ -1564,7 +1564,9 @@ const projects = allProjects || [];
           <div class="help-section">
             <h3>👥 Gestión de Usuarios y Roles</h3>
             <p>
-              Todos los participantes (rol <strong>Usuario</strong>) se auto-aprueban automáticamente al registrarse. 
+              Los participantes (rol <strong>Usuario</strong>) se aprueban solos, pero <strong>recién cuando completan el onboarding</strong>: el sistema exige DNI e institución cargados. Quien se registra y abandona el formulario antes queda en <em>Pendiente</em> — no es un error del sistema, le faltan datos. El filtro de <strong>completitud</strong> de esta pestaña los separa, y con <strong>"Aprobar seleccionados"</strong> se resuelven de a varios.
+            </p>
+            <p>
               En cambio, los roles especiales como <strong>Mentor</strong> y <strong>Juez</strong> requieren aprobación manual del administrador (estado <em>Pendiente</em>) para poder acceder al sistema.
             </p>
             <p>
@@ -1581,7 +1583,7 @@ const projects = allProjects || [];
               Los límites para <strong>egresados, técnicos y docentes</strong> controlan en tiempo real quiénes y cuántos perfiles pueden unirse a cada equipo. Si un equipo excede el límite de un rol específico, el sistema bloqueará nuevas incorporaciones con dicho perfil.
             </p>
             <p>
-              Los toggles habilitan o deshabilitan al instante la <strong>formación de equipos</strong> y la <strong>recepción de proyectos</strong> (el Día D). La evaluación no se maneja con un toggle sino con el selector de fases que se explica abajo.
+              Los tres toggles habilitan o deshabilitan al instante la <strong>formación de equipos</strong>, la <strong>recepción de proyectos</strong> y los <strong>pedidos de ayuda SOS</strong> (el Día D). La evaluación no se maneja con un toggle sino con el selector de fases que se explica abajo.
             </p>
           </div>
 
@@ -1604,10 +1606,17 @@ const projects = allProjects || [];
           <div class="help-section">
             <h3>🏆 Cómo se calcula el puntaje</h3>
             <p>
-              Cada jurado puntúa <strong>6 criterios del 1 al 5</strong> (Problema, Solución, Innovación, Factibilidad, Impacto y Comunicación).
+              <strong>La rúbrica cambia según la fase.</strong> En <strong>preclasificación</strong> se puntúan <strong>5 criterios</strong> (Problema, Solución, Innovación, Factibilidad e Impacto). En la <strong>ronda final</strong> se suma <strong>Comunicación y pitch</strong>, que antes no se puntúa porque en esa instancia no hay presentación en vivo. Todos van del <strong>1 al 5</strong>.
             </p>
             <p>
-              El <strong>resultado oficial es el Puntaje Ponderado</strong>: aplica el peso de cada criterio y lo normaliza a 100 — Solución y Factibilidad pesan 20% cada uno, y los otros cuatro 15%. Es el que ordena el ranking y define las posiciones. La <strong>Suma directa</strong> (promedio de los 6 criterios sin pesos, sobre 30) queda como referencia para comparar, pero no define nada.
+              El <strong>resultado oficial es el Puntaje Ponderado</strong>: aplica el peso de cada criterio y lo normaliza a 100, así las dos fases quedan comparables. Es el que ordena el ranking y define las posiciones.
+            </p>
+            <ul>
+              <li><strong>Preclasificación:</strong> Solución y Factibilidad 23% cada uno; Problema, Innovación e Impacto 18% cada uno — el 15% de Comunicación se reparte en partes iguales entre los otros cinco.</li>
+              <li><strong>Ronda Final:</strong> Solución y Factibilidad 20% cada uno; los otros cuatro, 15%.</li>
+            </ul>
+            <p>
+              La <strong>Suma directa</strong> es la suma de los criterios sin pesos, así que su máximo también depende de la fase: <strong>25 en preclasificación</strong> y <strong>30 en la final</strong>. Queda como referencia para comparar, pero no define nada.
             </p>
             <p>
               La columna <em>Desglose</em> muestra el promedio de cada criterio por separado, en el orden de los encabezados, para ver dónde se hizo la diferencia entre dos proyectos parejos.
@@ -1749,7 +1758,8 @@ const projects = allProjects || [];
     color: var(--txt-2);
   }
 
-  .help-section ol {
+  .help-section ol,
+  .help-section ul {
     margin: 0 0 0.75rem 0;
     padding-left: 1.25rem;
   }

@@ -144,6 +144,14 @@ import { EMAIL } from '../utils/contacto';
         background: var(--bg-card);
     }
 
+    /* A 360px, los 2.5rem de cada lado dejaban 232px útiles: la tarjeta se comía
+       un tercio del ancho de pantalla. */
+    @media (max-width: 639px) {
+        .consultas-card {
+            padding: 1.75rem 1.25rem;
+        }
+    }
+
     .consultas-intro {
         text-align: center;
         margin-bottom: 2rem;
@@ -153,13 +161,20 @@ import { EMAIL } from '../utils/contacto';
         margin: 0.5rem 0 0.75rem;
     }
 
+    /* `margin: 0 auto`, no `margin: 0`: la regla global de .section-desc trae
+       max-width 600px sin centrado propio, así que dentro de un bloque centrado
+       la caja queda pegada a la izquierda y el texto, centrado adentro de ella,
+       termina corrido respecto de la tarjeta. */
     .consultas-intro .section-desc {
-        margin: 0;
+        margin: 0 auto;
     }
 
     .consultas-intro a {
         color: var(--c1);
         font-weight: 600;
+        /* El correo son 35 caracteres sin espacios ni guiones: en pantallas
+           angostas no hay dónde cortarlo y se sale de la tarjeta. */
+        overflow-wrap: anywhere;
     }
 
     .consultas-intro a:hover {
