@@ -47,7 +47,7 @@
         </div>
         -->
 
-        <p class="prizes-note reveal">Los premios serán anunciados por la organización antes del inicio del evento. Todos los participantes recibirán certificación de participación.</p>
+        <p class="prizes-note reveal">Los premios serán anunciados por la organización antes del inicio del evento. Todos los participantes reciben certificación de participación, avalada por la Dirección de Educación Superior, con <a href="/bases-y-condiciones#art-premios" class="prizes-aval-link">puntaje docente y técnico</a>.</p>
     </div>
 </section>
 
@@ -178,6 +178,19 @@
         font-size: 0.9rem;
         color: var(--txt-m);
         line-height: 1.6;
+    }
+
+    /* Mismo tratamiento que .author-link del footer: color de marca y negrita en
+       lugar de subrayado, para no romper el gris parejo del párrafo. */
+    .prizes-aval-link {
+        color: var(--c1);
+        font-weight: 600;
+        text-decoration: none;
+        transition: opacity var(--t-fast);
+    }
+
+    .prizes-aval-link:hover {
+        opacity: 0.8;
     }
 
     .mencion-container {
