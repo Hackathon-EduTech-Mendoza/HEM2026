@@ -65,7 +65,7 @@ export const ALL: APIRoute = async (context) => {
   // 'incompleto' es el recordatorio a los registros abandonados. Es el único
   // segmento que NO va sobre aprobados: justamente son los que nunca
   // completaron el formulario, así que siguen en estado pendiente.
-  const validFilters = ['all', 'participant', 'mentor', 'incompleto'];
+  const validFilters = ['all', 'participant', 'mentor', 'juez', 'incompleto'];
   if (!validFilters.includes(roleFilter)) {
     return new Response(JSON.stringify({ error: 'Invalid role filter.' }), {
       status: 400,
@@ -102,6 +102,8 @@ export const ALL: APIRoute = async (context) => {
       query = query.eq('role', 'usuario');
     } else if (roleFilter === 'mentor') {
       query = query.eq('role', 'mentor');
+    } else if (roleFilter === 'juez') {
+      query = query.eq('role', 'juez');
     }
   }
 
