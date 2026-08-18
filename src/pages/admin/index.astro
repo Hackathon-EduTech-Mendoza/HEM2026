@@ -87,6 +87,7 @@ const approvedProfiles = profiles.filter(p => p.registration_status === 'aprobad
 const countAllApproved = approvedProfiles.length;
 const countParticipantsApproved = approvedProfiles.filter(p => p.role === 'usuario').length;
 const countMentorsApproved = approvedProfiles.filter(p => p.role === 'mentor').length;
+const countJudgesApproved = approvedProfiles.filter(p => p.role === 'juez').length;
 
 // ──────────────────────────────────────────────────
 // Métricas de inscripción (pestaña "Métricas")
@@ -1288,7 +1289,7 @@ const projects = allProjects || [];
           </h2>
           <p class="bulletin-description">
             Redacta un mensaje que se enviará por correo electrónico a través de la API de Brevo.
-            Los tres primeros segmentos van a inscriptos <strong>aprobados</strong>; el de
+            Los cuatro primeros segmentos van a inscriptos <strong>aprobados</strong>; el de
             <strong>registro incompleto</strong> es la excepción, y es el único que le escribe a
             gente que todavía no completó el formulario.
           </p>
@@ -1297,10 +1298,11 @@ const projects = allProjects || [];
         <div class="bulletin-form-group">
           <label for="bulletin-filter" class="bulletin-label">Destinatarios</label>
           <div class="bulletin-select-container">
-            <select id="bulletin-filter" class="bulletin-select" data-all={countAllApproved} data-participants={countParticipantsApproved} data-mentors={countMentorsApproved} data-incompleto={countAbandoned}>
+            <select id="bulletin-filter" class="bulletin-select" data-all={countAllApproved} data-participants={countParticipantsApproved} data-mentors={countMentorsApproved} data-jueces={countJudgesApproved} data-incompleto={countAbandoned}>
               <option value="all">Todos los aprobados ({countAllApproved} usuarios)</option>
               <option value="participant">Solo Participantes ({countParticipantsApproved} usuarios)</option>
               <option value="mentor">Solo Mentores/Docentes ({countMentorsApproved} usuarios)</option>
+              <option value="juez">Solo Jueces ({countJudgesApproved} usuarios)</option>
               <option value="incompleto">Registro incompleto — recordatorio ({countAbandoned} usuarios)</option>
             </select>
           </div>
@@ -3755,6 +3757,10 @@ const projects = allProjects || [];
       count = bulletinFilter.getAttribute("data-mentors") || "0";
       if (previewFname) previewFname.textContent = "Mentor";
       if (previewBodyFname) previewBodyFname.textContent = "Mentor";
+    } else if (roleVal === "juez") {
+      count = bulletinFilter.getAttribute("data-jueces") || "0";
+      if (previewFname) previewFname.textContent = "Juez";
+      if (previewBodyFname) previewBodyFname.textContent = "Juez";
     } else if (roleVal === "incompleto") {
       count = bulletinFilter.getAttribute("data-incompleto") || "0";
       // Estos perfiles no tienen nombre cargado — es justamente lo que les
