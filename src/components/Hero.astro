@@ -3,7 +3,7 @@
 
 /**
  * Fecha de arranque del evento: la actividad virtual previa del miércoles 26 de
- * agosto, 21:30 (Art. 2º de las Bases). Alimenta el cronómetro del Hero.
+ * agosto, 19:00 (Art. 2º de las Bases). Alimenta el cronómetro del Hero.
  *
  * Formato: AAAA-MM-DDTHH:MM:SS-03:00 (el -03:00 es la zona horaria argentina).
  *
@@ -17,7 +17,7 @@
  * corregir el dato en las dos bases, después leerlo, y recién ahí borrar esta
  * constante. Nunca al revés.
  */
-const eventDate = '2026-08-26T21:30:00-03:00';
+const eventDate = '2026-08-26T19:00:00-03:00';
 ---
 
 <section class="hero" id="inicio">
@@ -362,7 +362,7 @@ const eventDate = '2026-08-26T21:30:00-03:00';
 
   function updateCD() {
     const countdownEl = document.getElementById("countdown");
-    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-08-26T21:30:00-03:00";
+    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-08-26T19:00:00-03:00";
     const target = new Date(targetDateStr).getTime();
     const now = new Date().getTime();
     const diff = target - now;

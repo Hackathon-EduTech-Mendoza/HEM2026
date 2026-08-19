@@ -16,9 +16,10 @@ import { EMAIL } from '../utils/contacto';
 // El PDF lo genera `npm run docs:bases` imprimiendo esta misma página, así que
 // incluye el Anexo II. Regenerarlo cuando cambie el articulado o la rúbrica.
 const BASES_PDF = '/docs/hackathon-edutech-2026-bases-y-condiciones.pdf';
-// El .docx queda disponible aparte: es la v11 tal cual se presentó a la DES, y
-// su Art. 11º delega la rúbrica a "una comunicación posterior" — no la trae.
-const BASES_DOCX = '/docs/hackathon-edutech-2026-bases-y-condiciones-v11.docx';
+// El .docx v11 (el presentado a la DES) sigue en public/docs/ pero ya no se
+// enlaza: su Art. 11º delega la rúbrica a "una comunicación posterior" — no la
+// trae — y su cronograma quedó viejo cuando la charla previa pasó a las 19:00.
+// El descargable público es el PDF, que se genera desde esta misma página.
 // RESOL-2026-180-E-GDEMZA-CGES#DGE, del 3/8/2026: otorga puntaje al curso N° 7812.
 // Reemplaza los "(en trámite)" del Art. 12º, que quedaron viejos cuando salió.
 const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
@@ -42,10 +43,6 @@ const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
             Descargar PDF
           </a>
         </div>
-        <p class="legal-download-alt">
-          También podés descargar la <a href={BASES_DOCX} download>versión 11 en Word</a>,
-          tal como se presentó ante la Dirección de Educación Superior.
-        </p>
 
         <article class="legal-content">
           <p class="legal-intro">La participación en la Hackathon EduTech 2026 implica la aceptación plena e incondicional de las presentes bases y condiciones.</p>
@@ -204,7 +201,7 @@ const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
             <h2 id="anexo-cronograma">Anexo I — Cronograma general del evento</h2>
 
             <h3>1. Miércoles 26 de agosto — Actividad previa virtual</h3>
-            <p><strong>21:30 a 23:00 hs.</strong> Modalidad virtual sincrónica.</p>
+            <p><strong>19:00 a 23:00 hs.</strong> Modalidad virtual sincrónica.</p>
             <p>Charla virtual de bases y condiciones a cargo de la facilitadora Celina Páez. El objetivo es preparar estratégicamente a las y los participantes antes del evento, presentar el encuadre general de la Hackathon y comunicar la hoja de ruta de trabajo.</p>
 
             <h3>2. Viernes 28 de agosto — Primera jornada presencial</h3>
@@ -442,20 +439,9 @@ const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
 
   /* En el PDF sobran el "volver" y la caja de descarga: uno no navega ni se
      descarga a sí mismo. La tarjeta pierde el marco para no encajonar cada hoja. */
-  .legal-download-alt {
-    margin: 0.75rem 0 0;
-    font-size: 0.85rem;
-    color: var(--txt-m);
-  }
-
-  .legal-download-alt a {
-    color: var(--c1);
-  }
-
   @media print {
     .legal-back,
-    .legal-download,
-    .legal-download-alt {
+    .legal-download {
       display: none !important;
     }
 
