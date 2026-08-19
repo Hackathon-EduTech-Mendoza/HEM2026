@@ -320,7 +320,19 @@
 
     if (error) {
       console.error('Error saving project:', error);
-      await showError('No se pudo guardar el proyecto', 'Revisá tu conexión o intentá más tarde.');
+      // El trigger `trg_enforce_min_team_size` rechaza la entrega de equipos por
+      // debajo del mínimo y marca el mensaje con este prefijo. Sin distinguirlo,
+      // al equipo le aparecería "revisá tu conexión", que es falso y no le dice
+      // qué tiene que hacer para poder entregar.
+      const rawMessage = error.message || '';
+      const MIN_SIZE_TAG = '[min_team_size]';
+
+      if (rawMessage.includes(MIN_SIZE_TAG)) {
+        const reason = rawMessage.slice(rawMessage.indexOf(MIN_SIZE_TAG) + MIN_SIZE_TAG.length).trim();
+        await showError('Todavía no pueden entregar', reason);
+      } else {
+        await showError('No se pudo guardar el proyecto', 'Revisá tu conexión o intentá más tarde.');
+      }
     } else {
       lastSaved.textContent = `Última modificación: ${new Date().toLocaleString()}`;
       // Notificación visual de éxito rápida
