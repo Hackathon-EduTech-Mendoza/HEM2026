@@ -10,6 +10,7 @@ import {
   openDashboardTab,
   openAdminTab,
   newApiClient,
+  newServiceClient,
   limpiarDatosE2E,
   TestUser,
 } from './utils';
@@ -237,7 +238,59 @@ test('participantes B y C se unen con el código', async ({ browser }) => {
 // 3. PROYECTO: el líder entrega el proyecto
 // ═══════════════════════════════════════════════════════════
 
+// El equipo llega acá con 3 integrantes (A + B + C). El trigger
+// `trg_enforce_min_team_size` bloquea la CREACIÓN de la entrega si el equipo no
+// alcanza `event_config.min_team_size`, así que con el mínimo en 3 esto pasa
+// justo. Si algún día se sube a 4 o 5 —que es lo que evalúa la organización—
+// este test empezaría a fallar por un motivo que no parece tener relación con lo
+// que prueba. Para que eso no pase, completamos el equipo hasta el mínimo
+// configurado antes de entregar.
+async function completarEquipoHastaElMinimo() {
+  const svc = newServiceClient();
+
+  const { data: cfg } = await svc
+    .from('event_config')
+    .select('value')
+    .eq('key', 'min_team_size')
+    .maybeSingle();
+
+  const minimo = parseInt(String(cfg?.value ?? '3'), 10) || 3;
+
+  const { data: equipo } = await svc
+    .from('teams')
+    .select('id')
+    .eq('join_code', joinCode)
+    .single();
+
+  const teamId = equipo!.id;
+
+  const { count } = await svc
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('team_id', teamId);
+
+  const faltan = minimo - (count ?? 0);
+
+  for (let i = 0; i < faltan; i++) {
+    const relleno = await createUserApi(`relleno-${i}`);
+    await completeProfileApi(relleno, {
+      first_name: `Relleno${i} E2E`,
+      last_name: `Prueba ${RUN_ID}`,
+      dni: `6${String(Date.now()).slice(-6)}${i}`,
+      disciplinary_profile: 'otro',
+    });
+    // Por service role: no interesa ejercitar join_team acá, solo llegar al mínimo.
+    const { error } = await svc
+      .from('profiles')
+      .update({ team_id: teamId })
+      .eq('id', relleno.id);
+    expect(error).toBeNull();
+  }
+}
+
 test('participante A (líder) entrega el proyecto', async ({ browser }) => {
+  await completarEquipoHastaElMinimo();
+
   const page = await newPage(browser);
 
   // Retrasamos a propósito el fetch inicial del proyecto para poder observar
