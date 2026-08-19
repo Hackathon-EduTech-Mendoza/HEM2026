@@ -195,6 +195,7 @@ const { data: configData } = await supabase
     "max_egresados_per_team",
     "max_tecnicos_per_team",
     "max_docentes_per_team",
+    "min_team_size",
   ]);
 
 const teamsEnabled =
@@ -220,6 +221,8 @@ const maxTecnicosPerTeam =
   configData?.find((c) => c.key === "max_tecnicos_per_team")?.value || "2";
 const maxDocentesPerTeam =
   configData?.find((c) => c.key === "max_docentes_per_team")?.value || "2";
+const minTeamSize =
+  configData?.find((c) => c.key === "min_team_size")?.value || "3";
 
 // Obtener datos del Leaderboard (una fila por proyecto y fase)
 const { data: leaderboardData, error: leaderboardError } = await supabase
@@ -757,6 +760,30 @@ const projects = allProjects || [];
             <option value="deliberacion" selected={evaluationPhase === "deliberacion"}>Deliberación (votación pausada)</option>
             <option value="final" selected={evaluationPhase === "final"}>Ronda Final</option>
           </select>
+        </div>
+      </div>
+
+      <div class="config-card card">
+        <div class="config-info">
+          <h3>Mínimo de Integrantes por Equipo</h3>
+          <p>
+            Un equipo por debajo de este número <strong>no puede crear su entrega</strong>.
+            Es la palanca de destrabe: si el día del evento un equipo queda trabado,
+            bajalo a <strong>1</strong> para desactivar la regla y volvé a subirlo después.
+            El cambio es instantáneo, no requiere despliegue.
+          </p>
+        </div>
+        <div class="config-action">
+		<input
+			type="number"
+			id="min-team-size-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={minTeamSize}
+			min="1"
+			max="10"
+			step="1"
+		/>
         </div>
       </div>
 
@@ -3513,6 +3540,7 @@ const projects = allProjects || [];
   const maxTecnicosInput = document.getElementById("max-tecnicos-input") as HTMLInputElement;
   const maxDocentesInput = document.getElementById("max-docentes-input") as HTMLInputElement;
   const finalistsCountInput = document.getElementById("finalists-count-input") as HTMLInputElement;
+  const minTeamSizeInput = document.getElementById("min-team-size-input") as HTMLInputElement;
 
   const keyMap: Record<string, string> = {
     "mentor-duration-input": "mentor_session_duration",
@@ -3520,10 +3548,11 @@ const projects = allProjects || [];
     "max-egresados-input": "max_egresados_per_team",
     "max-tecnicos-input": "max_tecnicos_per_team",
     "max-docentes-input": "max_docentes_per_team",
-    "finalists-count-input": "finalists_count"
+    "finalists-count-input": "finalists_count",
+    "min-team-size-input": "min_team_size"
   };
 
-  [durationInput, cooldownInput, maxEgresadosInput, maxTecnicosInput, maxDocentesInput, finalistsCountInput].forEach(input => {
+  [durationInput, cooldownInput, maxEgresadosInput, maxTecnicosInput, maxDocentesInput, finalistsCountInput, minTeamSizeInput].forEach(input => {
     input?.addEventListener("change", async () => {
       const key = keyMap[input.id];
       if (!key) return;
