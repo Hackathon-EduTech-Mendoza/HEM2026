@@ -179,10 +179,10 @@ test.describe('cronómetro del Hero', () => {
    * tabla comentado que, de activarse, habría leído la fecha de la edición
    * anterior y dejado el countdown en cero. Este test fija el valor bueno.
    */
-  test('apunta al 26 de agosto de 2026, 21:30', async ({ page }) => {
+  test('apunta al 26 de agosto de 2026, 19:00', async ({ page }) => {
     await page.goto('/');
     const countdown = page.locator('#countdown');
-    await expect(countdown).toHaveAttribute('data-target-date', '2026-08-26T21:30:00-03:00');
+    await expect(countdown).toHaveAttribute('data-target-date', '2026-08-26T19:00:00-03:00');
   });
 
   test('la cuenta regresiva corre y el evento todavía no arrancó', async ({ page }) => {
@@ -252,8 +252,9 @@ test.describe('bases y condiciones', () => {
   test('se puede descargar el documento y están los dos anexos', async ({ page }) => {
     await page.goto('/bases-y-condiciones');
 
-    // El descargable principal es el PDF que genera `npm run docs:bases`; el
-    // .docx v11 queda como alternativa porque es lo presentado ante la DES.
+    // El único descargable es el PDF que genera `npm run docs:bases`. El .docx
+    // v11 sigue en public/docs/ porque es lo presentado ante la DES, pero ya no
+    // se enlaza: quedó desactualizado contra la página (horario de la charla).
     const descarga = page.locator('a.legal-download-btn');
     await expect(descarga).toHaveAttribute('href', /\.pdf$/);
     const pdf = await page.request.get(
@@ -261,12 +262,7 @@ test.describe('bases y condiciones', () => {
     );
     expect(pdf.status()).toBe(200);
 
-    const alternativa = page.locator('.legal-download-alt a');
-    await expect(alternativa).toHaveAttribute('href', /\.docx$/);
-    const docx = await page.request.get(
-      (await alternativa.getAttribute('href')) as string,
-    );
-    expect(docx.status()).toBe(200);
+    await expect(page.locator('.legal-download-alt')).toHaveCount(0);
 
     await expect(page.locator('#anexo-cronograma')).toHaveCount(1);
     await expect(page.locator('#anexo-rubrica')).toHaveCount(1);

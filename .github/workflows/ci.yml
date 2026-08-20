@@ -75,6 +75,9 @@ jobs:
   e2e-publico:
     name: E2E del sitio público
     runs-on: ubuntu-latest
+    # Una corrida normal tarda ~2:30. Sin este tope, un step colgado se queda
+    # las 6 horas que da GitHub por defecto (pasó: 2h20 hasta cancelarlo a mano).
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -85,8 +88,13 @@ jobs:
 
       - run: npm ci
 
+      # Sin --with-deps a propósito: esa bandera corre `apt-get update` contra
+      # los mirrors de Ubuntu, y ahí es donde se colgó indefinidamente (run
+      # 32293869801, 2h20 sin avanzar de "Get: noble-security InRelease").
+      # La imagen ubuntu-latest ya trae las librerías que Chromium necesita.
       - name: Instalar Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
+        timeout-minutes: 5
 
       # sitio-publico.spec.ts no importa tests/e2e/utils.ts, así que no necesita
       # el archivo .env ni credenciales reales.
@@ -106,6 +114,7 @@ jobs:
   e2e-completo:
     name: E2E completo (escribe en la base real)
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     # Solo a mano y con la casilla marcada: nunca en un push automático.
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.correr_suite_completa == 'true'
     steps:
@@ -118,8 +127,10 @@ jobs:
 
       - run: npm ci
 
+      # Mismo criterio que en e2e-publico: nada de --with-deps.
       - name: Instalar Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
+        timeout-minutes: 5
 
       # tests/e2e/utils.ts lee un archivo .env del disco (no process.env),
       # así que hay que materializarlo desde los secrets del repo.
