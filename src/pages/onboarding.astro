@@ -41,6 +41,11 @@ const email = user.email || '';
               </div>
               <h3>Participante</h3>
               <p>Estudiante de nivel superior que competirá diseñando soluciones tecnológicas innovadoras.</p>
+              <!-- Se muestra solo si el cupo se llenó. Lo enciende el script de
+                   más abajo consultando /api/cupo. -->
+              <p class="role-sin-cupo" id="rol-usuario-sin-cupo" hidden>
+                Cupo completo &mdash; ya se llenaron los 300 lugares.
+              </p>
             </div>
 
             <div class="role-card animate-on-hover" data-role="mentor">
@@ -329,6 +334,33 @@ const email = user.email || '';
     box-shadow: 0 8px 24px rgba(var(--c1r), 0.15), 0 0 0 2px var(--c1);
   }
 
+  /* Rol sin cupo. Se atenúa pero se deja legible (0.55 y no 0.3): la tarjeta
+     tiene que poder LEERSE para entender por qué no se puede elegir. */
+  .role-card.sin-cupo {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  /* El hover de una tarjeta que no se puede elegir promete algo que no va a
+     pasar. */
+  .role-card.sin-cupo:hover {
+    transform: none;
+    border-color: var(--brd);
+    box-shadow: none;
+  }
+
+  .role-sin-cupo {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--danger);
+    border: 1px solid rgba(var(--danger-r), 0.35);
+    background: rgba(var(--danger-r), 0.08);
+    border-radius: var(--r-full);
+    padding: 0.3rem 0.75rem;
+    margin-top: auto; /* Queda pegado abajo aunque los textos midan distinto. */
+  }
+
   .role-icon {
     width: 56px;
     height: 56px;
@@ -567,12 +599,64 @@ const email = user.email || '';
   // Interacción del Paso 1: Selección de Rol
   roleCards.forEach(card => {
     card.addEventListener('click', () => {
+      // Rol sin cupo: no se puede elegir. Igual el candado de verdad está en la
+      // base (trigger `enforce_max_participants`), porque esto es JS del
+      // navegador y se saltea con la consola abierta. Acá lo que se busca es
+      // que se entienda ANTES de intentar, en vez de comerse un error al final
+      // del formulario.
+      if (card.classList.contains('sin-cupo')) return;
+
       roleCards.forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
       selectedRole = card.getAttribute('data-role') || '';
       btnToStep2.disabled = false;
     });
   });
+
+  /**
+   * Apaga la tarjeta de "Participante" si ya no hay lugar.
+   *
+   * ⚠️ Usa `hayLugar` y NO `estado`: el cartel público del home cuenta también
+   * los registros sin completar (muestra el peor caso), así que su `estado`
+   * llega a "completo" ANTES de que el cupo real se agote. Si acá se mirara
+   * `estado`, se le negaría el lugar a gente que el trigger sí deja pasar.
+   *
+   * Quien ya es participante no se ve afectado: esta pantalla es para elegir
+   * rol, y su lugar ya está tomado.
+   */
+  async function marcarRolesSinCupo() {
+    const perfilEsParticipante =
+      document.getElementById('onboarding-main')?.getAttribute('data-current-role') === 'usuario';
+
+    let cupo: { hayLugar?: boolean };
+    try {
+      const res = await fetch('/api/cupo');
+      if (!res.ok) return; // Ante la duda, no se bloquea nada: decide la base.
+      cupo = await res.json();
+    } catch {
+      return;
+    }
+
+    if (cupo?.hayLugar !== false) return;
+
+    const cardUsuario = document.querySelector('.role-card[data-role="usuario"]');
+    const aviso = document.getElementById('rol-usuario-sin-cupo');
+    if (!cardUsuario || !aviso) return;
+
+    cardUsuario.classList.add('sin-cupo');
+    cardUsuario.setAttribute('aria-disabled', 'true');
+    aviso.hidden = false;
+
+    // Si venía preseleccionada por el rol actual del perfil, se deselecciona
+    // para que no pueda avanzar con un rol que la base va a rechazar.
+    if (!perfilEsParticipante && cardUsuario.classList.contains('selected')) {
+      cardUsuario.classList.remove('selected');
+      selectedRole = '';
+      btnToStep2.disabled = true;
+    }
+  }
+
+  marcarRolesSinCupo();
 
   // Configuración de campos dinámicos para el Paso 2
   function updateFormFields(role: string) {
@@ -810,7 +894,14 @@ const email = user.email || '';
       .eq('id', user.id);
 
     if (error) {
-      errorDiv.textContent = `Error al guardar los datos: ${error.message}`;
+      // El trigger `enforce_max_participants` corta acá cuando se llenó el cupo
+      // mientras la persona completaba el formulario. Sin esto se vería el
+      // mensaje crudo de Postgres, con el "[max_participants]" y todo.
+      const esCupoLleno = error.message.includes('[max_participants]');
+
+      errorDiv.textContent = esCupoLleno
+        ? 'Se completó el cupo de participantes mientras llenabas el formulario. Podés escribirnos por el canal de consultas, o volver y elegir otro rol.'
+        : `Error al guardar los datos: ${error.message}`;
       errorDiv.style.display = 'block';
       submitBtn.disabled = false;
       submitBtn.textContent = 'Finalizar Registro';

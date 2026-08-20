@@ -1,0 +1,471 @@
+---
+// src/components/AvisoCupo.astro
+//
+// Concepto 1c del canvas de diseño: barra fija que no bloquea + chip en el hero.
+// Se eligió sobre el modal porque no interrumpe la navegación y porque el hero
+// ya es donde mira la gente al entrar.
+//
+// ⚠️ Se renderiza VACÍO y oculto: el número real lo trae `/api/cupo` en el
+// cliente. El sitio público se prerenderiza, así que cualquier conteo hecho en
+// build quedaría congelado hasta el próximo deploy. Si el fetch falla, el aviso
+// simplemente no aparece — preferimos no mostrar nada antes que mostrar un
+// número inventado.
+//
+// El chip del hero vive en este mismo archivo (y no dentro de `Hero.astro`)
+// para que la redacción, los estados y el fetch estén en un solo lugar: son la
+// misma información en dos superficies.
+
+interface Props {
+  /** El chip solo tiene sentido en el home, donde está el hero. */
+  conChip?: boolean;
+}
+
+const { conChip = false } = Astro.props;
+---
+
+{
+  conChip && (
+    <a href="/registro" class="cupo-chip" id="cupo-chip" hidden>
+      <span class="cupo-chip-dot" aria-hidden="true" />
+      <span class="cupo-chip-txt" id="cupo-chip-txt" />
+    </a>
+  )
+}
+
+<div
+  class="cupo-bar"
+  id="cupo-bar"
+  hidden
+  role="status"
+  aria-live="polite"
+  aria-label="Estado del cupo de participantes"
+>
+  <div class="cupo-bar-in">
+    <div class="cupo-bar-txt">
+      <strong id="cupo-msg" />
+      <span class="cupo-detalle" id="cupo-detalle" />
+    </div>
+
+    <div class="cupo-prog" aria-hidden="true">
+      <div class="cupo-prog-fill" id="cupo-prog-fill" />
+    </div>
+
+    <a href="/registro" class="btn btn-primary cupo-cta" id="cupo-cta">
+      Inscribirme
+    </a>
+
+    <button type="button" class="cupo-cerrar" id="cupo-cerrar" aria-label="Cerrar el aviso de cupo">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+        <path
+          d="M18 6 6 18M6 6l12 12"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  /* ---------------------------------------------------------------
+     Chip del hero
+     --------------------------------------------------------------- */
+
+  /* Calca el lenguaje de .hero-badge (mismo gradiente de marca, mismo radio
+     completo, misma familia) para que se lea como parte del hero y no como un
+     widget pegado encima. */
+  .cupo-chip {
+    /* Acento de marca del chip. En claro es el magenta tal cual (9,9:1 sobre
+       blanco); en oscuro se aclara más abajo. Mismo problema y misma solución
+       que `--c2-text` en global.css: el color de marca no siempre alcanza el
+       contraste mínimo como TEXTO, y este chip es justamente el que hay que
+       poder leer. */
+    --cupo-acento: var(--c1);
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--cupo-acento);
+    background: linear-gradient(135deg, rgba(var(--c1r), 0.08) 0%, rgba(var(--c2r), 0.08) 100%);
+    border: 1px solid rgba(var(--c1r), 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: var(--r-full);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: all var(--t-base);
+  }
+
+  /* En oscuro el #88007b sobre #1a1a1a da 2,5:1 y el texto desaparece. Se sube
+     la luminosidad del magenta manteniendo el tono de marca (7,1:1). El
+     `:global` es necesario porque `data-theme` vive en <html>, fuera del scope
+     que Astro le pone a este componente. */
+  :global([data-theme='brand-dark']) .cupo-chip {
+    --cupo-acento: #e58ad9;
+    border-color: rgba(var(--c1r), 0.45);
+  }
+
+  .cupo-chip:hover {
+    border-color: rgba(var(--c1r), 0.45);
+    transform: translateY(-1px);
+  }
+
+  .cupo-chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--c2);
+    flex-shrink: 0;
+  }
+
+  /* El punto es decorativo: acompaña al texto, nunca lo reemplaza. El estado
+     siempre se entiende leyendo el mensaje, así que nadie depende del color. */
+  .cupo-chip[data-estado='ultimos'] .cupo-chip-dot,
+  .cupo-chip[data-estado='completo'] .cupo-chip-dot {
+    background: var(--cupo-acento);
+  }
+
+  .cupo-chip[data-estado='completo'] {
+    color: var(--txt-2);
+    background: var(--bg-3);
+    border-color: var(--brd);
+  }
+
+  /* ---------------------------------------------------------------
+     Barra fija
+     --------------------------------------------------------------- */
+
+  /* Abajo y no arriba: arriba está la navbar (--nav-h) y empujarla obligaría a
+     recalcular el offset del hero y del scroll con anclas. */
+  .cupo-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90; /* Debajo de la navbar y de los modales, encima del contenido. */
+    background: var(--bg-card);
+    border-top: 1px solid var(--brd);
+    box-shadow: var(--sh-lg);
+    padding: 0.75rem var(--pad);
+    transition: transform var(--t-base), opacity var(--t-base);
+  }
+
+  /* El backdrop-filter se aplica sólo en pantalla: al imprimir el sitio deja un
+     rectángulo gris opaco (ya nos pasó con las Bases). */
+  @media screen {
+    .cupo-bar {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  }
+
+  /* Estado inicial de la animación de entrada. La clase la saca el script
+     cuando llegan los datos. */
+  .cupo-bar.is-entrando {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  /* La barra flota sobre el contenido, así que sin esto se come el final del
+     footer. El script mide el alto real (en mobile la barra se apila y crece) y
+     lo escribe en `--cupo-bar-h`; mientras no haya barra vale 0.
+
+     ⚠️ Sin `transition`: animar el padding del body no se ve (el usuario está
+     mirando la barra, no el fondo del documento) y además quedaba pegado en el
+     valor viejo al cerrar el aviso. */
+  :global(body) {
+    padding-bottom: var(--cupo-bar-h, 0px);
+  }
+
+  .cupo-bar-in {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .cupo-bar-txt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .cupo-bar-txt strong {
+    font-size: 0.95rem;
+    color: var(--txt-1);
+    line-height: 1.2;
+  }
+
+  .cupo-detalle {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--txt-2);
+    letter-spacing: 0.03em;
+  }
+
+  .cupo-prog {
+    flex: 1;
+    height: 6px;
+    min-width: 80px;
+    background: var(--brd-s);
+    border-radius: var(--r-full);
+    overflow: hidden;
+  }
+
+  .cupo-prog-fill {
+    height: 100%;
+    width: 0;
+    border-radius: var(--r-full);
+    background: linear-gradient(90deg, var(--c1) 0%, var(--c2) 100%);
+    transition: width var(--t-slow);
+  }
+
+  /* Cerca del tope el degradado a verde manda un mensaje de "todo bien" que
+     contradice al texto: se pasa a magenta pleno. */
+  .cupo-bar[data-estado='ultimos'] .cupo-prog-fill,
+  .cupo-bar[data-estado='completo'] .cupo-prog-fill {
+    background: var(--c1);
+  }
+
+  .cupo-cta {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .cupo-cerrar {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: none;
+    color: var(--txt-m);
+    cursor: pointer;
+    transition: all var(--t-fast);
+  }
+
+  .cupo-cerrar:hover {
+    color: var(--txt-1);
+    border-color: var(--brd);
+    background: var(--bg-3);
+  }
+
+  /* En viewports chicos la barra se comería media pantalla con todo en fila.
+     Se apila y la barra de progreso pasa a ocupar el ancho completo. */
+  @media (max-width: 720px) {
+    .cupo-bar-in {
+      flex-wrap: wrap;
+      gap: 0.5rem 0.75rem;
+    }
+
+    .cupo-bar-txt {
+      flex: 1;
+      order: 1;
+    }
+
+    .cupo-cerrar {
+      order: 2;
+    }
+
+    .cupo-prog {
+      order: 3;
+      flex-basis: 100%;
+    }
+
+    .cupo-cta {
+      order: 4;
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cupo-bar,
+    .cupo-prog-fill,
+    .cupo-chip {
+      transition: none;
+    }
+
+    .cupo-bar.is-entrando {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  /* El aviso es navegación, no contenido: no va en el papel. */
+  @media print {
+    .cupo-bar,
+    .cupo-chip {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  interface Cupo {
+    inscriptos: number;
+    maximo: number;
+    restantes: number;
+    porcentaje: number;
+    estado: 'disponible' | 'ultimos' | 'completo';
+  }
+
+  // sessionStorage y no localStorage: quien cierra el aviso no quiere verlo en
+  // esta visita, pero el cupo cambia día a día y en la próxima sesión el dato
+  // vuelve a ser noticia.
+  const CLAVE_CERRADO = 'hem-cupo-cerrado';
+
+  function texto(cupo: Cupo): string {
+    if (cupo.estado === 'completo') return 'Cupo de participantes completo';
+    if (cupo.restantes === 1) return 'Queda 1 lugar para participantes';
+    return `Quedan ${cupo.restantes} lugares para participantes`;
+  }
+
+  async function initCupo() {
+    const bar = document.getElementById('cupo-bar');
+    const chip = document.getElementById('cupo-chip');
+    if (!bar && !chip) return;
+
+    let cupo: Cupo;
+    try {
+      const res = await fetch('/api/cupo');
+      if (!res.ok) return; // 503 = mal configurado. Se calla en vez de mentir.
+      cupo = await res.json();
+    } catch {
+      return; // Sin red no hay aviso, y el sitio sigue funcionando igual.
+    }
+
+    if (typeof cupo?.restantes !== 'number') return;
+
+    const msg = texto(cupo);
+    const detalle = `${cupo.inscriptos} / ${cupo.maximo} inscriptos · ${cupo.porcentaje}% ocupado`;
+
+    // --- Chip del hero: no se puede cerrar, así que siempre se muestra.
+    if (chip) {
+      const txt = document.getElementById('cupo-chip-txt');
+      if (txt) txt.textContent = msg;
+      chip.setAttribute('data-estado', cupo.estado);
+      if (cupo.estado === 'completo') chip.removeAttribute('href');
+      chip.hidden = false;
+    }
+
+    // --- Barra fija: respeta el cierre manual de esta sesión.
+    if (!bar) return;
+    if (sessionStorage.getItem(CLAVE_CERRADO) === '1') return;
+
+    const elMsg = document.getElementById('cupo-msg');
+    const elDetalle = document.getElementById('cupo-detalle');
+    const elFill = document.getElementById('cupo-prog-fill');
+    const elCta = document.getElementById('cupo-cta');
+
+    if (elMsg) elMsg.textContent = msg;
+    if (elDetalle) elDetalle.textContent = detalle;
+    bar.setAttribute('data-estado', cupo.estado);
+
+    if (cupo.estado === 'completo' && elCta) {
+      // Mandar a /registro cuando no hay lugar es una promesa vacía: se ofrece
+      // el canal de consultas, que es donde de verdad pueden preguntar.
+      elCta.textContent = 'Consultar';
+      elCta.setAttribute('href', '/#consultas');
+    }
+
+    // La barra entra recién cuando el hero sale de pantalla. Dos razones:
+    //   1. En el hero el chip ya dice lo mismo, y mostrar las dos cosas juntas
+    //      repite el mensaje en la primera pantalla.
+    //   2. En viewports bajos la barra se le monta encima al chip y al CTA.
+    // Si no hay chip (páginas sin hero) se muestra directamente.
+    // Se guarda para poder cortarlo al cerrar el aviso: si sigue observando,
+    // vuelve a escribir el alto y el body se queda con el hueco reservado.
+    let observador: ResizeObserver | null = null;
+
+    const mostrar = () => {
+      bar.classList.add('is-entrando');
+      bar.hidden = false;
+
+      // Reservar el alto en el body para que la barra no tape el final de la
+      // página (el footer).
+      //
+      // Con ResizeObserver y no con una medición única: el alto cambia al rotar
+      // el teléfono, al redimensionar (la barra se apila abajo de 720px) y
+      // cuando termina de cargar la tipografía. Medir una sola vez daba 65px
+      // para una barra que después medía 76, y esos 11px se comían el borde del
+      // footer.
+      const ro = new ResizeObserver(() => {
+        if (!bar.hidden) {
+          document.documentElement.style.setProperty('--cupo-bar-h', `${bar.offsetHeight}px`);
+        }
+      });
+      ro.observe(bar);
+
+      // Segundo frame: recién ahí la transición de entrada tiene de dónde salir.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          bar.classList.remove('is-entrando');
+          if (elFill) elFill.style.width = `${cupo.porcentaje}%`;
+        }),
+      );
+
+      observador = ro;
+    };
+
+    const hero = chip ? document.querySelector<HTMLElement>('.hero') : null;
+
+    if (!hero) {
+      mostrar();
+      return;
+    }
+
+    // ⚠️ Dos trampas del scroll en este sitio, las dos por lo mismo: el
+    // contenedor que scrollea es el <body> (`overflow: hidden auto`), no el
+    // documento.
+    //
+    //   1. Un IntersectionObserver sobre el hero no llega a dispararse.
+    //   2. El evento `scroll` de un elemento NO burbujea, así que un
+    //      `window.addEventListener('scroll', ...)` nunca se entera.
+    //
+    // Por eso el listener va en `document` y en fase de CAPTURA: así ve el
+    // evento sin importar cuál de los dos termine siendo el scroller.
+    const desplazamiento = () =>
+      window.scrollY || document.body.scrollTop || document.documentElement.scrollTop || 0;
+
+    const alDesplazar = () => {
+      // 60% del hero recorrido: el chip ya salió de pantalla y todavía no
+      // llegaste al fondo.
+      if (desplazamiento() > hero.offsetHeight * 0.6) {
+        document.removeEventListener('scroll', alDesplazar, true);
+        mostrar();
+      }
+    };
+
+    document.addEventListener('scroll', alDesplazar, { passive: true, capture: true });
+    alDesplazar(); // Por si se entró con la página ya scrolleada (recarga, ancla).
+
+    document.getElementById('cupo-cerrar')?.addEventListener('click', () => {
+      bar.classList.add('is-entrando');
+      sessionStorage.setItem(CLAVE_CERRADO, '1');
+      // Se espera a que termine la salida antes de sacarlo del flujo y de
+      // devolverle al body el espacio que tenía reservado.
+      setTimeout(() => {
+        bar.hidden = true;
+        observador?.disconnect();
+        document.documentElement.style.setProperty('--cupo-bar-h', '0px');
+      }, 300);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCupo);
+  } else {
+    initCupo();
+  }
+</script>

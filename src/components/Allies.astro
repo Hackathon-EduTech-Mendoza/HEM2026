@@ -87,6 +87,21 @@ const allies = [
     isDoubleLogo: true,
     height: "90px",
   },
+  {
+    /* Doble archivo por el mismo motivo que Aureo Innova: el logotipo es negro
+       puro (78% de los píxeles opacos) y sobre el fondo oscuro da 1,21:1, o sea
+       invisible. Además el filtro del marquee es `grayscale(1)`, que le
+       arruinaría los tres chevrons de marca.
+       En la variante clara solo se toca el negro: los chevrons quedan intactos
+       porque ya cumplen de sobra sobre oscuro (rojo 4,95:1, verde 8,76:1,
+       lima 13,22:1, contra el mínimo de 3:1). */
+    name: "Incubadora UNCuyo",
+    href: "https://www.uncuyo.edu.ar/incubadora/",
+    logoLight: "/img/allies/IncubadoraUnCuyo.webp",
+    logoDark: "/img/allies/IncubadoraUnCuyo-blanco.webp",
+    isDoubleLogo: true,
+    height: "90px",
+  },
 ];
 ---
 
