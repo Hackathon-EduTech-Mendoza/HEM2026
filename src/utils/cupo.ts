@@ -4,17 +4,16 @@
 // sede no da abasto para más gente, así que la inscripción se comunica como
 // limitada.
 //
-// ⚠️ ESTO SOLO INFORMA. Hoy nada impide el registro número 301: no hay check en
-// el alta ni trigger en la base. El cierre real quedó pendiente de definir (ver
-// BACKLOG.md). Mientras tanto el cartel dice "se cierran al alcanzarlo" como
-// intención, no como garantía técnica.
+// El cierre es real: el trigger `enforce_max_participants` de la base rechaza
+// el alta del participante que pasa el tope, y el cartel es el aviso previo.
 
 /**
- * Tope de participantes. Vive acá y no en `event_config` a propósito, igual que
- * la fecha del Hero: mover un número a la base obliga a tenerlo bien cargado en
- * las DOS bases (dev y prod) antes de leerlo, y todavía no está decidido si el
- * cupo se administra desde el panel. Cuando se defina el cierre, este es el
- * primer lugar a tocar.
+ * ⚠️ ESTO ES SOLO EL FALLBACK. El tope que manda es
+ * `event_config.max_participants`, que es lo que lee el trigger y lo que mueve
+ * la card "Cupo de Participantes" del panel; `api/cupo.ts` lo lee de ahí y solo
+ * cae en esta constante si la fila falta o no es un número.
+ *
+ * O sea: cambiar este valor NO mueve el cupo. Para eso está el panel.
  */
 export const CUPO_MAXIMO = 300;
 
