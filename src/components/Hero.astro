@@ -18,6 +18,8 @@
  * constante. Nunca al revés.
  */
 const eventDate = '2026-08-26T19:00:00-03:00';
+
+import AvisoCupo from './AvisoCupo.astro';
 ---
 
 <section class="hero" id="inicio">
@@ -66,6 +68,12 @@ const eventDate = '2026-08-26T19:00:00-03:00';
         <strong>28-29 Ago</strong> &mdash; Presencial
       </div>
     </div>
+
+    {/* Aviso de cupo. El chip se muestra acá, pegado al CTA; la barra fija que
+        trae el mismo componente es `position: fixed`, así que se ancla al
+        viewport y no a este lugar del DOM. Ambos quedan ocultos hasta que
+        `/api/cupo` responde. */}
+    <AvisoCupo conChip />
 
     <div class="hero-act">
       <a href="/registro" class="btn btn-primary btn-lg glow-btn"
