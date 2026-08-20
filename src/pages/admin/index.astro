@@ -196,6 +196,7 @@ const { data: configData } = await supabase
     "max_tecnicos_per_team",
     "max_docentes_per_team",
     "min_team_size",
+    "max_participants",
   ]);
 
 const teamsEnabled =
@@ -223,6 +224,8 @@ const maxDocentesPerTeam =
   configData?.find((c) => c.key === "max_docentes_per_team")?.value || "2";
 const minTeamSize =
   configData?.find((c) => c.key === "min_team_size")?.value || "3";
+const maxParticipants =
+  configData?.find((c) => c.key === "max_participants")?.value || "300";
 
 // Obtener datos del Leaderboard (una fila por proyecto y fase)
 const { data: leaderboardData, error: leaderboardError } = await supabase
@@ -704,6 +707,12 @@ const projects = allProjects || [];
       <!-- End tab-usuarios -->
 
   <div class="tab-content" id="tab-configuracion">
+    <!-- La pantalla se agrupa en dos bloques porque son decisiones de
+         naturaleza distinta: lo que se ABRE y CIERRA durante el evento, y los
+         NÚMEROS que casi no se tocan. Buscar una cosa u otra a las apuradas el
+         día D es más rápido así. -->
+    <h3 class="config-seccion">Etapas del evento</h3>
+    <p class="config-seccion-sub">Lo que se abre y se cierra a medida que avanza la hackathon.</p>
     <div class="config-grid">
       <div class="config-card card">
         <div class="config-info">
@@ -762,7 +771,11 @@ const projects = allProjects || [];
           </select>
         </div>
       </div>
+    </div>
 
+    <h3 class="config-seccion">Límites y cupos</h3>
+    <p class="config-seccion-sub">Números que definen las reglas. Casi no se tocan durante el evento.</p>
+    <div class="config-grid">
       <div class="config-card card">
         <div class="config-info">
           <h3>Mínimo de Integrantes por Equipo</h3>
@@ -789,6 +802,30 @@ const projects = allProjects || [];
 
       <div class="config-card card">
         <div class="config-info">
+          <h3>Cupo de Participantes</h3>
+          <p>
+            Al llegar a este número nadie más puede elegir el rol
+            <strong>Participante</strong>. Mentores y jueces no ocupan cupo.
+            Hoy ocupan lugar <strong>{byRole.usuario}</strong>; los <strong>{countAbandoned}</strong>
+            sin completar todavía no. <strong>0</strong> desactiva el cupo.
+          </p>
+        </div>
+        <div class="config-action">
+		<input
+			type="number"
+			id="max-participants-input"
+			class="filter-select"
+			style="width: 90px; text-align: center;"
+			value={maxParticipants}
+			min="0"
+			max="2000"
+			step="1"
+		/>
+        </div>
+      </div>
+
+      <div class="config-card card">
+        <div class="config-info">
           <h3>Cupo de Finalistas</h3>
           <p>Cantidad de proyectos que pasan a la ronda final (Top N de la preclasificación).</p>
         </div>
@@ -801,64 +838,6 @@ const projects = allProjects || [];
 			value={finalistsCount}
 			min="1"
 			max="50"
-			step="1"
-		/>
-        </div>
-      </div>
-
-      <!-- Oculto temporalmente: el sistema SOS no se usa en esta edición. Quitar display:none para reactivar. -->
-      <div class="config-card card" style="display: none;">
-        <div class="config-info">
-          <h3>Pedidos de Ayuda SOS</h3>
-          <p>
-            Habilita el sistema de tickets en tiempo real para que los equipos pidan ayuda.
-          </p>
-        </div>
-        <div class="config-action">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              id="help-enabled-toggle"
-              checked={helpEnabled}
-            />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="config-card card" style="display: none;">
-        <div class="config-info">
-          <h3>Duración de Sesión (Minutos)</h3>
-          <p>Tiempo estimado de atención por cada ticket SOS.</p>
-        </div>
-        <div class="config-action">
-		<input
-			type="number"
-			id="mentor-duration-input"
-			class="filter-select"
-			style="width: 80px; text-align: center;"
-			value={mentorSessionDuration}
-			min="5"
-			max="60"
-			step="5"
-		/>
-        </div>
-      </div>
-
-      <div class="config-card card" style="display: none;">
-        <div class="config-info">
-          <h3>Cooldown SOS (Minutos)</h3>
-          <p>Tiempo de espera entre pedidos de ayuda de un mismo equipo.</p>
-        </div>
-        <div class="config-action">
-		<input
-			type="number"
-			id="help-cooldown-input"
-			class="filter-select"
-			style="width: 80px; text-align: center;"
-			value={helpCooldownMinutes}
-			min="0"
-			max="30"
 			step="1"
 		/>
         </div>
@@ -916,6 +895,67 @@ const projects = allProjects || [];
 			value={maxDocentesPerTeam}
 			min="0"
 			max="5"
+			step="1"
+		/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Oculto temporalmente: el sistema SOS no se usa en esta edición.
+         Quitar el display:none de cada card para reactivarlo. -->
+    <div class="config-grid">
+      <div class="config-card card" style="display: none;">
+        <div class="config-info">
+          <h3>Pedidos de Ayuda SOS</h3>
+          <p>
+            Habilita el sistema de tickets en tiempo real para que los equipos pidan ayuda.
+          </p>
+        </div>
+        <div class="config-action">
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="help-enabled-toggle"
+              checked={helpEnabled}
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="config-card card" style="display: none;">
+        <div class="config-info">
+          <h3>Duración de Sesión (Minutos)</h3>
+          <p>Tiempo estimado de atención por cada ticket SOS.</p>
+        </div>
+        <div class="config-action">
+		<input
+			type="number"
+			id="mentor-duration-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={mentorSessionDuration}
+			min="5"
+			max="60"
+			step="5"
+		/>
+        </div>
+      </div>
+
+      <div class="config-card card" style="display: none;">
+        <div class="config-info">
+          <h3>Cooldown SOS (Minutos)</h3>
+          <p>Tiempo de espera entre pedidos de ayuda de un mismo equipo.</p>
+        </div>
+        <div class="config-action">
+		<input
+			type="number"
+			id="help-cooldown-input"
+			class="filter-select"
+			style="width: 80px; text-align: center;"
+			value={helpCooldownMinutes}
+			min="0"
+			max="30"
 			step="1"
 		/>
         </div>
@@ -2195,13 +2235,35 @@ const projects = allProjects || [];
   }
 
   /* --- Config Grid --- */
+  /* Encabezado de cada bloque de configuración. */
+  .config-seccion {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: var(--txt-1);
+    margin: 0 0 0.25rem 0;
+  }
+  .config-seccion-sub {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    /* --txt-2 y no --txt-m: en tema oscuro el #707070 de --txt-m queda en 3,4:1
+       contra el fondo, por debajo del mínimo para texto de este tamaño. */
+    color: var(--txt-2);
+  }
+  /* Del segundo bloque en adelante hace falta aire contra la grilla anterior. */
+  .config-grid + .config-seccion {
+    margin-top: 2.5rem;
+  }
+
   .config-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    /* Cada card ocupa solo su alto: sin esto, la card más alta de la fila
-       (ej. Fase de Evaluación) estiraba a las de al lado. */
-    align-items: start;
+    /* Acá había un `align-items: start` para que la card más alta de la fila
+       (ej. Fase de Evaluación) no estirara a las de al lado. Resolvía el síntoma
+       equivocado: lo que molestaba era el CONTENIDO estirado, y la consecuencia
+       eran filas dentadas con huecos irregulares. Ahora las cards de una fila
+       miden todas lo mismo (el `stretch` que grid trae por defecto) y el
+       contenido queda arriba por el `align-items: flex-start` de .config-card. */
   }
   @media (min-width: 768px) {
     .config-grid {
@@ -2215,6 +2277,16 @@ const projects = allProjects || [];
     justify-content: space-between;
     align-items: flex-start;
     gap: 1rem;
+  }
+  /* Sin esto el texto se estruja en una columna angosta y deja aire muerto al
+     lado del control: el bloque de texto no reclamaba el ancho sobrante. */
+  .config-info {
+    flex: 1;
+    min-width: 0;
+  }
+  /* El control no se comprime ni se estira por culpa del largo del texto. */
+  .config-card > .config-action {
+    flex-shrink: 0;
   }
   /* Variante para controles anchos (selects): el control va debajo del texto,
      así la descripción usa todo el ancho de la card en vez de una columna angosta. */
@@ -3541,6 +3613,7 @@ const projects = allProjects || [];
   const maxDocentesInput = document.getElementById("max-docentes-input") as HTMLInputElement;
   const finalistsCountInput = document.getElementById("finalists-count-input") as HTMLInputElement;
   const minTeamSizeInput = document.getElementById("min-team-size-input") as HTMLInputElement;
+  const maxParticipantsInput = document.getElementById("max-participants-input") as HTMLInputElement;
 
   const keyMap: Record<string, string> = {
     "mentor-duration-input": "mentor_session_duration",
@@ -3549,10 +3622,11 @@ const projects = allProjects || [];
     "max-tecnicos-input": "max_tecnicos_per_team",
     "max-docentes-input": "max_docentes_per_team",
     "finalists-count-input": "finalists_count",
-    "min-team-size-input": "min_team_size"
+    "min-team-size-input": "min_team_size",
+    "max-participants-input": "max_participants"
   };
 
-  [durationInput, cooldownInput, maxEgresadosInput, maxTecnicosInput, maxDocentesInput, finalistsCountInput, minTeamSizeInput].forEach(input => {
+  [durationInput, cooldownInput, maxEgresadosInput, maxTecnicosInput, maxDocentesInput, finalistsCountInput, minTeamSizeInput, maxParticipantsInput].forEach(input => {
     input?.addEventListener("change", async () => {
       const key = keyMap[input.id];
       if (!key) return;
