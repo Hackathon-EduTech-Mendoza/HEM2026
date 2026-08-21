@@ -50,13 +50,13 @@ interface EquipoE2E {
   lider: TestUser;
 }
 
-/** Equipo de 2: por debajo del mínimo de 3. */
+/** Equipo de 4: por debajo del mínimo de 5. */
 let equipoChico: EquipoE2E;
-/** Equipo de 3: cumple el mínimo con lo justo. */
+/** Equipo de 5: cumple el mínimo con lo justo. */
 let equipoJusto: EquipoE2E;
-/** Otro equipo de 3, que nunca entrega: prueba que el bloqueo es sobre el INSERT. */
+/** Otro equipo de 5, que nunca entrega: prueba que el bloqueo es sobre el INSERT. */
 let equipoJusto2: EquipoE2E;
-/** Equipo de 3, para probar que la regla sigue a `event_config`. */
+/** Equipo de 5, para probar que la regla sigue a `event_config`. */
 let equipoConfig: EquipoE2E;
 
 // Todo lo creado, para el teardown. Se borra por id, no por patrón: así esta
@@ -181,17 +181,22 @@ async function borrarMinTeamSize() {
 
 test.beforeAll(async () => {
   minOriginal = await leerMinTeamSize();
-  // Los casos de abajo asumen el mínimo publicado por el Art. 6º de las Bases.
-  // Si alguien lo movió en la base, mejor decirlo que dar verde probando otra regla.
+  // Los casos de abajo asumen el mínimo publicado por el Art. 6º de las Bases,
+  // que desde el 21/08 es 5 exactos. Si alguien lo movió en la base, mejor
+  // decirlo que dar verde probando otra regla.
+  //
+  // A diferencia de antes, acá la clave ausente NO sirve: el default de la
+  // función sigue siendo 3, así que sin la clave estos tests probarían el
+  // mínimo viejo sin avisar.
   expect(
-    minOriginal === null || Number(minOriginal) === 3,
-    `event_config.min_team_size está en "${minOriginal}"; estos tests están escritos para 3 (o la clave ausente, que también da 3 por defecto).`,
+    Number(minOriginal) === 5,
+    `event_config.min_team_size está en "${minOriginal}"; estos tests están escritos para 5.`,
   ).toBeTruthy();
 
-  equipoChico = await crearEquipoE2E('chico', 2);
-  equipoJusto = await crearEquipoE2E('justo', 3);
-  equipoJusto2 = await crearEquipoE2E('justo2', 3);
-  equipoConfig = await crearEquipoE2E('config', 3);
+  equipoChico = await crearEquipoE2E('chico', 4);
+  equipoJusto = await crearEquipoE2E('justo', 5);
+  equipoJusto2 = await crearEquipoE2E('justo2', 5);
+  equipoConfig = await crearEquipoE2E('config', 5);
 });
 
 /**
@@ -239,14 +244,14 @@ test.afterAll(async () => {
 // 1. Por debajo del mínimo: la entrega se rechaza
 // ═══════════════════════════════════════════════════════════
 
-test('un equipo de 2 no puede entregar el proyecto', async () => {
+test('un equipo de 4 no puede entregar el proyecto', async () => {
   const { error } = await entregarProyecto(
     equipoChico.lider,
     equipoChico.id,
     `Proyecto E2E min-chico ${RUN_ID}`,
   );
 
-  expect(error, 'el equipo de 2 pudo entregar: el trigger no está frenando nada').not.toBeNull();
+  expect(error, 'el equipo de 4 pudo entregar: el trigger no está frenando nada').not.toBeNull();
   // El prefijo es lo que le permite al front distinguir este rechazo de un
   // error de red y mostrar el motivo real: se chequea explícitamente.
   expect(error!.message).toContain('[min_team_size]');
@@ -264,11 +269,11 @@ test('un equipo de 2 no puede entregar el proyecto', async () => {
 // 2. Con el mínimo cumplido: la entrega pasa
 // ═══════════════════════════════════════════════════════════
 
-test('un equipo de 3 entrega el proyecto sin problema', async () => {
+test('un equipo de 5 entrega el proyecto sin problema', async () => {
   const titulo = `Proyecto E2E min-justo ${RUN_ID}`;
   const { error } = await entregarProyecto(equipoJusto.lider, equipoJusto.id, titulo);
 
-  expect(error, `la entrega del equipo de 3 fue rechazada: ${error?.message}`).toBeNull();
+  expect(error, `la entrega del equipo de 5 fue rechazada: ${error?.message}`).toBeNull();
 
   const db = newServiceClient();
   const { data } = await db.from('projects').select('title').eq('team_id', equipoJusto.id).single();
@@ -290,7 +295,7 @@ test('el admin puede entregar por un equipo que no llega al mínimo', async () =
   });
   expect(loginError, 'no se pudo iniciar sesión con el admin de prueba').toBeNull();
 
-  // Mismo equipo de 2 que ya fue rechazado arriba: lo único que cambia es quién escribe.
+  // Mismo equipo de 4 que ya fue rechazado arriba: lo único que cambia es quién escribe.
   const titulo = `Proyecto E2E min-bypass ${RUN_ID}`;
   const { error } = await adminClient.from('projects').insert({
     team_id: equipoChico.id,
@@ -309,7 +314,7 @@ test('el admin puede entregar por un equipo que no llega al mínimo', async () =
 // ═══════════════════════════════════════════════════════════
 // 4. El trigger también corre en UPDATE
 //
-// Si solo mirara el INSERT, un equipo entregaba con 3, perdía a alguien y
+// Si solo mirara el INSERT, un equipo entregaba con 5, perdía a alguien y
 // seguía editando su entrega toda la jornada.
 // ═══════════════════════════════════════════════════════════
 
@@ -318,7 +323,7 @@ test('un equipo que ya entregó y se achica PUEDE seguir editando', async () => 
   // también en UPDATE, un equipo que entregó a las 22:00 y pierde a alguien a
   // las 23:30 no podría ni corregir un typo de su propia entrega: quedaría
   // castigado por algo posterior a la entrega y fuera de su control.
-  const saliente = equipoJusto.integrantes[2];
+  const saliente = equipoJusto.integrantes[4];
   await sacarDelEquipo(saliente.id);
 
   const tituloEditado = `Proyecto E2E min-justo editado ${RUN_ID}`;
@@ -344,7 +349,7 @@ test('un equipo que ya entregó y se achica PUEDE seguir editando', async () => 
 test('un equipo por debajo del mínimo tampoco puede CREAR la entrega tras achicarse', async () => {
   // La otra cara del test anterior: lo que se bloquea es crear la entrega.
   // Este equipo nunca entregó, así que sigue sin poder hacerlo.
-  const saliente = equipoJusto2.integrantes[2];
+  const saliente = equipoJusto2.integrantes[4];
   await sacarDelEquipo(saliente.id);
 
   const { error } = await entregarProyecto(
@@ -353,7 +358,7 @@ test('un equipo por debajo del mínimo tampoco puede CREAR la entrega tras achic
     `Proyecto E2E nunca ${RUN_ID}`,
   );
 
-  expect(error, 'un equipo de 2 sin entrega previa igual pudo crearla').not.toBeNull();
+  expect(error, 'un equipo de 4 sin entrega previa igual pudo crearla').not.toBeNull();
   expect(error!.message).toContain('[min_team_size]');
 
   const db = newServiceClient();
@@ -367,15 +372,15 @@ test('un equipo por debajo del mínimo tampoco puede CREAR la entrega tras achic
 // ═══════════════════════════════════════════════════════════
 // 5. La regla sigue a event_config.min_team_size
 //
-// El valor no está hardcodeado: si mañana las Bases piden 4, es un UPDATE de
-// esa clave y nada más. Este test lo sube a 4 y lo DEJA COMO ESTABA sí o sí.
+// El valor no está hardcodeado: si mañana las Bases piden 6, es un UPDATE de
+// esa clave y nada más. Este test lo sube a 6 y lo DEJA COMO ESTABA sí o sí.
 // ═══════════════════════════════════════════════════════════
 
-test('subir min_team_size a 4 deja afuera a un equipo de 3', async () => {
+test('subir min_team_size a 6 deja afuera a un equipo de 5', async () => {
   const valorOriginal = await leerMinTeamSize();
 
   try {
-    await escribirMinTeamSize('4');
+    await escribirMinTeamSize('6');
 
     const { error } = await entregarProyecto(
       equipoConfig.lider,
@@ -383,13 +388,13 @@ test('subir min_team_size a 4 deja afuera a un equipo de 3', async () => {
       `Proyecto E2E min-config ${RUN_ID}`,
     );
 
-    expect(error, 'con el mínimo en 4, el equipo de 3 igual pudo entregar').not.toBeNull();
+    expect(error, 'con el mínimo en 6, el equipo de 5 igual pudo entregar').not.toBeNull();
     expect(error!.message).toContain('[min_team_size]');
-    // El mensaje tiene que decir el número nuevo, no el 3 de antes.
-    expect(error!.message).toContain('4');
+    // El mensaje tiene que decir el número nuevo, no el 5 de antes.
+    expect(error!.message).toContain('6');
   } finally {
-    // Pase lo que pase, la config vuelve a como estaba: si esto queda en 4, el
-    // día del evento ningún equipo de 3 puede entregar.
+    // Pase lo que pase, la config vuelve a como estaba: si esto queda en 6, el
+    // día del evento ningún equipo puede entregar.
     if (valorOriginal === null) {
       await borrarMinTeamSize();
     } else {
@@ -400,7 +405,7 @@ test('subir min_team_size a 4 deja afuera a un equipo de 3', async () => {
   expect(await leerMinTeamSize()).toBe(valorOriginal);
 });
 
-test('con el mínimo restaurado, el equipo de 3 vuelve a poder entregar', async () => {
+test('con el mínimo restaurado, el equipo de 5 vuelve a poder entregar', async () => {
   // Cierra el caso anterior: comprueba que el `finally` dejó la config sana y,
   // de paso, que el rechazo era por el valor nuevo y no por otra cosa.
   const { error } = await entregarProyecto(

@@ -240,11 +240,10 @@ test('participantes B y C se unen con el código', async ({ browser }) => {
 
 // El equipo llega acá con 3 integrantes (A + B + C). El trigger
 // `trg_enforce_min_team_size` bloquea la CREACIÓN de la entrega si el equipo no
-// alcanza `event_config.min_team_size`, así que con el mínimo en 3 esto pasa
-// justo. Si algún día se sube a 4 o 5 —que es lo que evalúa la organización—
-// este test empezaría a fallar por un motivo que no parece tener relación con lo
-// que prueba. Para que eso no pase, completamos el equipo hasta el mínimo
-// configurado antes de entregar.
+// alcanza `event_config.min_team_size`, que desde el 21/08 vale 5. Si el
+// número se vuelve a mover, este test empezaría a fallar por un motivo que no
+// parece tener relación con lo que prueba. Para que eso no pase, completamos el
+// equipo hasta el mínimo configurado antes de entregar.
 async function completarEquipoHastaElMinimo() {
   const svc = newServiceClient();
 

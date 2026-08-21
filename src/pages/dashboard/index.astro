@@ -55,7 +55,7 @@ let teamsEnabled = false;
 let projectsEnabled = false;
 let helpEnabled = false;
 let maxTeamSize = 5;
-let minTeamSize = 3;
+let minTeamSize = 5;
 let mentorSessionDuration = 15;
 
 if (isProfileComplete && profile.registration_status === 'aprobado') {
@@ -77,7 +77,7 @@ if (isProfileComplete && profile.registration_status === 'aprobado') {
       if (row.key === 'project_submission_enabled') projectsEnabled = row.value === 'true';
       if (row.key === 'help_enabled') helpEnabled = row.value === 'true';
       if (row.key === 'max_team_size') maxTeamSize = parseInt(row.value) || 5;
-      if (row.key === 'min_team_size') minTeamSize = parseInt(row.value) || 3;
+      if (row.key === 'min_team_size') minTeamSize = parseInt(row.value) || 5;
       if (row.key === 'mentor_session_duration') mentorSessionDuration = parseInt(row.value) || 15;
     }
   }
