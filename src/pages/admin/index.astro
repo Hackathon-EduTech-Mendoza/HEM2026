@@ -41,7 +41,7 @@ const supabase = createServerClient(
 const { data: allProfiles, error } = await supabase
   .from("profiles")
   .select(
-    "id, full_name, first_name, last_name, email, dni, institution, institution_other, is_egresado, role, registration_status, created_at",
+    "id, full_name, first_name, last_name, email, dni, institution, institution_other, is_egresado, role, registration_status, created_at, disciplinary_profile",
   )
   .order("created_at", { ascending: false });
 
@@ -197,6 +197,7 @@ const { data: configData } = await supabase
     "max_docentes_per_team",
     "min_team_size",
     "max_participants",
+    "judge_groups_enabled",
   ]);
 
 const teamsEnabled =
@@ -302,6 +303,7 @@ const { data: allProjects, error: projectsError } = await supabase
     url_prototype,
     url_support_material,
     team_id,
+    judge_group,
     teams (
       name
     )
@@ -313,6 +315,48 @@ if (projectsError) {
 }
 
 const projects = allProjects || [];
+
+// ──────────────────────────────────────────────────
+// Grupos de jurado (pestaña "Jurado")
+// La división corre solo en preclasificación: en la final los 10 finalistas
+// presentan en vivo ante los 6 jueces, así que ahí todos evalúan todo.
+// ──────────────────────────────────────────────────
+const { data: allJudges } = await supabase
+  .from("profiles")
+  .select("id, full_name, first_name, last_name, email, institution, registration_status, judge_group")
+  .eq("role", "juez")
+  .order("first_name", { ascending: true });
+
+const judges = allJudges || [];
+const judgesPending = judges.filter((j) => j.registration_status !== "aprobado");
+
+const judgeGroupsEnabled =
+  configData?.find((c) => c.key === "judge_groups_enabled")?.value === "true";
+
+/**
+ * Cuántos grupos hay armados. Sale de los jueces, no de un número guardado: el
+ * grupo más alto que alguien tenga asignado es la cantidad de grupos que existe.
+ * Así "2 tríos" y "3 duetos" son el mismo mecanismo y se pasa de uno a otro
+ * reasignando personas, sin ninguna configuración aparte que pueda desfasarse.
+ */
+const judgeGroupCount = judges.reduce(
+  (max, j) => Math.max(max, j.judge_group || 0),
+  0,
+);
+
+/** Resumen por grupo, para ver de un vistazo si quedó algo desparejo. */
+const judgeGroupSummary = Array.from({ length: judgeGroupCount }, (_, i) => {
+  const n = i + 1;
+  return {
+    n,
+    judges: judges.filter((j) => j.judge_group === n),
+    projectsCount: projects.filter((p) => p.judge_group === n).length,
+  };
+});
+
+/** Sin grupo: los evalúa todo el jurado. Es el estado por defecto y la salida de emergencia. */
+const judgesWithoutGroup = judges.filter((j) => !j.judge_group);
+const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
 ---
 
 <Layout title="Administración | HEM2026" noindex>
@@ -338,6 +382,7 @@ const projects = allProjects || [];
           >Configuración</button
         >
         <button class="tab-btn" data-target="tab-mentoria">Mentoría</button>
+        <button class="tab-btn" data-target="tab-jurado">Jurado</button>
         <button class="tab-btn" data-target="tab-resultados">Resultados</button>
         <button class="tab-btn" data-target="tab-comunicados">Comunicados</button>
         <button class="tab-btn" data-target="tab-presentaciones">Presentaciones</button>
@@ -541,6 +586,16 @@ const projects = allProjects || [];
               <option value="completo">Solo perfiles completos</option>
               <option value="incompleto">Solo registros incompletos</option>
             </select>
+            {/* Pedido de Martín (22/08): sobre todo para contar cuántos mentores
+                técnicos y cuántos docentes hay. Combinado con el filtro de rol,
+                el contador de abajo da el número. */}
+            <select id="filter-perfil" class="filter-select">
+              <option value="all">Todos los perfiles</option>
+              <option value="tecnico">Perfil técnico</option>
+              <option value="docente">Perfil docente</option>
+              <option value="otro">Perfil otro</option>
+              <option value="sin-perfil">Sin perfil cargado</option>
+            </select>
           </div>
           <button id="bulk-approve-btn" class="btn btn-primary" disabled>
             Aprobar Seleccionados (0)
@@ -563,6 +618,7 @@ const projects = allProjects || [];
                   <th>Nombre</th>
                   <th>DNI</th>
                   <th>Institución</th>
+                  <th>Perfil</th>
                   <th>Egresado</th>
                   <th>Estado Inscripción</th>
                   <th>Rol</th>
@@ -572,7 +628,7 @@ const projects = allProjects || [];
                 {
                   profiles.length === 0 ? (
                     <tr>
-                      <td colspan="7" class="empty-state">
+                      <td colspan="8" class="empty-state">
                         No hay usuarios registrados aún.
                       </td>
                     </tr>
@@ -584,6 +640,7 @@ const projects = allProjects || [];
                         data-role={p.role}
                         data-status={p.registration_status}
                         data-completitud={isProfileComplete(p) ? "completo" : "incompleto"}
+                        data-perfil={p.disciplinary_profile || "sin-perfil"}
                       >
                         <td data-label="Seleccionar">
                           <label class="checkbox-label">
@@ -622,6 +679,19 @@ const projects = allProjects || [];
                               : p.institution === "otra"
                                 ? p.institution_other || "Otra"
                                 : "-"}
+                        </td>
+                        <td data-label="Perfil">
+                          {p.disciplinary_profile ? (
+                            <span class={`badge-profile badge-profile-${p.disciplinary_profile}`}>
+                              {p.disciplinary_profile === "tecnico"
+                                ? "Técnico"
+                                : p.disciplinary_profile === "docente"
+                                  ? "Docente"
+                                  : "Otro"}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td data-label="Egresado">
                           {p.is_egresado ? (
@@ -1131,6 +1201,171 @@ const projects = allProjects || [];
 	</div>
   </div>
   <!-- End tab-mentoria -->
+
+  <div class="tab-content" id="tab-jurado">
+    <div class="admin-actions">
+      <h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Grupos de Jurado</h2>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button id="judge-groups-distribute" class="btn btn-outline">
+          Repartir proyectos sin asignar
+        </button>
+        <button id="judge-groups-redistribute" class="btn btn-outline">
+          Rebarajar todo
+        </button>
+      </div>
+    </div>
+
+    <div class="config-grid" style="margin-bottom: 2rem;">
+      <div class="config-card card">
+        <div class="config-info">
+          <h3>Dividir la preclasificación</h3>
+          <p>
+            Con esto encendido, cada juez ve y puntúa solo los proyectos de su
+            grupo durante la preclasificación. La ronda final no se divide nunca:
+            los finalistas presentan en vivo y los evalúa todo el jurado.
+          </p>
+        </div>
+        <div class="config-action">
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="judge-groups-toggle"
+              checked={judgeGroupsEnabled}
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="config-card card">
+        <div class="config-info">
+          <h3>Estado del reparto</h3>
+          {judgeGroupCount === 0 ? (
+            <p>
+              No hay grupos armados. Todo el jurado evalúa los {projects.length} proyectos.
+            </p>
+          ) : (
+            <p>
+              {judgeGroupCount} grupos armados sobre {judges.length} jueces y {projects.length} proyectos.
+            </p>
+          )}
+          {projectsWithoutGroup > 0 && judgeGroupCount > 0 && (
+            <p style="margin-top: 0.5rem;">
+              {projectsWithoutGroup} proyecto{projectsWithoutGroup === 1 ? "" : "s"} sin
+              grupo: {projectsWithoutGroup === 1 ? "lo evalúa" : "los evalúa"} todo el jurado.
+            </p>
+          )}
+          {judgeGroupCount > 0 && judgesWithoutGroup.length > 0 && (
+            <p style="margin-top: 0.5rem;">
+              {judgesWithoutGroup.map((j) => j.first_name || j.full_name).join(", ")}
+              {judgesWithoutGroup.length === 1 ? " no tiene grupo" : " no tienen grupo"} y
+              {judgesWithoutGroup.length === 1 ? " evalúa" : " evalúan"} todos los proyectos.
+            </p>
+          )}
+          {judgesPending.length > 0 && (
+            <p style="color: var(--danger); font-weight: 600; margin-top: 0.5rem;">
+              ⚠️ {judgesPending.length} {judgesPending.length === 1 ? "juez no está aprobado y no va a poder votar" : "jueces no están aprobados y no van a poder votar"}.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+
+    {judgeGroupCount > 0 && (
+      <div class="config-grid" style="margin-bottom: 2rem;">
+        {judgeGroupSummary.map((g) => (
+          <div class="config-card card">
+            <div class="config-info">
+              <h3>Grupo {g.n}</h3>
+              <p>
+                {g.judges.length === 0
+                  ? "Sin jueces: sus proyectos quedarían sin evaluar."
+                  : g.judges.map((j) => j.first_name || j.full_name).join(", ")}
+              </p>
+              <p style="margin-top: 0.5rem;">
+                {g.projectsCount} proyecto{g.projectsCount === 1 ? "" : "s"} asignado{g.projectsCount === 1 ? "" : "s"}.
+              </p>
+              {g.judges.length === 1 && (
+                <p style="color: var(--danger); font-weight: 600; margin-top: 0.5rem;">
+                  ⚠️ Un solo juez decide estos proyectos.
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <div class="admin-card card" style="margin-bottom: 2.5rem;">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Juez</th>
+              <th>Institución</th>
+              <th>Estado</th>
+              <th>Grupo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {judges.length === 0 ? (
+              <tr>
+                <td colspan="4" class="empty-state">No hay jueces cargados.</td>
+              </tr>
+            ) : (
+              judges.map((j) => (
+                <tr data-judge-id={j.id}>
+                  <td data-label="Juez">
+                    <strong>{j.first_name || j.full_name}</strong> {j.last_name}
+                  </td>
+                  <td data-label="Institución">{institutionLabel(j)}</td>
+                  <td data-label="Estado">
+                    {j.registration_status === "aprobado" ? (
+                      "Aprobado"
+                    ) : (
+                      <span style="color: var(--danger); font-weight: 600;">Sin aprobar</span>
+                    )}
+                  </td>
+                  <td data-label="Grupo">
+                    <select class="judge-group-select" data-original-val={j.judge_group || ""}>
+                      <option value="">Evalúa todo</option>
+                      <option value="1" selected={j.judge_group === 1}>Grupo 1</option>
+                      <option value="2" selected={j.judge_group === 2}>Grupo 2</option>
+                      <option value="3" selected={j.judge_group === 3}>Grupo 3</option>
+                      <option value="4" selected={j.judge_group === 4}>Grupo 4</option>
+                    </select>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card card">
+      <div class="config-info" style="padding: 1.5rem;">
+        <h3>Cómo se usa</h3>
+        <p>
+          Primero armá los grupos eligiendo a qué grupo va cada juez: para dos
+          tríos usá los grupos 1 y 2, para tres duetos los grupos 1, 2 y 3.
+          Después repartí los proyectos y recién ahí encendé la división.
+        </p>
+        <p style="margin-top: 0.75rem;">
+          <strong>Repartir proyectos sin asignar</strong> es lo que se usa durante
+          la jornada: toca solo las entregas nuevas y no le cambia los proyectos a
+          un juez que ya venía evaluando. <strong>Rebarajar todo</strong> vuelve a
+          sortear los {projects.length} proyectos desde cero.
+        </p>
+        <p style="margin-top: 0.75rem;">
+          Si algo sale mal el día del evento, apagá la división: todo el jurado
+          vuelve a ver todos los proyectos al instante, sin perder ninguna
+          evaluación ya cargada.
+        </p>
+      </div>
+    </div>
+  </div>
+  <!-- End tab-jurado -->
 
   <div class="tab-content" id="tab-resultados">
     <div class="admin-actions" style="justify-content: space-between;">
@@ -1644,6 +1879,9 @@ const projects = allProjects || [];
             <p>
               En la columna <strong>Institución</strong>, quienes eligieron "Otra institución" al registrarse aparecen con el nombre que escribieron, no con un genérico.
             </p>
+            <p>
+              El filtro de <strong>perfil</strong> (técnico, docente u otro) se combina con el de rol: eligiendo <em>Mentor</em> + <em>Perfil técnico</em>, el contador de arriba de la tabla te dice cuántos mentores técnicos hay, y lo mismo con los docentes.
+            </p>
           </div>
 
           <div class="help-section">
@@ -1669,6 +1907,28 @@ const projects = allProjects || [];
             </ol>
             <p>
               En la pestaña <strong>Resultados</strong> vas a ver dos rankings separados, uno por fase. En el de preclasificación se eligen los finalistas: el botón <strong>"Marcar Top N"</strong> tilda automáticamente a los mejores según el cupo configurado en <em>Cupo de Finalistas</em>, y podés ajustar las tildes a mano antes de presionar <strong>"Guardar Finalistas"</strong>. Sin ese paso, la ronda final queda vacía.
+            </p>
+            <p>
+              ⚠️ <strong>Antes de marcar finalistas, mirá la columna "Evaluaciones"</strong> de ese ranking. Un proyecto que todavía nadie votó aparece con puntaje 0 y se hunde al fondo: si cerrás la preclasificación con proyectos en cero, se pierde un finalista por falta de votos y no por mérito.
+            </p>
+          </div>
+
+          <div class="help-section">
+            <h3>👨‍⚖️ Grupos de Jurado</h3>
+            <p>
+              Sirve para repartir los proyectos entre grupos de jueces y bajar la carga de la preclasificación. Se arma en tres pasos, en este orden: elegí a qué <strong>grupo</strong> va cada juez, apretá <strong>"Repartir proyectos sin asignar"</strong>, y recién ahí encendé <strong>"Dividir la preclasificación"</strong>.
+            </p>
+            <p>
+              La cantidad de grupos sale de los jueces: para <strong>dos tríos</strong> usá los grupos 1 y 2, para <strong>tres duetos</strong> los grupos 1, 2 y 3. Se puede rearmar en cualquier momento.
+            </p>
+            <p>
+              <strong>Durante la jornada</strong> usá "Repartir proyectos sin asignar": toca solo las entregas nuevas y no le cambia los proyectos a un juez que ya venía evaluando. <strong>"Rebarajar todo"</strong> sortea de cero y sí se los cambia, aunque nunca se pierden las evaluaciones ya cargadas.
+            </p>
+            <p>
+              <strong>Esto vale solo para la preclasificación.</strong> En la ronda final todo el jurado evalúa a todos los finalistas, sin importar los grupos. Y si algo sale mal, apagá la división: todos vuelven a ver todos los proyectos al instante.
+            </p>
+            <p>
+              Un juez que quede en <em>"Evalúa todo"</em> no pertenece a ningún grupo y ve los proyectos de todos: la tarjeta <strong>Estado del reparto</strong> avisa cuándo pasa, junto con los proyectos que quedaron sin asignar.
             </p>
           </div>
 
@@ -3324,6 +3584,9 @@ const projects = allProjects || [];
   const filterCompletitud = document.getElementById(
     "filter-completitud",
   ) as HTMLSelectElement;
+  const filterPerfil = document.getElementById(
+    "filter-perfil",
+  ) as HTMLSelectElement;
   // Acotado a la tabla de Usuarios: la clase .user-row también la usan las filas
   // de los rankings de Resultados, que quedaban ocultas al filtrar por rol.
   const rows = document.querySelectorAll("#tab-usuarios .user-row");
@@ -3332,17 +3595,20 @@ const projects = allProjects || [];
     const roleVal = filterRole.value;
     const statusVal = filterStatus.value;
     const completitudVal = filterCompletitud?.value || "all";
+    const perfilVal = filterPerfil?.value || "all";
     const searchQuery = (searchInput?.value || "").toLowerCase().trim();
 
     rows.forEach((row) => {
       const rRole = row.getAttribute("data-role");
       const rStatus = row.getAttribute("data-status");
       const rCompletitud = row.getAttribute("data-completitud");
+      const rPerfil = row.getAttribute("data-perfil");
 
       const matchRole = roleVal === "all" || rRole === roleVal;
       const matchStatus = statusVal === "all" || rStatus === statusVal;
       const matchCompletitud =
         completitudVal === "all" || rCompletitud === completitudVal;
+      const matchPerfil = perfilVal === "all" || rPerfil === perfilVal;
 
       // Buscar en nombre y DNI
       let matchSearch = true;
@@ -3353,7 +3619,8 @@ const projects = allProjects || [];
         matchSearch = nameText.includes(searchQuery) || dniText.includes(searchQuery);
       }
 
-      const isVisible = matchRole && matchStatus && matchCompletitud && matchSearch;
+      const isVisible =
+        matchRole && matchStatus && matchCompletitud && matchPerfil && matchSearch;
       (row as HTMLElement).style.display = isVisible ? "" : "none";
 
       // Uncheck if hidden
@@ -3387,6 +3654,7 @@ const projects = allProjects || [];
   filterRole?.addEventListener("change", applyFilters);
   filterStatus?.addEventListener("change", applyFilters);
   filterCompletitud?.addEventListener("change", applyFilters);
+  filterPerfil?.addEventListener("change", applyFilters);
   searchInput?.addEventListener("input", applyFilters);
 
   // Atajo del aviso de Métricas: salta a Usuarios ya filtrado por incompletos.
@@ -3797,6 +4065,145 @@ const projects = allProjects || [];
 
   const refreshMentorStatsBtn = document.getElementById("refresh-mentor-stats");
   refreshMentorStatsBtn?.addEventListener("click", () => window.location.reload());
+
+  // --- Grupos de Jurado ---
+
+  /*
+   * El grupo del juez NO se puede escribir con un UPDATE desde acá: en
+   * `profiles` los GRANT de UPDATE son por columna desde el arreglo de la fuga
+   * de `team_id`, y `judge_group` quedó deliberadamente afuera. Abrirla con un
+   * grant se la abriría también a cada juez sobre su propia fila, así que la
+   * única puerta es este RPC, que valida que quien llama sea de la organización.
+   */
+  document.querySelectorAll<HTMLSelectElement>(".judge-group-select").forEach((select) => {
+    select.addEventListener("change", async () => {
+      const row = select.closest("tr");
+      const judgeId = row?.getAttribute("data-judge-id");
+      if (!judgeId) return;
+
+      const previous = select.getAttribute("data-original-val") || "";
+      select.disabled = true;
+
+      const { error } = await supabase.rpc("set_judge_group", {
+        p_judge_id: judgeId,
+        p_group: select.value === "" ? null : Number(select.value),
+      });
+
+      if (error) {
+        console.error("set_judge_group error:", error);
+        showToast(error.message || "No se pudo cambiar el grupo", true);
+        select.value = previous;
+      } else {
+        select.setAttribute("data-original-val", select.value);
+        showToast(
+          select.value === ""
+            ? "El juez pasa a evaluar todos los proyectos"
+            : `Juez asignado al grupo ${select.value}`,
+        );
+        setTimeout(() => window.location.reload(), 1200);
+      }
+
+      select.disabled = false;
+    });
+  });
+
+  const distributeBtn = document.getElementById("judge-groups-distribute");
+  const redistributeBtn = document.getElementById("judge-groups-redistribute");
+
+  const runDistribution = async (reassignAll: boolean) => {
+    const btn = reassignAll ? redistributeBtn : distributeBtn;
+    if (!btn) return;
+
+    // La cantidad de grupos sale de los jueces ya asignados: el grupo más alto
+    // que alguien tenga es cuántos grupos hay. Así no hay un número guardado
+    // aparte que pueda quedar desfasado de la conformación real.
+    const groups = Array.from(
+      document.querySelectorAll<HTMLSelectElement>(".judge-group-select"),
+    )
+      .map((s) => Number(s.value))
+      .filter((n) => n > 0);
+
+    const groupCount = groups.length > 0 ? Math.max(...groups) : 0;
+
+    if (groupCount === 0) {
+      showToast("Primero asigná a cada juez su grupo.", true);
+      return;
+    }
+
+    const sinJueces = [];
+    for (let n = 1; n <= groupCount; n++) {
+      if (!groups.includes(n)) sinJueces.push(n);
+    }
+    if (sinJueces.length > 0) {
+      showToast(
+        `El grupo ${sinJueces.join(" y ")} no tiene jueces: sus proyectos quedarían sin evaluar.`,
+        true,
+      );
+      return;
+    }
+
+    const ok = await showConfirm({
+      title: reassignAll ? "¿Rebarajar todos los proyectos?" : "¿Repartir los proyectos sin asignar?",
+      text: reassignAll
+        ? `Se sortean de nuevo TODOS los proyectos entre los ${groupCount} grupos. A un juez que ya venía evaluando le pueden cambiar los proyectos que le tocan, aunque las evaluaciones ya cargadas no se pierden.`
+        : `Se reparten solo los proyectos que todavía no tienen grupo, entre los ${groupCount} grupos.`,
+      confirmText: reassignAll ? "Sí, rebarajar" : "Sí, repartir",
+      cancelText: "Cancelar",
+      destructive: reassignAll,
+      icon: "warning",
+    });
+    if (!ok) return;
+
+    (btn as HTMLButtonElement).disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "Procesando...";
+
+    const { data, error } = await supabase.rpc("assign_judge_groups", {
+      p_group_count: groupCount,
+      p_reassign_all: reassignAll,
+    });
+
+    if (error) {
+      console.error("assign_judge_groups error:", error);
+      showToast(error.message || "Error al repartir los proyectos", true);
+    } else {
+      showToast(`${data} proyectos repartidos entre ${groupCount} grupos.`);
+      setTimeout(() => window.location.reload(), 1500);
+    }
+
+    btn.textContent = originalText;
+    (btn as HTMLButtonElement).disabled = false;
+  };
+
+  distributeBtn?.addEventListener("click", () => runDistribution(false));
+  redistributeBtn?.addEventListener("click", () => runDistribution(true));
+
+  const judgeGroupsToggle = document.getElementById(
+    "judge-groups-toggle",
+  ) as HTMLInputElement;
+  judgeGroupsToggle?.addEventListener("change", async (e) => {
+    const target = e.target as HTMLInputElement;
+    const newValue = target.checked ? "true" : "false";
+    target.disabled = true;
+
+    const { error } = await supabase
+      .from("event_config")
+      .update({ value: newValue })
+      .eq("key", "judge_groups_enabled");
+
+    if (error) {
+      console.error("Update config error:", error);
+      showToast("Error al actualizar configuración.", true);
+      target.checked = !target.checked;
+    } else {
+      showToast(
+        newValue === "true"
+          ? "La preclasificación queda dividida por grupos"
+          : "Todo el jurado vuelve a evaluar todos los proyectos",
+      );
+    }
+    target.disabled = false;
+  });
 
   // --- Lógica del Dialog de Ayuda ---
   const helpDialog = document.getElementById("help-dialog") as HTMLDialogElement;
