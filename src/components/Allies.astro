@@ -102,6 +102,44 @@ const allies = [
     isDoubleLogo: true,
     height: "90px",
   },
+  {
+    /* Archivo único: el logotipo es coral (#F0764E) parejo, sin negro, así que
+       el invert del tema oscuro lo lleva a un gris claro legible y el hover lo
+       devuelve al coral, que sobre el fondo oscuro cumple de sobra. No hace
+       falta variante blanca como Áureo Innova o Incubadora. */
+    name: "Innpets",
+    href: "https://innpets.net/",
+    logoLight: "/img/allies/Innpets.webp",
+    height: "90px",
+  },
+  {
+    /* Los dos archivos los mandó la marca: el positivo lleva el texto en gris
+       casi negro y el negativo en gris claro, así que alcanza con enchufarlos
+       tal cual — no hay que fabricar la variante. Van sin invertir para que el
+       amarillo del isotipo quede igual en los dos temas. */
+    name: "Possumus",
+    href: "https://possumus.tech/",
+    logoLight: "/img/allies/Possumus-Positivo-color.webp",
+    logoDark: "/img/allies/Possumus-Negativo-color.webp",
+    isDoubleLogo: true,
+    height: "90px",
+  },
+  {
+    /* Llegó sobre fondo blanco opaco, sin canal alfa: el blanco se removió
+       deshaciendo la composición (alfa = 255 − min(R,G,B) y color
+       desmultiplicado), que conserva los ámbar del isotipo sin dejarles halo.
+       Doble archivo por el mismo motivo que Incubadora UNCuyo: el "Grupo" es un
+       gris casi negro que sobre el fondo oscuro da 1,31:1. La variante clara
+       toca solo ese gris — se filtran los píxeles desaturados y oscuros — y deja
+       intacto el resto, que ya cumple sobre oscuro (naranja 6,37:1, marrón
+       3,41:1, dorado 5,81:1, amarillo 13,71:1, contra el mínimo de 3:1). */
+    name: "Grupo Valuar",
+    href: "https://www.grupovaluar.com/",
+    logoLight: "/img/allies/GrupoValuar.webp",
+    logoDark: "/img/allies/GrupoValuar-blanco.webp",
+    isDoubleLogo: true,
+    height: "90px",
+  },
 ];
 ---
 
