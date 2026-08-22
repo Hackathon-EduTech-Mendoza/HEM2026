@@ -18,7 +18,9 @@ import { EMAIL } from '../utils/contacto';
 const BASES_PDF = '/docs/hackathon-edutech-2026-bases-y-condiciones.pdf';
 // El .docx v11 (el presentado a la DES) sigue en public/docs/ pero ya no se
 // enlaza: su Art. 11º delega la rúbrica a "una comunicación posterior" — no la
-// trae — y su cronograma quedó viejo cuando la charla previa pasó a las 19:00.
+// trae — y su cronograma quedó viejo dos veces: cuando la charla previa pasó a
+// las 19:00 y cuando el cronograma del 22/08 invirtió las sedes de las dos
+// jornadas presenciales y movió el taller de pitch al viernes.
 // El descargable público es el PDF, que se genera desde esta misma página.
 // RESOL-2026-180-E-GDEMZA-CGES#DGE, del 3/8/2026: otorga puntaje al curso N° 7812.
 // Reemplaza los "(en trámite)" del Art. 12º, que quedaron viejos cuando salió.
@@ -113,7 +115,7 @@ const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
             <p>La Hackathon se desarrollará en tres momentos:</p>
             <ul>
               <li><strong>Actividad virtual previa:</strong> espacio de presentación general, encuadre metodológico y socialización de las bases y condiciones, a cargo de la facilitadora estratégica Celina Páez.</li>
-              <li><strong>Primera jornada presencial — viernes 28 de agosto:</strong> apertura institucional, reunión de equipos al inicio del evento, introducción a la metodología de trabajo y comienzo del proceso de ideación.</li>
+              <li><strong>Primera jornada presencial — viernes 28 de agosto:</strong> apertura institucional, reunión de equipos al inicio del evento, introducción a la metodología de trabajo, comienzo del proceso de ideación y taller de pitch.</li>
               <li><strong>Segunda jornada presencial — sábado 29 de agosto:</strong> continuidad del trabajo en equipos, acompañamiento de mentores, evaluación de propuestas, selección de equipos finalistas, pitch final, premiación y cierre.</li>
             </ul>
             <p>Durante el evento, los equipos contarán con acompañamiento de mentores técnicos y pedagógicos. El jurado intervendrá formalmente en el proceso de evaluación desde la jornada del viernes y continuará su trabajo durante el sábado.</p>
@@ -205,25 +207,25 @@ const RESOLUCION_URL = '/docs/resolucion-0180-2026-puntaje-docente.pdf';
             <p>Charla virtual de bases y condiciones a cargo de la facilitadora Celina Páez. El objetivo es preparar estratégicamente a las y los participantes antes del evento, presentar el encuadre general de la Hackathon y comunicar la hoja de ruta de trabajo.</p>
 
             <h3>2. Viernes 28 de agosto — Primera jornada presencial</h3>
-            <p><strong>15:00 a 20:30 hs.</strong> Sede: IES 9-023 (Dionisio Herrero 303, Maipú, Mendoza).</p>
+            <p><strong>15:00 a 20:30 hs.</strong> Sede: Auditorio Municipal de Maipú, Marciano Cantero (Mercedes Tomasa de San Martín 1050, Maipú, Mendoza).</p>
             <ul>
-              <li><strong>15:00 a 16:00:</strong> recepción, acreditación y conformación de equipos, a partir de una dinámica coordinada por la organización.</li>
-              <li><strong>16:00 a 16:15:</strong> acto breve de apertura con autoridades.</li>
-              <li><strong>16:15 a 17:45:</strong> charla metodológica: introducción al Design Sprint, a cargo de Celina Páez.</li>
-              <li><strong>17:45 a 18:15:</strong> recreo.</li>
-              <li><strong>18:15 a 20:30:</strong> Bloque de Trabajo 1 — Ideación. Elección de la problemática, definición de las personas destinatarias, ideación inicial y primer enfoque de solución. Hay mentores disponibles y el jurado comienza su intervención formal de observación y evaluación.</li>
+              <li><strong>15:00 a 15:30:</strong> recepción y acreditación de participantes.</li>
+              <li><strong>15:30 a 16:00:</strong> bienvenida y conformación de equipos, a partir de una dinámica coordinada por la organización.</li>
+              <li><strong>16:00 a 16:15:</strong> apertura oficial, con presentación de autoridades, palabras de las instituciones organizadoras y agradecimiento a los aliados estratégicos.</li>
+              <li><strong>16:15 a 17:45:</strong> charla metodológica: introducción al Design Sprint y herramientas para abordar los desafíos, a cargo de Celina Páez.</li>
+              <li><strong>17:45 a 19:00:</strong> recreo y primer encuentro de los equipos, para que cada grupo se conozca, avance en la ideación y distribuya roles. Hay mentores disponibles y el jurado comienza su intervención formal de observación y evaluación.</li>
+              <li><strong>19:00 a 20:30:</strong> taller de pitch a cargo de Celina Páez, destinado a todas y todos los participantes, con herramientas para presentar y defender las propuestas.</li>
+              <li><strong>20:30:</strong> cierre de la jornada.</li>
             </ul>
 
             <h3>3. Sábado 29 de agosto — Segunda jornada presencial</h3>
             <p><strong>8:30 a 18:00 hs.</strong> Sedes: IES 9-023 (Dionisio Herrero 303) por la mañana y Auditorio Municipal de Maipú, Marciano Cantero (Mercedes Tomasa de San Martín 1050) para el cierre.</p>
             <ul>
-              <li><strong>08:30 a 09:00:</strong> recepción en el IES 9-023.</li>
-              <li><strong>09:00 a 10:00:</strong> instancia formativa sobre pitch y presentación, a cargo de Celina Páez, destinada a todas y todos los participantes.</li>
-              <li><strong>10:00 a 14:00:</strong> Bloque de Trabajo 2 — Desarrollo. Trabajo con mentores técnicos y docentes, revisión y mejora de la propuesta, optimización del prototipo y ajuste en función de los criterios de evaluación.</li>
-              <li><strong>10:15 a 10:45:</strong> entrenamiento específico para voceros, a cargo de Celina Páez. El resto de cada equipo continúa trabajando.</li>
+              <li><strong>08:30 a 09:00:</strong> recepción de participantes y equipos en el IES 9-023.</li>
+              <li><strong>09:00 a 14:00:</strong> inicio de la jornada, distribución de los equipos en las aulas y Bloque de Trabajo — Desarrollo. Cinco horas completas de trabajo con mentores técnicos y docentes, revisión y mejora de la propuesta, optimización del prototipo y ajuste en función de los criterios de evaluación.</li>
               <li><strong>Hasta las 14:00:</strong> envío del prototipo o propuesta final por correo electrónico.</li>
-              <li><strong>14:00 a 15:30:</strong> almuerzo y descanso.</li>
-              <li><strong>15:30 a 17:00:</strong> Bloque de Trabajo 3 — Pitch final de proyectos, en el Auditorio Municipal Marciano Cantero. Los equipos finalistas presentan ante el jurado, con tiempo cronometrado.</li>
+              <li><strong>14:00 a 15:30:</strong> almuerzo y descanso, con deliberación del jurado.</li>
+              <li><strong>15:30 a 17:00:</strong> traslado al Auditorio Municipal Marciano Cantero: anuncio de los equipos finalistas y ronda final de pitches ante el jurado, con tiempo cronometrado.</li>
               <li><strong>17:00 a 18:00:</strong> premiación y acto de cierre.</li>
             </ul>
           </section>
