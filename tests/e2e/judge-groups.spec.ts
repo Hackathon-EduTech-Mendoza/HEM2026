@@ -4,6 +4,7 @@ import {
   E2E_PASSWORD,
   createUserApi,
   completeProfileApi,
+  newApiClient,
   newServiceClient,
   loginUi,
   logoutUi,
@@ -242,6 +243,27 @@ test.describe('Escritura: el candado está en la base', () => {
       p_judge_id: juezG1.id, p_group: 2,
     });
     expect(error, 'solo la organización puede armar los grupos').not.toBeNull();
+  });
+
+  /**
+   * Los dos RPC se saltean su propia validación cuando auth.uid() es NULL, para
+   * dejar pasar migraciones y service_role. Supabase le da EXECUTE a `anon` por
+   * DEFAULT PRIVILEGES, así que sin un REVOKE explícito un visitante SIN NINGUNA
+   * SESIÓN podía llamarlos con la anon key —que es pública, va en el HTML— y
+   * rebarajar los proyectos del evento. Verificado antes del arreglo.
+   */
+  test('un visitante sin sesión no puede tocar los grupos', async () => {
+    const anon = newApiClient();
+
+    const { error: errReparto } = await anon.rpc('assign_judge_groups', {
+      p_group_count: 2, p_reassign_all: true,
+    });
+    expect(errReparto, 'anon no tiene que poder repartir').not.toBeNull();
+
+    const { error: errGrupo } = await anon.rpc('set_judge_group', {
+      p_judge_id: juezG1.id, p_group: 2,
+    });
+    expect(errGrupo, 'anon no tiene que poder armar los grupos').not.toBeNull();
   });
 });
 

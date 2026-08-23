@@ -116,7 +116,15 @@ BEGIN
 END;
 $function$;
 
+-- ⚠️ El REVOKE a PUBLIC no alcanza: Supabase tiene DEFAULT PRIVILEGES que le
+-- dan EXECUTE a `anon` sobre cada función nueva de `public`. Y como las dos
+-- funciones de escritura se saltean su propia validación cuando auth.uid() es
+-- NULL —para dejar pasar migraciones y service_role— un visitante sin sesión
+-- podía llamarlas por la API REST con la anon key, que es pública porque va
+-- en el HTML del sitio. Verificado en dev: `anon` rebarajó los 14 proyectos.
+-- Hay que revocar a `anon` explícitamente, en las tres.
 REVOKE EXECUTE ON FUNCTION public.can_judge_project(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.can_judge_project(UUID) FROM anon;
 GRANT EXECUTE ON FUNCTION public.can_judge_project(UUID) TO authenticated;
 
 -- ---------------------------------------------------------------------------
@@ -365,6 +373,8 @@ $function$;
 
 REVOKE EXECUTE ON FUNCTION public.set_judge_group(UUID, SMALLINT)
   FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.set_judge_group(UUID, SMALLINT)
+  FROM anon;
 GRANT EXECUTE ON FUNCTION public.set_judge_group(UUID, SMALLINT)
   TO authenticated;
 
@@ -426,5 +436,7 @@ $function$;
 
 REVOKE EXECUTE ON FUNCTION public.assign_judge_groups(INT, BOOLEAN)
   FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.assign_judge_groups(INT, BOOLEAN)
+  FROM anon;
 GRANT EXECUTE ON FUNCTION public.assign_judge_groups(INT, BOOLEAN)
   TO authenticated;
