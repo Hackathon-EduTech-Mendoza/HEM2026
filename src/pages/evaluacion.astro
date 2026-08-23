@@ -44,7 +44,7 @@ const supabase = createServerClient(
 const { data: configData } = await supabase
   .from('event_config')
   .select('key, value')
-  .in('key', ['evaluation_phase', 'finalists_count']);
+  .in('key', ['evaluation_phase', 'finalists_count', 'judge_groups_enabled']);
 
 const evaluationPhase = configData?.find(c => c.key === 'evaluation_phase')?.value || 'cerrada';
 const finalistsCount = configData?.find(c => c.key === 'finalists_count')?.value || '10';
@@ -89,6 +89,18 @@ const evaluationsMap = evaluations.reduce((acc, ev) => {
 // Separar proyectos evaluados de los pendientes (opcional, pero útil para UX)
 const pendingProjects = projects.filter(p => !evaluationsMap[p.id]);
 const completedProjects = projects.filter(p => evaluationsMap[p.id]);
+
+/**
+ * Grupos de jurado: en preclasificación el juez ve solo los proyectos de su
+ * grupo — el filtro lo hace la RLS, acá solo se explica. Sin este cartel, un
+ * juez que sabe que hay 48 proyectos y ve 24 cree que la página está rota.
+ * En la final no se muestra nada porque ahí no se divide: evalúan todos.
+ */
+const judgeGroupsEnabled =
+  configData?.find(c => c.key === 'judge_groups_enabled')?.value === 'true';
+const myJudgeGroup = profile?.judge_group ?? null;
+const showGroupNotice =
+  judgeGroupsEnabled && evaluationPhase === 'preclasificacion' && myJudgeGroup !== null;
 ---
 
 <Layout title="Panel de Evaluación | HEM2026" noindex>
@@ -101,6 +113,13 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
           <span class={`phase-badge ${evaluationPhase === 'final' ? 'phase-final' : 'phase-pre'}`}>
             Fase activa: {phaseLabel}
           </span>
+        )}
+        {showGroupNotice && (
+          <p class="group-notice">
+            Estás en el <strong>grupo {myJudgeGroup}</strong> del jurado: te tocan
+            los {projects.length} proyectos de acá abajo, no todos los del evento.
+            En la ronda final vas a evaluar a todos los finalistas.
+          </p>
         )}
       </div>
 
@@ -420,6 +439,15 @@ const completedProjects = projects.filter(p => evaluationsMap[p.id]);
   }
   .phase-pre { background: rgba(var(--c1r), 0.15); color: var(--c1); }
   .phase-final { background: rgba(var(--c2r), 0.15); color: var(--c2); }
+
+  /* Por qué este juez ve menos proyectos que los que hay en el evento. */
+  .group-notice {
+    margin-top: 0.9rem;
+    max-width: 60ch;
+    color: var(--txt-2);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
 
   .empty-state {
     padding: 4rem 2rem;
