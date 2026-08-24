@@ -14,6 +14,7 @@
     "test:unit": "playwright test --config=playwright.unit.config.ts",
     "test:e2e:limpiar": "node scripts/limpiar-e2e.mjs",
     "docs:bases": "node scripts/generar-bases-pdf.mjs",
+    "docs:qr": "node scripts/generar-qr.mjs",
     "seed:dev": "node scripts/seed-dev.mjs"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "@axe-core/puppeteer": "^4.11.3",
     "@playwright/test": "^1.61.1",
     "lighthouse": "^13.3.0",
-    "puppeteer": "^25.1.0"
+    "puppeteer": "^25.1.0",
+    "qrcode": "^1.5.4"
   }
 }
