@@ -1,0 +1,510 @@
+---
+// src/pages/encuesta.astro
+//
+// La encuesta post evento. Cuatro preguntas, sólo para participantes, anónima.
+//
+// El middleware ya garantiza tres cosas antes de llegar acá: que hay sesión,
+// que el perfil está completo y que el rol no es juez, mentor ni staff. Lo que
+// se resuelve en esta página es lo que el middleware no sabe: si la palanca
+// está encendida y si esta persona ya respondió.
+//
+// ⚠️ Sin `prerender = false` implícito no habría sesión: el middleware vacía
+// locals en las páginas prerenderizadas. El output global del proyecto es
+// 'server', así que alcanza con no declarar prerender.
+import Layout from '../layouts/Layout.astro';
+import { createServerClient, parseCookieHeader } from '@supabase/ssr';
+
+const supabase = createServerClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        try {
+          return parseCookieHeader(Astro.request.headers.get('Cookie') ?? '');
+        } catch {
+          return [];
+        }
+      },
+      setAll() {},
+    },
+  },
+);
+
+const user = Astro.locals.user;
+const profile = Astro.locals.profile;
+
+if (!user || !profile) {
+  return Astro.redirect('/login');
+}
+
+// La palanca. Si está apagada la encuesta no existe para nadie.
+const { data: flagRow } = await supabase
+  .from('event_config')
+  .select('value')
+  .eq('key', 'survey_enabled')
+  .single();
+
+// Igual que el dashboard: las palancas son para los inscriptos aprobados.
+const esParticipanteAprobado =
+  profile.role === 'usuario' && profile.registration_status === 'aprobado';
+
+const encuestaAbierta = flagRow?.value === 'true' && esParticipanteAprobado;
+
+// Si ya respondió, se le agradece y no se le muestra el formulario. La policy
+// `own_read_encuesta_respondio` deja ver sólo la fila propia.
+// ⚠️ Si la lectura falla no se muestra el formulario: mandarlo terminaría en
+// un 409 "ya respondiste" para alguien a quien le acabamos de decir que
+// respondiera. Se lo dice de frente y que reintente.
+let yaRespondio = false;
+let noSePudoVerificar = false;
+if (encuestaAbierta) {
+  const { data: marca, error: errorMarca } = await supabase
+    .from('encuesta_respondio')
+    .select('user_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (errorMarca) {
+    console.error('[encuesta] No se pudo leer la marca:', errorMarca.message);
+    noSePudoVerificar = true;
+  } else {
+    yaRespondio = !!marca;
+  }
+}
+
+const nombre = profile.first_name ?? '';
+---
+
+<Layout title="Encuesta | HEM2026" noindex>
+  <main class="container encuesta-main">
+    {!encuestaAbierta && esParticipanteAprobado && (
+      <div class="card encuesta-card encuesta-cerrada">
+        <h1>La encuesta todavía no está abierta</h1>
+        <p>
+          Cuando termine la Hackathon vamos a habilitarla acá mismo y te
+          avisamos por correo. ¡Gracias por participar!
+        </p>
+        <a href="/dashboard" class="btn btn-outline">Volver al panel</a>
+      </div>
+    )}
+
+    {!esParticipanteAprobado && (
+      <div class="card encuesta-card encuesta-cerrada">
+        <h1>Esta encuesta es para los inscriptos al evento</h1>
+        <p>
+          Es para quienes participaron de la Hackathon. Si creés que tendrías
+          que poder responderla, escribinos y lo vemos.
+        </p>
+        <a href="/dashboard" class="btn btn-outline">Volver al panel</a>
+      </div>
+    )}
+
+    {encuestaAbierta && noSePudoVerificar && (
+      <div class="card encuesta-card encuesta-cerrada">
+        <h1>No pudimos cargar la encuesta</h1>
+        <p>
+          Hubo un problema de nuestro lado y preferimos no mostrarte el
+          formulario para que no pierdas la respuesta. Recargá la página en un
+          minuto, por favor.
+        </p>
+        <a href="/encuesta" class="btn btn-primary">Reintentar</a>
+      </div>
+    )}
+
+    {encuestaAbierta && !noSePudoVerificar && yaRespondio && (
+      <div class="card encuesta-card encuesta-listo">
+        <h1>Ya respondiste. ¡Gracias!</h1>
+        <p>
+          Tu respuesta quedó registrada de forma anónima. Lo que nos contaste va
+          a servir para armar la edición del año que viene.
+        </p>
+        <a href="/dashboard" class="btn btn-outline">Volver al panel</a>
+      </div>
+    )}
+
+    {encuestaAbierta && !noSePudoVerificar && !yaRespondio && (
+      <div class="card encuesta-card">
+        <header class="encuesta-header">
+          <h1>¿Cómo te fue en la Hackathon{nombre ? `, ${nombre}` : ''}?</h1>
+          <p class="encuesta-intro">
+            Son cuatro preguntas y se responde en menos de un minuto. Es
+            <strong>anónima</strong>: guardamos que respondiste, pero no
+            guardamos quién dijo qué.
+          </p>
+        </header>
+
+        <form id="encuesta-form" action="/api/encuesta" method="post" novalidate>
+          <fieldset class="pregunta" role="radiogroup">
+            <legend><span class="pregunta-num">1</span> ¿Cómo estuvo la Hackathon en general?</legend>
+            <div class="escala">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <label class="escala-opcion">
+                  <input type="radio" name="p1_general" value={n} required />
+                  <span>{n}</span>
+                </label>
+              ))}
+            </div>
+            <div class="escala-leyenda">
+              <small>1 = muy mala</small>
+              <small>5 = excelente</small>
+            </div>
+          </fieldset>
+
+          <!-- El role va en el fieldset y no en el .escala: la opción "No
+               trabajé con un mentor" comparte el name pero vive fuera del div,
+               y desde el div quedaba anunciada como una opción suelta. -->
+          <fieldset class="pregunta" role="radiogroup">
+            <legend><span class="pregunta-num">2</span> ¿Cómo te resultó el acompañamiento de los mentores?</legend>
+            <div class="escala">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <label class="escala-opcion">
+                  <input type="radio" name="p2_mentoria" value={n} required />
+                  <span>{n}</span>
+                </label>
+              ))}
+            </div>
+            <div class="escala-leyenda">
+              <small>1 = muy malo</small>
+              <small>5 = excelente</small>
+            </div>
+            <label class="opcion-escape">
+              <input type="radio" name="p2_mentoria" value="sin_mentor" />
+              <span>No trabajé con un mentor</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="pregunta" role="radiogroup">
+            <legend><span class="pregunta-num">3</span> ¿Volverías a participar el año que viene?</legend>
+            <div class="opciones-texto">
+              <label class="opcion-pill">
+                <input type="radio" name="p3_volveria" value="si" required />
+                <span>Sí</span>
+              </label>
+              <label class="opcion-pill">
+                <input type="radio" name="p3_volveria" value="tal_vez" />
+                <span>Tal vez</span>
+              </label>
+              <label class="opcion-pill">
+                <input type="radio" name="p3_volveria" value="no" />
+                <span>No</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="pregunta">
+            <legend>
+              <span class="pregunta-num">4</span> ¿Qué cambiarías para la próxima edición?
+              <span class="opcional">opcional</span>
+            </legend>
+            <textarea
+              id="p4_cambiaria"
+              name="p4_cambiaria"
+              maxlength="1000"
+              rows="4"
+              placeholder="Lo que se te ocurra: la organización, los horarios, las consignas…"
+            ></textarea>
+            <div class="contador"><span id="p4-count">0</span>/1000</div>
+          </fieldset>
+
+          <div id="encuesta-error" class="form-error" role="alert"></div>
+
+          <button type="submit" id="encuesta-submit" class="btn btn-primary btn-lg">
+            Enviar respuesta
+          </button>
+        </form>
+      </div>
+    )}
+  </main>
+</Layout>
+
+<style>
+  .encuesta-main {
+    padding: 3rem 1rem 4rem;
+    max-width: 720px;
+  }
+
+  .encuesta-card {
+    padding: 2rem;
+  }
+
+  .encuesta-header h1,
+  .encuesta-cerrada h1,
+  .encuesta-listo h1 {
+    font-size: 1.6rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .encuesta-intro {
+    color: var(--text-muted, #555);
+    margin: 0 0 2rem;
+  }
+
+  .encuesta-cerrada p,
+  .encuesta-listo p {
+    color: var(--text-muted, #555);
+    margin: 0 0 1.5rem;
+  }
+
+  .pregunta {
+    border: none;
+    padding: 0;
+    margin: 0 0 2rem;
+  }
+
+  .pregunta legend {
+    font-weight: 600;
+    margin-bottom: 0.9rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .pregunta-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: rgba(var(--c1r), 0.12);
+    color: var(--c1);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .opcional {
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--text-muted, #666);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+  }
+
+  /* Cinco botones grandes: en el teléfono se responde con el pulgar. */
+  .escala {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+  }
+
+  /* Las etiquetas tienen que ser el ancestro posicionado: si no, el input
+     oculto se ubica contra el viewport y al tabular la página salta a un
+     lugar arbitrario en vez de al botón que se está enfocando. */
+  .escala-opcion,
+  .opcion-pill,
+  .opcion-escape {
+    position: relative;
+  }
+
+  .escala-opcion input,
+  .opcion-pill input,
+  .opcion-escape input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .escala-opcion span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    border: 2px solid rgba(0, 0, 0, 0.12);
+    border-radius: var(--r-md);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--t-base), background-color var(--t-base);
+  }
+
+  .escala-opcion input:checked + span {
+    border-color: var(--c1);
+    background: rgba(var(--c1r), 0.12);
+    color: var(--c1);
+  }
+
+  .escala-opcion input:focus-visible + span,
+  .opcion-pill input:focus-visible + span,
+  .opcion-escape input:focus-visible + span {
+    outline: 2px solid var(--c1);
+    outline-offset: 2px;
+  }
+
+  .escala-leyenda {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+    color: var(--text-muted, #666);
+  }
+
+  .opcion-escape {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    cursor: pointer;
+  }
+
+  .opcion-escape span {
+    border: 2px solid rgba(0, 0, 0, 0.12);
+    border-radius: var(--r-md);
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9rem;
+    transition: border-color var(--t-base), background-color var(--t-base);
+  }
+
+  .opcion-escape input:checked + span {
+    border-color: var(--c2);
+    background: rgba(var(--c2r), 0.12);
+    color: var(--c2);
+  }
+
+  .opciones-texto {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .opcion-pill span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    border: 2px solid rgba(0, 0, 0, 0.12);
+    border-radius: var(--r-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--t-base), background-color var(--t-base);
+  }
+
+  .opcion-pill input:checked + span {
+    border-color: var(--c1);
+    background: rgba(var(--c1r), 0.12);
+    color: var(--c1);
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: var(--r-md);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+  }
+
+  .contador {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--text-muted, #666);
+    margin-top: 0.25rem;
+  }
+
+  .form-error {
+    display: none;
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #b91c1c;
+    border-radius: var(--r-md);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  #encuesta-submit {
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    .encuesta-card {
+      padding: 1.25rem;
+    }
+    .escala {
+      gap: 0.35rem;
+    }
+    .opciones-texto {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('encuesta-form') as HTMLFormElement | null;
+
+  if (form) {
+    const boton = document.getElementById('encuesta-submit') as HTMLButtonElement;
+    const errorDiv = document.getElementById('encuesta-error') as HTMLDivElement;
+    const textarea = document.getElementById('p4_cambiaria') as HTMLTextAreaElement;
+    const contador = document.getElementById('p4-count') as HTMLSpanElement;
+
+    textarea?.addEventListener('input', () => {
+      contador.textContent = String(textarea.value.length);
+    });
+
+    function mostrarError(texto: string) {
+      // Se muestra primero y se escribe después: un live region que está en
+      // display:none cuando le cambia el texto no dispara el anuncio.
+      errorDiv.style.display = 'block';
+      errorDiv.textContent = texto;
+      errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorDiv.style.display = 'none';
+
+      const datos = new FormData(form);
+      const p1 = datos.get('p1_general');
+      const p2 = datos.get('p2_mentoria');
+      const p3 = datos.get('p3_volveria');
+      const p4 = (datos.get('p4_cambiaria') as string | null) ?? '';
+
+      if (!p1) return mostrarError('Elegí una puntuación en la primera pregunta.');
+      if (!p2) return mostrarError('Elegí una opción en la pregunta sobre mentoría.');
+      if (!p3) return mostrarError('Elegí una opción en la última pregunta.');
+
+      // "No trabajé con un mentor" viaja como null, que es lo que la base
+      // guarda para distinguirlo de una puntuación baja.
+      const payload = {
+        p1_general: Number(p1),
+        p2_mentoria: p2 === 'sin_mentor' ? null : Number(p2),
+        p3_volveria: p3,
+        p4_cambiaria: p4.trim() === '' ? null : p4.trim(),
+      };
+
+      boton.disabled = true;
+      const textoOriginal = boton.textContent;
+      boton.textContent = 'Enviando…';
+      let enviado = false;
+
+      try {
+        const res = await fetch('/api/encuesta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const cuerpo = await res.json().catch(() => ({}));
+
+        if (res.ok && cuerpo.success) {
+          // El botón queda deshabilitado a propósito hasta que recargue: si se
+          // repusiera, un doble click manda un segundo POST que vuelve 409 y
+          // pinta "ya respondiste" justo antes de navegar.
+          enviado = true;
+          window.location.reload();
+          return;
+        }
+        mostrarError(cuerpo.error ?? 'No pudimos registrar tu respuesta. Probá de nuevo.');
+      } catch {
+        mostrarError('No pudimos conectarnos. Revisá tu conexión y probá de nuevo.');
+      } finally {
+        if (!enviado) {
+          boton.disabled = false;
+          boton.textContent = textoOriginal;
+        }
+      }
+    });
+  }
+</script>

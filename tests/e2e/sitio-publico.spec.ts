@@ -248,6 +248,24 @@ test.describe('canal de consultas', () => {
   });
 });
 
+/**
+ * La encuesta post evento vive detrás del login, así que acá sólo se comprueba
+ * lo que se puede sin base ni sesión: que la puerta esté cerrada. El flujo
+ * completo está en encuesta.spec.ts, que sí escribe en la base.
+ */
+test.describe('encuesta post evento', () => {
+  test('el endpoint rechaza un GET', async ({ page }) => {
+    const respuesta = await page.request.get('/api/encuesta');
+    expect(respuesta.status()).toBe(405);
+  });
+
+  test('sin sesión, /encuesta manda al login', async ({ page }) => {
+    await page.goto('/encuesta');
+    await page.waitForURL(/\/login/);
+    expect(page.url()).toContain('/login');
+  });
+});
+
 test.describe('bases y condiciones', () => {
   test('se puede descargar el documento y están los dos anexos', async ({ page }) => {
     await page.goto('/bases-y-condiciones');
