@@ -1,11 +1,10 @@
 // src/utils/cupo.ts
 //
 // Cupo máximo de participantes de la edición 2026. Por espacio y logística la
-// sede no da abasto para más gente, así que la inscripción se comunica como
-// limitada.
+// sede no da abasto para más gente, así que la inscripción se cierra al tope.
 //
 // El cierre es real: el trigger `enforce_max_participants` de la base rechaza
-// el alta del participante que pasa el tope, y el cartel es el aviso previo.
+// el alta que pasa el tope, y el cartel es el aviso previo.
 
 /**
  * ⚠️ ESTO ES SOLO EL FALLBACK. El tope que manda es
@@ -27,35 +26,45 @@ export const UMBRAL_URGENCIA = 0.85;
 export type EstadoCupo = 'disponible' | 'ultimos' | 'completo';
 
 /**
- * ⚠️ ACÁ HAY DOS CONTEOS Y NO SON INTERCAMBIABLES.
+ * ⚠️ ACÁ HAY DOS CONTEOS Y SOLO UNO DECIDE.
  *
- * Son dos preguntas distintas y se responden con números distintos:
+ * Desde el 2026-08-24 el tope se mide con `inscriptos`: el registro que nunca
+ * terminó el onboarding TAMBIÉN ocupa lugar. Es lo que pidió Martín y es lo
+ * realista — esa gente completa el perfil el día del evento, ya con el cuerpo
+ * adentro de la sede, así que su lugar está tomado desde que se anotó y la
+ * logística tiene que contarlo.
  *
- *   inscriptos -> "¿cuánta presión hay sobre el cupo?"  Incluye los registros
- *                 que NO terminaron el onboarding. Es el peor caso y es el que
- *                 se muestra en público (decisión de Martín, 2026-08-20).
- *
- *   efectivos  -> "¿queda lugar para mí?"  Solo participantes con el perfil
- *                 completo. Es EXACTAMENTE lo que cuenta el trigger
+ *   inscriptos -> "¿queda lugar?". Es EL número: mueve el cartel y decide
+ *                 `hayLugar`. Es exactamente lo que cuenta el trigger
  *                 `enforce_max_participants` en la base.
  *
- * Mezclarlos rompe una de las dos superficies: si el onboarding usara
- * `inscriptos`, le diría "no hay lugar" a gente que el trigger sí dejaría
- * pasar. Por eso el cartel usa `estado` y el onboarding usa `hayLugar`.
+ *   efectivos  -> cuántos de esos ya completaron el perfil. Informativo: sirve
+ *                 para el panel y para dimensionar cuánto onboarding va a
+ *                 haber el día D. NO decide nada.
+ *
+ * ⚠️ Antes `hayLugar` salía de `efectivos` mientras el cartel salía de
+ * `inscriptos`, y por eso el sitio anunciaba "completo" con la inscripción
+ * todavía abierta. Si volvés a atar `hayLugar` a `efectivos`, vuelve ese
+ * agujero.
  */
 export interface Cupo {
-  /** Participantes contando los registros sin completar. Para el cartel público. */
+  /** Participantes contando los registros sin completar. El conteo que manda. */
   inscriptos: number;
-  /** Participantes con perfil completo: lo que el trigger cuenta de verdad. */
+  /** Cuántos de esos ya tienen el perfil completo. Solo informativo. */
   efectivos: number;
   maximo: number;
   /** Sobre `inscriptos`. Nunca negativo: si se pasó del tope, quedan 0, no -3. */
   restantes: number;
   /** Entero 0-100 sobre `inscriptos`, para la barra de progreso y el texto. */
   porcentaje: number;
-  /** Estado del CARTEL. Deriva de `inscriptos`, así que es el conservador. */
+  /** Estado del CARTEL. Deriva de `inscriptos`. */
   estado: EstadoCupo;
-  /** Si el trigger dejaría entrar a un participante más. Deriva de `efectivos`. */
+  /**
+   * Si todavía se puede dar de alta una cuenta de participante. Deriva de
+   * `inscriptos`, así que hoy es el negado de `estado === 'completo'`. Se
+   * mantiene como campo aparte porque son dos preguntas distintas para quien
+   * consume esto: una es qué decir y la otra es qué dejar hacer.
+   */
   hayLugar: boolean;
 }
 
@@ -68,7 +77,7 @@ export interface Cupo {
  * lugares negativos.
  *
  * `efectivos` cae por defecto en `inscriptos` para el caso en que solo se tenga
- * un número (y porque así el cálculo del cartel se puede probar solo).
+ * un número.
  */
 export function calcularCupo(
   inscriptos: number,
@@ -79,7 +88,7 @@ export function calcularCupo(
   // "sin cupo definido" y el cálculo no divide por cero.
   const tope = maximo > 0 ? maximo : 0;
   const contados = Math.max(0, Math.trunc(inscriptos));
-  const conLugar = Math.max(0, Math.trunc(efectivos));
+  const completos = Math.max(0, Math.trunc(efectivos));
 
   const restantes = Math.max(0, tope - contados);
   const porcentaje = tope === 0 ? 0 : Math.min(100, Math.round((contados / tope) * 100));
@@ -89,9 +98,9 @@ export function calcularCupo(
   else if (tope > 0 && contados / tope >= UMBRAL_URGENCIA) estado = 'ultimos';
 
   // Tope 0 = cupo apagado desde `event_config`: entra cualquiera.
-  const hayLugar = tope === 0 || conLugar < tope;
+  const hayLugar = tope === 0 || contados < tope;
 
-  return { inscriptos: contados, efectivos: conLugar, maximo: tope, restantes, porcentaje, estado, hayLugar };
+  return { inscriptos: contados, efectivos: completos, maximo: tope, restantes, porcentaje, estado, hayLugar };
 }
 
 /**

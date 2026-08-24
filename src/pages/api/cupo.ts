@@ -62,6 +62,12 @@ export const GET: APIRoute = async () => {
   // onboarding TAMBIÉN reserva lugar. Es lo que pidió Martín y es lo coherente
   // con cerrar la inscripción en el alta de la cuenta.
   //
+  // Desde el 2026-08-24 este es EL conteo: mueve el cartel y además decide
+  // `hayLugar`, o sea si se puede crear una cuenta de participante. Es el mismo
+  // criterio que cuenta el trigger `enforce_max_participants`
+  // (20260824_03_cupo_cuenta_registros.sql). Si los dos se separan, el sitio
+  // vuelve a prometer lugares que la base rechaza.
+  //
   // ⚠️ Ojo con leer este número como "258 personas eligieron ser participantes".
   // La columna `role` tiene DEFAULT 'usuario', y el rol se elige recién en el
   // onboarding: los que están sin completar figuran como participantes porque
@@ -71,10 +77,11 @@ export const GET: APIRoute = async () => {
   // Conteo 1: el conservador, para el cartel público.
   const todos = admin.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'usuario');
 
-  // Conteo 2: el efectivo, el mismo que hace el trigger `enforce_max_participants`.
-  // Lo usa el onboarding para saber si todavía se puede elegir "participante".
-  // ⚠️ Si cambia el criterio de perfil completo en `utils/perfil.ts`, hay que
-  // acompañarlo en los dos lugares: acá y en la función de la base.
+  // Conteo 2: cuántos de esos ya completaron el perfil. ⚠️ INFORMATIVO: no
+  // decide nada desde el 24/08. Sirve para el panel y para dimensionar cuánta
+  // gente va a estar haciendo onboarding el día del evento (la diferencia
+  // contra el conteo 1 es exactamente esa cola). Sigue el criterio de
+  // `isProfileComplete` en `utils/perfil.ts`.
   const completos = admin
     .from('profiles')
     .select('id', { count: 'exact', head: true })
