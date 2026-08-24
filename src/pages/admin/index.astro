@@ -4395,7 +4395,19 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
       if (!response.ok) {
         showToast(data.error || "Ocurrió un error al enviar el comunicado.", true);
       } else {
-        showToast(`✓ Comunicado enviado con éxito a ${data.recipientCount} usuarios.`);
+        // El endpoint manda de a lotes de 99 y sigue aunque uno falle, así que
+        // devuelve `failedCount`. Antes acá sólo se leía `recipientCount`: si
+        // fallaba un lote de tres, el panel decía "enviado con éxito" y 99
+        // personas no recibían nada, sin ninguna señal.
+        if (data.failedCount > 0) {
+          console.error("[comunicado] Lotes fallidos:", data.errors);
+          showToast(
+            `Enviado a ${data.recipientCount}, pero ${data.failedCount} quedaron sin recibirlo. Revisá la consola.`,
+            true,
+          );
+        } else {
+          showToast(`✓ Comunicado enviado con éxito a ${data.recipientCount} usuarios.`);
+        }
         // Limpiar formulario al enviar con éxito
         bulletinSubject.value = "";
         bulletinMessage.value = "";
