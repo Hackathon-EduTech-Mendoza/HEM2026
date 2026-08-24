@@ -55,6 +55,19 @@ quiere diferenciarlos por contenido real, están en
 
 ## Descartado (no volver a proponer)
 
+### Tutoriales de la plataforma en /recursos
+
+**Descartado el 2026-08-24 por el dueño del producto:** Martín los propuso
+("creo que estaría bueno sumarlos") y el tutorial existe —lo grabó Matías y lo
+tiene en WhatsApp, sin publicar—, pero no lo considera necesario para esta
+edición.
+
+Si alguna vez se retoma: la página `/recursos` es data-driven, así que sumarlo es
+una entrada en el array `GRUPOS` de `src/pages/recursos.astro`. Un video no es un
+PDF, así que habría que decidir dónde vive el archivo (`public/video/` propio, o
+YouTube y entonces hay que declarar el dominio en `frame-src` del CSP de
+`vercel.json`, que hoy solo permite youtube-nocookie y Spotify).
+
 ### Estadísticas de visitas propias en el admin
 **Descartado el 2026-07-29 por el dueño del producto:** no lo considera
 necesario. Las visitas se siguen mirando en el panel de Vercel.

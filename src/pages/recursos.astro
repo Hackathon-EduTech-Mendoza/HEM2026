@@ -1,0 +1,293 @@
+---
+// src/pages/recursos.astro
+//
+// Material descargable del evento, en un solo lugar y con URL propia.
+//
+// Por qué una página y no tarjetas sueltas repartidas: los documentos tienen
+// audiencias distintas (participantes, mentores) y hay que poder difundirlos con
+// un link solo por WhatsApp. Los PDF que ya estaban (Bases, Resolución) siguen
+// linkeados desde donde estaban; acá se juntan, no se mudan.
+export const prerender = true;
+
+import { statSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Layout from '../layouts/Layout.astro';
+
+/**
+ * El peso lo lee el build de `public/`, no se escribe a mano: un PDF que se
+ * regenera cambia de tamaño y nadie se acuerda de actualizar el número.
+ */
+function peso(rutaPublica) {
+  try {
+    const bytes = statSync(resolve('public', rutaPublica.replace(/^\//, ''))).size;
+    const mb = bytes / 1024 / 1024;
+    return mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`;
+  } catch {
+    return null;
+  }
+}
+
+const GRUPOS = [
+  {
+    titulo: 'Para participantes',
+    descripcion: 'Lo que conviene leer antes de llegar al evento.',
+    recursos: [
+      {
+        titulo: 'Mapa de Ruta',
+        descripcion:
+          'Las dos jornadas hora por hora, con la sede de cada momento: viernes 28 en el Auditorio Municipal, sábado 29 en el IES 9-023 y cierre en el Auditorio.',
+        href: '/docs/hackathon-edutech-2026-mapa-de-ruta.pdf',
+        formato: 'PDF · 2 páginas',
+      },
+      {
+        titulo: 'Bases y Condiciones',
+        descripcion:
+          'El reglamento completo de la competencia, con la rúbrica de evaluación como Anexo II. También se puede leer en el sitio.',
+        href: '/docs/hackathon-edutech-2026-bases-y-condiciones.pdf',
+        formato: 'PDF',
+        alterno: { titulo: 'Leerlo en el sitio', href: '/bases-y-condiciones' },
+      },
+    ],
+  },
+  {
+    titulo: 'Para mentores',
+    descripcion: 'Material de trabajo para quienes acompañan a los equipos.',
+    recursos: [
+      {
+        titulo: 'Guía rápida del mentor',
+        descripcion:
+          'Las seis etapas del Design Sprint con la pregunta clave de cada una, el semáforo para decidir cuándo intervenir y las cinco preguntas que destraban a un equipo.',
+        href: '/docs/hackathon-edutech-2026-guia-mentores.pdf',
+        formato: 'PDF · 2 páginas',
+      },
+    ],
+  },
+  {
+    titulo: 'Documentación oficial',
+    descripcion: 'Los respaldos institucionales del evento.',
+    recursos: [
+      {
+        titulo: 'Resolución N.º 0180/2026',
+        descripcion:
+          'La resolución de la Dirección de Educación Superior que otorga puntaje docente al curso N.º 7812, comunicada a las Juntas Calificadoras de Méritos.',
+        href: '/docs/resolucion-0180-2026-puntaje-docente.pdf',
+        formato: 'PDF',
+      },
+    ],
+  },
+];
+---
+
+<Layout
+  title="Recursos | HEM2026"
+  description="Mapa de ruta, guía para mentores, bases y documentación oficial de la Hackathon EduTech Mendoza 2026, listos para descargar."
+>
+  <section class="recursos-page">
+    <div class="container">
+      <a href="/" class="recursos-back">&larr; Volver al inicio</a>
+
+      <div class="recursos-hdr reveal">
+        <span class="section-label">Material del evento</span>
+        <h1 class="section-title text-gradient">Recursos</h1>
+        <p class="section-desc">
+          Todo el material de la Hackathon en un solo lugar, listo para descargar
+          o compartir.
+        </p>
+      </div>
+
+      {GRUPOS.map((grupo, gi) => (
+        <section class="recursos-grupo">
+          <div class="recursos-grupo-hdr reveal">
+            <h2>{grupo.titulo}</h2>
+            <p>{grupo.descripcion}</p>
+          </div>
+
+          <div class="recursos-grid">
+            {grupo.recursos.map((recurso, ri) => (
+              <article class={`card recurso reveal rd${Math.min(ri + 1, 4)}`}>
+                <div class="recurso-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+
+                <h3>{recurso.titulo}</h3>
+                <p class="recurso-desc">{recurso.descripcion}</p>
+
+                <p class="recurso-meta">
+                  {recurso.formato}
+                  {peso(recurso.href) && <span> · {peso(recurso.href)}</span>}
+                </p>
+
+                <div class="recurso-acciones">
+                  {/* `download` para que baje el archivo en lugar de abrir el
+                      visor: casi todo el tráfico es de celular, y ahí el visor
+                      del navegador se come la pantalla. */}
+                  <a class="btn btn-primary recurso-btn" href={recurso.href} download>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Descargar
+                  </a>
+                  {recurso.alterno && (
+                    <a class="btn btn-outline recurso-btn" href={recurso.alterno.href}>
+                      {recurso.alterno.titulo}
+                    </a>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <p class="recursos-nota reveal">
+        Vamos a seguir sumando material acá. Si necesitás algo que no
+        encontrás, escribinos desde el
+        <a href="/#consultas" class="recursos-link">formulario de consultas</a>.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .recursos-page {
+    padding: calc(var(--nav-h) + 3rem) 0 var(--section-pad-y);
+    min-height: calc(100vh - var(--nav-h));
+  }
+
+  .recursos-back {
+    display: inline-block;
+    margin-bottom: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--txt-m);
+    text-decoration: none;
+    transition: color var(--t-fast);
+  }
+
+  .recursos-back:hover {
+    color: var(--c1);
+  }
+
+  .recursos-hdr {
+    margin-bottom: 4rem;
+  }
+
+  .recursos-grupo + .recursos-grupo {
+    margin-top: 4rem;
+  }
+
+  .recursos-grupo-hdr {
+    margin-bottom: 1.75rem;
+  }
+
+  .recursos-grupo-hdr h2 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--txt-1);
+    margin-bottom: 0.35rem;
+  }
+
+  .recursos-grupo-hdr p {
+    font-size: 0.9rem;
+    color: var(--txt-m);
+    margin: 0;
+  }
+
+  .recursos-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .recurso {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--ease) 0.3s, border-color var(--ease) 0.3s;
+  }
+
+  .recurso:hover {
+    transform: translateY(-4px);
+  }
+
+  .recurso-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+    background: rgba(136, 0, 123, 0.1);
+    color: var(--c1);
+    border: 2px solid rgba(136, 0, 123, 0.3);
+  }
+
+  :global([data-theme="brand-dark"]) .recurso-icon {
+    color: #e879d8;
+  }
+
+  .recurso h3 {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: var(--txt-1);
+    margin-bottom: 0.75rem;
+  }
+
+  .recurso-desc {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--txt-2);
+    margin: 0;
+  }
+
+  .recurso-meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--txt-m);
+    margin: 1rem 0 0;
+  }
+
+  /* `margin-top: auto` empuja los botones al pie: en una fila de tarjetas de
+     alto distinto, si no, cada botón queda a una altura y se ve desprolijo. */
+  .recurso-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+
+  .recurso-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .recursos-nota {
+    max-width: 640px;
+    margin: 4rem auto 0;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--txt-m);
+  }
+
+  .recursos-link {
+    color: var(--c1);
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity var(--t-fast);
+  }
+
+  .recursos-link:hover {
+    opacity: 0.8;
+  }
+
+  @media (min-width: 768px) {
+    .recursos-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+  }
+</style>

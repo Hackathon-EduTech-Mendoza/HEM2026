@@ -1,0 +1,31 @@
+# Normalizacion de fin de linea.
+#
+# Por defecto Git detecta si un archivo es binario mirando si hay un byte NUL
+# en los primeros 8 KB. Con la mayoria de los binarios acierta, pero no siempre:
+# public/docs/hackathon-edutech-2026-guia-mentores.pdf no tiene ningun NUL ahi,
+# asi que Git lo tomo por texto y, con core.autocrlf=true (el valor habitual en
+# Windows), le metio CRLF en el checkout y dejo el PDF ilegible. El blob del
+# repositorio estaba bien: lo que se rompia era la copia en disco de cualquiera
+# que clonara en Windows.
+#
+# Declarar los binarios a mano saca esa deteccion del medio.
+
+* text=auto
+
+*.pdf   binary
+*.docx  binary
+*.zip   binary
+*.webp  binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.svg   text eol=lf
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.mp4   binary
+*.webm  binary
+*.mp3   binary
