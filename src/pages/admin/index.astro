@@ -2343,6 +2343,31 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
   .admin-tabs-nav::-webkit-scrollbar {
     display: none;
   }
+
+  /* ⚠️ De tablet para arriba las pestañas se acomodan en varias filas en vez
+     de cortarse. En el teléfono el scroll horizontal funciona porque se
+     desliza con el dedo, pero en un monitor mediano no hay gesto equivalente
+     y la barra de scroll está oculta acá arriba: la última pestaña quedaba
+     cortada sin ninguna forma de llegar a ella. Con `wrap` no hay que
+     descubrir que hay algo más a la derecha. */
+  @media (min-width: 641px) {
+    .admin-tabs-nav {
+      flex-wrap: wrap;
+      overflow-x: visible;
+    }
+  }
+
+  /* Apretar un poco el padding hace que entren más pestañas por fila.
+     ⚠️ Va calificado con `.admin-tabs-nav` a propósito: la regla base
+     `.tab-btn` se declara más abajo y, con un solo selector de clase, le
+     ganaría por orden aunque esto esté dentro de un media query. Es la misma
+     trampa que `.admin-card.metrics-panel`. */
+  @media (min-width: 641px) {
+    .admin-tabs-nav .tab-btn {
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+    }
+  }
   .tab-btn {
     background: none;
     border: none;
