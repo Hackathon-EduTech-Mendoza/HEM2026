@@ -10,6 +10,7 @@ const EXCLUDED_FROM_SITEMAP = [
   '/onboarding/',
   '/evaluacion/',
   '/mentoria/',
+  '/encuesta/',
   '/actualizar-password/',
   '/recuperar-password/',
 ];

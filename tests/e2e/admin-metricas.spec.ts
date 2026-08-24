@@ -21,7 +21,9 @@ test('Métricas es la pestaña por defecto y muestra los conteos', async ({ brow
   await expect(page.locator('.tab-btn[data-target="tab-metricas"]')).toHaveClass(/active/);
 
   // Los 5 KPIs, con números de verdad (hay al menos el propio admin de prueba).
-  const kpis = page.locator('.metrics-kpis .metric-value');
+  // Acotado a #tab-metricas: otras pestañas (Encuesta) reusan estas mismas
+  // clases y todas conviven en el DOM, así que un selector global cuenta de más.
+  const kpis = page.locator('#tab-metricas .metrics-kpis .metric-value');
   await expect(kpis).toHaveCount(5);
 
   const total = Number((await kpis.first().innerText()).trim());
@@ -29,7 +31,7 @@ test('Métricas es la pestaña por defecto y muestra los conteos', async ({ brow
 
   // El total tiene que ser la suma de los tres estados de inscripción. La fila
   // de "Registro incompleto" queda afuera a propósito: no son inscriptos.
-  const porEstado = page.locator('.metrics-grid .admin-card').nth(0).locator('.metrics-list').nth(1);
+  const porEstado = page.locator('#tab-metricas .metrics-grid .admin-card').nth(0).locator('.metrics-list').nth(1);
   const valores = await porEstado.locator('li:not(.metrics-list-aside) strong').allInnerTexts();
   const suma = valores.reduce((acc, v) => acc + Number(v.trim()), 0);
   expect(suma).toBe(total);
@@ -47,10 +49,10 @@ test('los registros abandonados se cuentan aparte y no inflan la cola de aprobac
   // El KPI de incompletos y la fila aparte de "Por estado" tienen que coincidir:
   // son el mismo número calculado en dos lugares de la pantalla.
   const kpiIncompletos = Number(
-    (await page.locator('.metrics-kpis .metric-card').nth(3).locator('.metric-value').innerText()).trim(),
+    (await page.locator('#tab-metricas .metrics-kpis .metric-card').nth(3).locator('.metric-value').innerText()).trim(),
   );
   const filaAparte = Number(
-    (await page.locator('.metrics-list-aside strong').innerText()).trim(),
+    (await page.locator('#tab-metricas .metrics-list-aside strong').innerText()).trim(),
   );
   expect(filaAparte).toBe(kpiIncompletos);
 
@@ -82,8 +84,11 @@ test('el gráfico dibuja una barra por día de las últimas 2 semanas', async ({
   await page.goto('/admin');
 
   await expect(page.locator('.metrics-chart-card')).toBeVisible();
-  await expect(page.locator('.chart-bar')).toHaveCount(14);
-  await expect(page.locator('.chart-bar-label')).toHaveCount(14);
+  // Acotado a la tarjeta del gráfico: la pestaña Encuesta dibuja sus propias
+  // barras con las mismas clases y estaban entrando en el conteo.
+  const grafico = page.locator('#tab-metricas .metrics-chart-card');
+  await expect(grafico.locator('.chart-bar')).toHaveCount(14);
+  await expect(grafico.locator('.chart-bar-label')).toHaveCount(14);
 
   await context.close();
 });

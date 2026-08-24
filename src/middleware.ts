@@ -6,7 +6,7 @@ import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import { isProfileComplete } from './utils/perfil';
 
 /** Rutas que requieren haber iniciado sesión */
-const PROTECTED_ROUTES = ['/dashboard', '/admin', '/evaluacion', '/mentoria', '/onboarding'];
+const PROTECTED_ROUTES = ['/dashboard', '/admin', '/evaluacion', '/mentoria', '/onboarding', '/encuesta'];
 
 /** Rutas que requieren rol admin o superadmin */
 const ADMIN_ROUTES = ['/admin'];
@@ -97,7 +97,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Redirección por perfil incompleto para usuarios autenticados
   if (user && !perfilCompleto) {
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/mentoria') || pathname.startsWith('/evaluacion') || pathname.startsWith('/admin')) {
+    if (pathname.startsWith('/dashboard') || pathname.startsWith('/mentoria') || pathname.startsWith('/evaluacion') || pathname.startsWith('/admin') || pathname.startsWith('/encuesta')) {
       return redirect('/onboarding');
     }
   }
@@ -118,6 +118,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const role = locals.profile?.role;
     if (role !== 'admin' && role !== 'superadmin') {
       return redirect('/dashboard');
+    }
+  }
+
+  // La encuesta post evento es sólo de participantes: las preguntas no le
+  // sirven a un juez ni a un mentor, y sus respuestas ensuciarían los
+  // promedios. Se los manda a su panel, igual que en /dashboard.
+  if (pathname.startsWith('/encuesta') && user) {
+    const role = locals.profile?.role;
+    if (role === 'juez') {
+      return redirect('/evaluacion');
+    }
+    if (role === 'mentor') {
+      return redirect('/mentoria');
+    }
+    if (role === 'admin' || role === 'superadmin') {
+      return redirect('/admin');
     }
   }
 

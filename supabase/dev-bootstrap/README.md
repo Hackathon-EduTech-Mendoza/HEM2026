@@ -30,6 +30,7 @@ bootstrapea en el paso 3.
 | `03-admin-e2e.sql` | Promueve a admin la cuenta de pruebas de la suite. |
 | `04-rubrica-por-fase.sql` | Rúbrica dependiente de la fase: en preclasificación no se puntúa el pitch. Es posterior al dump, por eso va aparte. |
 | `05-consultas.sql` | Tabla `consultas` del formulario público del sitio. También posterior al dump. |
+| `06-encuesta.sql` | Encuesta post evento: las dos tablas anónimas, la vista de resultados y la palanca `survey_enabled`. Posterior al dump. |
 
 ### ⚠️ Por qué hace falta el complemento
 

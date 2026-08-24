@@ -198,6 +198,7 @@ const { data: configData } = await supabase
     "min_team_size",
     "max_participants",
     "judge_groups_enabled",
+    "survey_enabled",
   ]);
 
 const teamsEnabled =
@@ -227,6 +228,40 @@ const minTeamSize =
   configData?.find((c) => c.key === "min_team_size")?.value || "5";
 const maxParticipants =
   configData?.find((c) => c.key === "max_participants")?.value || "300";
+const surveyEnabled =
+  configData?.find((c) => c.key === "survey_enabled")?.value === "true";
+
+// Resultados de la encuesta post evento. Una sola fila de agregados: la vista
+// no expone ninguna respuesta individual atada a una persona, porque no existe
+// esa relación. Con 0 respuestas devuelve total=0 y los promedios en NULL.
+const { data: encuestaData, error: encuestaError } = await supabase
+  .from("encuesta_resultados")
+  .select("*")
+  .maybeSingle();
+
+// "0 respuestas" y "no se pudo leer la vista" se ven igual en pantalla. El día
+// del evento eso es indiagnosticable, así que se distinguen explícitamente.
+// El caso esperado hoy es que la migración todavía no esté aplicada en prod.
+if (encuestaError) {
+  console.error("[admin] No se pudo leer encuesta_resultados:", encuestaError.message);
+}
+
+// Los textos de la pregunta 4.
+//
+// ⚠️ EL .order("id") NO ES COSMÉTICO, SOSTIENE EL ANONIMATO. Sin ORDER BY,
+// Postgres devuelve las filas en orden físico, que acá es el orden de
+// inserción: el último comentario de la lista sería siempre el de la última
+// persona que respondió, y un admin que refresca la pestaña mientras alguien
+// contesta lo mapea con certeza. `id` es gen_random_uuid() v4, o sea aleatorio
+// y sin relación con el momento de la respuesta: ordenar por él baraja.
+const { data: encuestaComentarios } = await supabase
+  .from("encuesta_respuestas")
+  .select("p4_cambiaria")
+  .not("p4_cambiaria", "is", null)
+  .order("id", { ascending: true })
+  .limit(500);
+
+const encuestaSinDatos = !!encuestaError;
 
 // Obtener datos del Leaderboard (una fila por proyecto y fase)
 const { data: leaderboardData, error: leaderboardError } = await supabase
@@ -385,6 +420,7 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
         <button class="tab-btn" data-target="tab-jurado">Jurado</button>
         <button class="tab-btn" data-target="tab-resultados">Resultados</button>
         <button class="tab-btn" data-target="tab-comunicados">Comunicados</button>
+        <button class="tab-btn" data-target="tab-encuesta">Encuesta</button>
         <button class="tab-btn" data-target="tab-presentaciones">Presentaciones</button>
         <button class="tab-btn" data-target="tab-consultas">
           Consultas
@@ -839,6 +875,26 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
             <option value="deliberacion" selected={evaluationPhase === "deliberacion"}>Deliberación (votación pausada)</option>
             <option value="final" selected={evaluationPhase === "final"}>Ronda Final</option>
           </select>
+        </div>
+      </div>
+
+      <div class="config-card card">
+        <div class="config-info">
+          <h3>Encuesta post evento</h3>
+          <p>
+            Muestra la encuesta de 4 preguntas a los participantes, en el panel
+            y en /encuesta. Encenderla cuando termine la Hackathon.
+          </p>
+        </div>
+        <div class="config-action">
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="survey-enabled-toggle"
+              checked={surveyEnabled}
+            />
+            <span class="toggle-slider"></span>
+          </label>
         </div>
       </div>
     </div>
@@ -1691,6 +1747,146 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
     </div>
   </div>
 
+  <!-- Tab Encuesta -->
+  <div class="tab-content" id="tab-encuesta">
+    <div class="admin-actions" style="justify-content: space-between;">
+      <h2 style="font-family: var(--font-heading); color: var(--txt-1); margin: 0; font-size: 1.5rem;">Encuesta post evento</h2>
+      <button id="prellenar-aviso-encuesta" class="btn btn-outline btn-sm">
+        Avisar por correo
+      </button>
+    </div>
+
+    {encuestaSinDatos && (
+      <p class="encuesta-admin-error">
+        <strong>No se pudieron leer los resultados.</strong> Los números de abajo
+        son ceros porque la consulta falló, no porque no haya respuestas. Lo más
+        probable es que falte aplicar la migración de la encuesta en esta base.
+      </p>
+    )}
+
+    <p class="encuesta-admin-nota">
+      Las respuestas son anónimas: no existe ninguna relación guardada entre una
+      persona y lo que contestó, así que acá sólo se ven agregados.
+      {!surveyEnabled && " La encuesta está apagada: encendela en Configuración."}
+    </p>
+
+    <div class="metrics-kpis">
+      <div class="metric-card card">
+        <div class="metric-label">Respuestas</div>
+        <div class="metric-value">
+          {encuestaData?.total ?? 0}
+          <span class="metric-denominador">/{countParticipantsApproved}</span>
+        </div>
+        <div class="metric-hint">
+          {Number(countParticipantsApproved) > 0
+            ? Math.round(
+                (Number(encuestaData?.total ?? 0) / Number(countParticipantsApproved)) * 100,
+              ) + "% de los participantes aprobados"
+            : "sobre los participantes aprobados"}
+        </div>
+      </div>
+      <div class="metric-card card">
+        <div class="metric-label">La Hackathon en general</div>
+        <div class="metric-value">
+          {encuestaData?.p1_promedio != null
+            ? Number(encuestaData.p1_promedio).toFixed(1)
+            : "—"}
+        </div>
+        <div class="metric-hint">promedio de 1 a 5</div>
+      </div>
+      <div class="metric-card card">
+        <div class="metric-label">La mentoría</div>
+        <div class="metric-value">
+          {encuestaData?.p2_promedio != null
+            ? Number(encuestaData.p2_promedio).toFixed(1)
+            : "—"}
+        </div>
+        <div class="metric-hint">
+          promedio de 1 a 5 · {encuestaData?.p2_sin_mentor ?? 0} sin mentor
+        </div>
+      </div>
+      <div class="metric-card card">
+        <div class="metric-label">Volvería el año que viene</div>
+        <div class="metric-value">
+          {Number(encuestaData?.total ?? 0) > 0
+            ? Math.round(
+                (Number(encuestaData?.p3_si ?? 0) /
+                  Number(encuestaData?.total ?? 1)) *
+                  100,
+              ) + "%"
+            : "—"}
+        </div>
+        <div class="metric-hint">dijeron que sí</div>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="admin-card card metrics-panel">
+        <h3 class="metrics-card-title">Distribución de las puntuaciones</h3>
+        <div class="encuesta-distribuciones">
+          {[
+            { titulo: "La Hackathon en general", prefijo: "p1" },
+            { titulo: "La mentoría", prefijo: "p2" },
+          ].map((bloque) => {
+            const valores = [1, 2, 3, 4, 5].map((n) =>
+              Number(encuestaData?.[`${bloque.prefijo}_${n}`] ?? 0),
+            );
+            const maximo = Math.max(1, ...valores);
+            return (
+              <div class="encuesta-dist">
+                <h4>{bloque.titulo}</h4>
+                <div
+                  class="chart-bars"
+                  role="img"
+                  aria-label={`Distribución de ${bloque.titulo}: ${valores
+                    .map((v, i) => `${i + 1} estrellas ${v}`)
+                    .join(", ")}`}
+                >
+                  {valores.map((v, i) => (
+                    <div class="chart-bar-col" title={`${i + 1} de 5: ${v} respuestas`}>
+                      <span class="chart-bar-count">{v > 0 ? v : ""}</span>
+                      <div
+                        class="chart-bar"
+                        style={`height: ${Math.max(2, (v / maximo) * 100)}%`}
+                        data-empty={v === 0 ? "true" : "false"}
+                      ></div>
+                      <span class="chart-bar-label">{i + 1}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div class="admin-card card metrics-panel">
+        <h3 class="metrics-card-title">¿Volvería el año que viene?</h3>
+        <ul class="metrics-list">
+          <li><span>Sí</span><strong>{encuestaData?.p3_si ?? 0}</strong></li>
+          <li>
+            <span>Tal vez</span><strong>{encuestaData?.p3_tal_vez ?? 0}</strong>
+          </li>
+          <li><span>No</span><strong>{encuestaData?.p3_no ?? 0}</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="admin-card card metrics-panel" style="margin-top: 1.5rem;">
+      <h3 class="metrics-card-title">
+        {/* El total sale de la vista, no de la lista: la lista está topeada en
+            500 por el .limit() y sub-reportaría. */}
+        ¿Qué cambiarías? ({encuestaData?.p4_con_texto ?? 0})
+      </h3>
+      {(!encuestaComentarios || encuestaComentarios.length === 0) && (
+        <p class="encuesta-admin-nota">Todavía no hay comentarios.</p>
+      )}
+      <ul class="encuesta-comentarios">
+        {encuestaComentarios?.map((c) => <li>{c.p4_cambiaria}</li>)}
+      </ul>
+    </div>
+  </div>
+
   <!-- Tab Presentaciones -->
   <div class="tab-content" id="tab-presentaciones">
     <div class="admin-actions" style="justify-content: space-between;">
@@ -2147,6 +2343,31 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
   .admin-tabs-nav::-webkit-scrollbar {
     display: none;
   }
+
+  /* ⚠️ De tablet para arriba las pestañas se acomodan en varias filas en vez
+     de cortarse. En el teléfono el scroll horizontal funciona porque se
+     desliza con el dedo, pero en un monitor mediano no hay gesto equivalente
+     y la barra de scroll está oculta acá arriba: la última pestaña quedaba
+     cortada sin ninguna forma de llegar a ella. Con `wrap` no hay que
+     descubrir que hay algo más a la derecha. */
+  @media (min-width: 641px) {
+    .admin-tabs-nav {
+      flex-wrap: wrap;
+      overflow-x: visible;
+    }
+  }
+
+  /* Apretar un poco el padding hace que entren más pestañas por fila.
+     ⚠️ Va calificado con `.admin-tabs-nav` a propósito: la regla base
+     `.tab-btn` se declara más abajo y, con un solo selector de clase, le
+     ganaría por orden aunque esto esté dentro de un media query. Es la misma
+     trampa que `.admin-card.metrics-panel`. */
+  @media (min-width: 641px) {
+    .admin-tabs-nav .tab-btn {
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+    }
+  }
   .tab-btn {
     background: none;
     border: none;
@@ -2341,6 +2562,64 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
      un solo selector de clase le ganaría por orden. */
   .admin-card.metrics-panel {
     padding: 1.5rem;
+  }
+
+  /* --- Encuesta post evento --- */
+
+  .metric-denominador {
+    font-size: 0.55em;
+    font-weight: 500;
+    color: var(--txt-2);
+  }
+
+  .encuesta-admin-error {
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #b91c1c;
+    border-radius: var(--r-md);
+    padding: 0.75rem 1rem;
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+  }
+
+  .encuesta-admin-nota {
+    color: var(--txt-2);
+    font-size: 0.9rem;
+    margin: 0 0 1.25rem;
+  }
+
+  .encuesta-distribuciones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .encuesta-dist h4 {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    color: var(--txt-2);
+    font-weight: 600;
+  }
+
+  .encuesta-comentarios {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+    max-height: 28rem;
+    overflow-y: auto;
+  }
+
+  .encuesta-comentarios li {
+    background: rgba(var(--c1r), 0.05);
+    border-left: 3px solid rgba(var(--c1r), 0.35);
+    border-radius: var(--r-sm, 6px);
+    padding: 0.75rem 1rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .metrics-chart-card {
@@ -3873,6 +4152,47 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
     target.disabled = false;
   });
 
+  // Lógica del Toggle de la Encuesta post evento
+  const surveyToggle = document.getElementById(
+    "survey-enabled-toggle",
+  ) as HTMLInputElement;
+  surveyToggle?.addEventListener("change", async (e) => {
+    const target = e.target as HTMLInputElement;
+    const newValue = target.checked ? "true" : "false";
+    target.disabled = true;
+
+    // ⚠️ ACÁ SE PIDE .select().single() Y EN LOS OTROS TOGGLES NO, A PROPÓSITO.
+    // `survey_enabled` es la única palanca cuya fila puede no existir todavía
+    // (la crea la migración de la encuesta). Un UPDATE que no matchea ninguna
+    // fila devuelve 204 sin error: el toast diría "habilitada", el admin
+    // mandaría los 248 correos y la gente encontraría la encuesta cerrada.
+    // Pidiendo la fila de vuelta, si no está, es un error de verdad.
+    const { data: filaActualizada, error } = await supabase
+      .from("event_config")
+      .update({ value: newValue })
+      .eq("key", "survey_enabled")
+      .select("key")
+      .maybeSingle();
+
+    if (error || !filaActualizada) {
+      console.error("Update config error:", error);
+      showToast(
+        !filaActualizada && !error
+          ? "Falta la palanca en la base: aplicá la migración de la encuesta."
+          : "Error al actualizar configuración.",
+        true,
+      );
+      target.checked = !target.checked;
+    } else {
+      showToast(
+        newValue === "true"
+          ? "Encuesta habilitada. Acordate de avisar por correo."
+          : "Encuesta deshabilitada",
+      );
+    }
+    target.disabled = false;
+  });
+
   // Lógica de Inputs Numéricos
   const durationInput = document.getElementById("mentor-duration-input") as HTMLInputElement;
   const cooldownInput = document.getElementById("help-cooldown-input") as HTMLInputElement;
@@ -4234,6 +4554,41 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
   const charCountSpan = document.getElementById("char-count");
   const sendBulletinBtn = document.getElementById("send-bulletin-btn") as HTMLButtonElement;
 
+  // El aviso de la encuesta NO se manda solo al encender la palanca: un toggle
+  // que dispara 248 correos convierte un click accidental en algo que no se
+  // puede deshacer, y encender/apagar dos veces mandaría el aviso dos veces.
+  // Este botón deja todo cargado en Comunicados y el envío sigue siendo un
+  // acto deliberado, con la confirmación que ya tiene ese módulo.
+  //
+  // ⚠️ Los listeners del preview y del contador escuchan `input`, no `change`,
+  // así que setear .value por código no alcanza: hay que despachar el evento.
+  const prellenarAvisoBtn = document.getElementById("prellenar-aviso-encuesta");
+  prellenarAvisoBtn?.addEventListener("click", () => {
+    const asunto = "Contanos cómo te fue en la Hackathon EduTech 2026";
+    const cuerpo =
+      "Terminó la Hackathon y queremos saber qué te pareció.\n\n" +
+      "Son 4 preguntas y se responde en menos de un minuto. Es anónima: " +
+      "guardamos que respondiste, pero no quién dijo qué.\n\n" +
+      "Entrá con tu cuenta y respondé acá: " +
+      "https://www.hackathonedutech.com.ar/encuesta\n\n" +
+      "Lo que nos cuentes es lo que vamos a usar para armar la edición del " +
+      "año que viene. ¡Gracias por haber sido parte!";
+
+    (document.querySelector(
+      '.tab-btn[data-target="tab-comunicados"]',
+    ) as HTMLElement)?.click();
+
+    bulletinFilter.value = "participant";
+    bulletinFilter.dispatchEvent(new Event("change"));
+    bulletinSubject.value = asunto;
+    bulletinSubject.dispatchEvent(new Event("input"));
+    bulletinMessage.value = cuerpo;
+    bulletinMessage.dispatchEvent(new Event("input"));
+
+    showToast("Comunicado cargado. Revisalo y enviá cuando quieras.");
+    bulletinSubject.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
   // Elementos de la vista previa
   const previewSubjectText = document.getElementById("preview-subject-text");
   const previewMessageContent = document.getElementById("preview-message-content");
@@ -4395,7 +4750,19 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
       if (!response.ok) {
         showToast(data.error || "Ocurrió un error al enviar el comunicado.", true);
       } else {
-        showToast(`✓ Comunicado enviado con éxito a ${data.recipientCount} usuarios.`);
+        // El endpoint manda de a lotes de 99 y sigue aunque uno falle, así que
+        // devuelve `failedCount`. Antes acá sólo se leía `recipientCount`: si
+        // fallaba un lote de tres, el panel decía "enviado con éxito" y 99
+        // personas no recibían nada, sin ninguna señal.
+        if (data.failedCount > 0) {
+          console.error("[comunicado] Lotes fallidos:", data.errors);
+          showToast(
+            `Enviado a ${data.recipientCount}, pero ${data.failedCount} quedaron sin recibirlo. Revisá la consola.`,
+            true,
+          );
+        } else {
+          showToast(`✓ Comunicado enviado con éxito a ${data.recipientCount} usuarios.`);
+        }
         // Limpiar formulario al enviar con éxito
         bulletinSubject.value = "";
         bulletinMessage.value = "";
