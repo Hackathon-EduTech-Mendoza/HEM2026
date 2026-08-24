@@ -66,23 +66,43 @@ test.describe('calcularCupo', () => {
 });
 
 /**
- * Los dos conteos son la parte que más fácil se rompe: son números distintos
- * que responden preguntas distintas, y confundirlos le niega el lugar a gente
- * que la base sí deja entrar.
+ * Los dos conteos son la parte que más fácil se rompe. Desde el 24/08 solo uno
+ * decide: `inscriptos`. El bug que estos tests fijan ya ocurrió en prod —el
+ * sitio anunciaba "cupo completo" con la inscripción todavía abierta— y la
+ * forma de reintroducirlo es atar `hayLugar` de nuevo a `efectivos`.
  */
-test.describe('los dos conteos: cartel vs. lugar real', () => {
-  test('el cartel puede decir "completo" y todavía haber lugar real', () => {
-    // El caso de prod al 20/08 llevado al límite: 300 registros contando los
-    // que no completaron el onboarding, pero solo 257 con perfil completo.
-    const cupo = calcularCupo(300, 257, 300);
+test.describe('los dos conteos: solo `inscriptos` decide', () => {
+  /** El caso exacto de prod al 24/08: 305 registros, 255 con perfil completo. */
+  test('el registro sin completar también ocupa lugar', () => {
+    const cupo = calcularCupo(305, 255, 300);
 
-    expect(cupo.estado).toBe('completo'); // lo que ve el visitante
-    expect(cupo.hayLugar).toBe(true); // lo que decide el trigger
+    expect(cupo.estado).toBe('completo');
+    expect(cupo.hayLugar).toBe(false); // ⚠️ antes daba true y por eso entraba gente
+    expect(cupo.efectivos).toBe(255); // sigue reportándose, pero no decide
   });
 
-  test('el lugar real se agota con los perfiles completos, no con los registros', () => {
-    const cupo = calcularCupo(312, 300, 300);
-    expect(cupo.hayLugar).toBe(false);
+  test('con lugar, el cartel y la puerta dicen lo mismo', () => {
+    const cupo = calcularCupo(299, 200, 300);
+    expect(cupo.estado).toBe('ultimos');
+    expect(cupo.hayLugar).toBe(true);
+  });
+
+  /**
+   * La regresión concreta: mientras `hayLugar` salía de `efectivos`, este caso
+   * daba `true` con el cartel en "completo". Las dos superficies tienen que
+   * moverse juntas pase lo que pase con el segundo conteo.
+   */
+  test('`efectivos` no puede reabrir un cupo que `inscriptos` cerró', () => {
+    for (const efectivos of [0, 1, 150, 255, 299]) {
+      const cupo = calcularCupo(300, efectivos, 300);
+      expect(cupo.hayLugar).toBe(false);
+      expect(cupo.estado).toBe('completo');
+    }
+  });
+
+  test('el borde es el tope justo, no uno más', () => {
+    expect(calcularCupo(299, 299, 300).hayLugar).toBe(true);
+    expect(calcularCupo(300, 300, 300).hayLugar).toBe(false);
   });
 
   test('con el cupo apagado (tope 0) siempre hay lugar', () => {

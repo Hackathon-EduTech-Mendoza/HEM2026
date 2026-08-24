@@ -9,8 +9,30 @@ import Layout from '../layouts/Layout.astro';
       <div class="auth-card card">
         <div class="auth-header">
           <a href="/" class="auth-back">&larr; Volver al inicio</a>
-          <h1>Crear cuenta</h1>
-          <p class="auth-subtitle">Registrate para participar de la Hackathon EduTech 2026</p>
+          <h1 id="auth-title">Crear cuenta</h1>
+          <p class="auth-subtitle" id="auth-subtitle">Registrate para participar de la Hackathon EduTech 2026</p>
+        </div>
+
+        <!-- Puerta de mentores y jueces: se enciende con ?rol=mentor|juez.
+             No ocupan cupo, así que siguen pudiendo crear cuenta con la
+             inscripción de participantes cerrada. -->
+        <p class="rol-aviso" id="rol-aviso" hidden></p>
+
+        <!-- Inscripción cerrada. Lo enciende el script consultando /api/cupo.
+             El candado de verdad es el trigger `enforce_max_participants`:
+             esto es para que se entienda antes de tipear una contraseña. -->
+        <div class="registro-cerrado" id="registro-cerrado" hidden>
+          <p>
+            Se completaron los <strong>300</strong> lugares para participantes.
+            Por el espacio de la sede no podemos sumar más gente.
+          </p>
+          <p>
+            Si ya creaste tu cuenta, tu lugar está guardado:
+            <a href="/login" class="auth-link">iniciá sesión</a> y completá tu perfil.
+          </p>
+          <p>
+            ¿Dudas? <a href="/contacto" class="auth-link">Escribinos</a>.
+          </p>
         </div>
 
         <form id="register-form" class="auth-form" novalidate>
@@ -224,6 +246,36 @@ import Layout from '../layouts/Layout.astro';
   .auth-link:hover {
     text-decoration: underline;
   }
+
+  /* ⚠️ `.auth-form` fija `display: flex`, y eso le gana al `display: none` que
+     el navegador aplica por el atributo `hidden`: sin esta regla el formulario
+     se sigue viendo con la inscripción cerrada. Mismo problema que el padding
+     de `.admin-card`. */
+  .auth-form[hidden] {
+    display: none;
+  }
+
+  .rol-aviso {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--c1) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c1) 35%, transparent);
+    color: var(--txt-2);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .registro-cerrado p {
+    color: var(--txt-2);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .registro-cerrado p:last-child {
+    margin-bottom: 0;
+  }
 </style>
 
 <script>
@@ -238,6 +290,81 @@ import Layout from '../layouts/Layout.astro';
   const errorDiv = document.getElementById('form-error') as HTMLDivElement;
   const successDiv = document.getElementById('form-success') as HTMLDivElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const tituloEl = document.getElementById('auth-title') as HTMLHeadingElement;
+  const subtituloEl = document.getElementById('auth-subtitle') as HTMLParagraphElement;
+  const rolAvisoEl = document.getElementById('rol-aviso') as HTMLParagraphElement;
+  const cerradoEl = document.getElementById('registro-cerrado') as HTMLDivElement;
+
+  const CUPO_LLENO =
+    'La inscripción está cerrada: se completaron los 300 lugares para participantes. ' +
+    'Si ya creaste tu cuenta, iniciá sesión para completar tu perfil.';
+
+  /**
+   * Roles que NO ocupan cupo y por eso conservan la puerta abierta con la
+   * inscripción de participantes cerrada. La lista es blanca a propósito:
+   * `handle_new_user` en la base vuelve a filtrar contra estos mismos valores,
+   * así que un ?rol=admin inventado en la barra de direcciones no escala nada.
+   *
+   * Y tampoco sirve para colarse al cupo: quien nace mentor y después intenta
+   * pasarse a participante cae en el trigger `enforce_max_participants` con
+   * `OLD.role <> 'usuario'`, que lo rechaza.
+   */
+  const ROLES_SIN_CUPO = ['mentor', 'juez'];
+  const ETIQUETA_ROL: Record<string, string> = { mentor: 'mentor', juez: 'juez' };
+
+  const rolPedido = new URLSearchParams(window.location.search).get('rol') || '';
+  const rolAlta = ROLES_SIN_CUPO.includes(rolPedido) ? rolPedido : null;
+
+  if (rolAlta) {
+    const etiqueta = ETIQUETA_ROL[rolAlta];
+    subtituloEl.textContent = `Creá tu cuenta como ${etiqueta} de la Hackathon EduTech 2026`;
+    rolAvisoEl.textContent =
+      `Te estás registrando como ${etiqueta}. Tu inscripción queda pendiente de aprobación ` +
+      'del equipo organizador.';
+    rolAvisoEl.hidden = false;
+  }
+
+  /**
+   * Esconde el formulario si ya no quedan lugares de participante.
+   *
+   * ⚠️ El formulario arranca VISIBLE y se esconde recién al confirmar que no
+   * hay lugar, nunca al revés. Si `/api/cupo` se cae —ya pasó, un 503 por una
+   * env var faltante— el modo de falla tiene que ser "se puede intentar" y que
+   * decida la base, no "nadie se registra nunca", que además dejaría afuera a
+   * los mentores y jueces.
+   */
+  async function chequearCupo() {
+    if (rolAlta) return; // mentores y jueces no ocupan cupo
+
+    let cupo: { hayLugar?: boolean };
+    try {
+      const res = await fetch('/api/cupo');
+      if (!res.ok) return;
+      cupo = await res.json();
+    } catch {
+      return;
+    }
+
+    if (cupo?.hayLugar !== false) return;
+
+    form.hidden = true;
+    subtituloEl.hidden = true;
+    cerradoEl.hidden = false;
+    tituloEl.textContent = 'Inscripción cerrada';
+  }
+
+  chequearCupo();
+
+  /** Repregunta puntual para no atribuirle al cupo un error que no es suyo. */
+  async function cupoLleno(): Promise<boolean> {
+    try {
+      const res = await fetch('/api/cupo');
+      if (!res.ok) return false;
+      return (await res.json())?.hayLugar === false;
+    } catch {
+      return false;
+    }
+  }
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -264,15 +391,28 @@ import Layout from '../layouts/Layout.astro';
     submitBtn.disabled = true;
     submitBtn.textContent = 'Creando cuenta...';
 
+    // El rol viaja en la metadata del signup y lo lee `handle_new_user`. Sin
+    // esto toda cuenta nueva nace como 'usuario' (el DEFAULT de la columna) y
+    // el trigger del cupo la rechazaría con la inscripción cerrada.
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      ...(rolAlta ? { options: { data: { role: rolAlta } } } : {}),
     });
 
     if (error) {
       let msg = error.message;
       if (error.message.includes('Email logins are disabled')) {
         msg = 'El registro con email está desactivado en la configuración de Supabase.';
+      } else if (/max_participants/i.test(error.message)) {
+        // El trigger habla: llegó entero hasta acá.
+        msg = CUPO_LLENO;
+      } else if (/Database error saving new user/i.test(error.message)) {
+        // Supabase Auth esconde el detalle del trigger detrás de este texto
+        // genérico, así que no se puede afirmar que sea el cupo: se vuelve a
+        // preguntar antes de echarle la culpa. Cualquier otra falla de base
+        // sigue mostrando su mensaje real en vez de una excusa inventada.
+        msg = (await cupoLleno()) ? CUPO_LLENO : msg;
       }
       errorDiv.textContent = msg;
       errorDiv.style.display = 'block';
