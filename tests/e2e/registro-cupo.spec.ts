@@ -39,27 +39,84 @@ async function fijarCupo(page: import('@playwright/test').Page, cupo: unknown) {
 }
 
 test.describe('/registro con el cupo lleno', () => {
-  test('esconde el formulario y explica que la inscripción cerró', async ({ page }) => {
+  test('esconde los campos y explica que la inscripción de participantes cerró', async ({
+    page,
+  }) => {
     await fijarCupo(page, CUPO_LLENO);
     await page.goto('/registro');
 
     await expect(page.locator('#registro-cerrado')).toBeVisible();
-    await expect(page.locator('#register-form')).toBeHidden();
-    await expect(page.locator('#auth-title')).toHaveText('Inscripción cerrada');
+    await expect(page.locator('#campos-cuenta')).toBeHidden();
+    await expect(page.locator('#registro-cerrado-titulo')).toHaveText(
+      'Inscripción de participantes cerrada',
+    );
     // Quien ya tiene cuenta no queda huérfano: el camino a /login sigue a mano.
     await expect(page.locator('#registro-cerrado a[href="/login"]')).toBeVisible();
   });
 
   /**
+   * El selector tiene que sobrevivir al cierre. Si desapareciera junto con los
+   * campos, un mentor volvería a quedarse sin puerta visible — que es
+   * exactamente el problema que este selector vino a resolver.
+   */
+  test('el selector sigue en pantalla y participante queda deshabilitado', async ({
+    page,
+  }) => {
+    await fijarCupo(page, CUPO_LLENO);
+    await page.goto('/registro');
+
+    await expect(page.locator('#rol-selector')).toBeVisible();
+    await expect(page.locator('#rol-usuario')).toBeDisabled();
+    await expect(page.locator('#rol-usuario')).not.toBeChecked();
+    await expect(page.locator('#rol-badge-usuario')).toHaveText('Completo');
+    // Las otras dos opciones no se tocan.
+    await expect(page.locator('#rol-mentor')).toBeEnabled();
+    await expect(page.locator('#rol-juez')).toBeEnabled();
+  });
+
+  /**
    * La razón de ser de la puerta aparte: mentores y jueces no ocupan cupo y
    * entran por el mismo signup, así que cerrarles el alta los dejaría afuera.
+   * Ahora se llega eligiendo en la página, sin necesidad de saberse la URL.
    */
-  test('mentores y jueces conservan la puerta abierta', async ({ page }) => {
+  test('elegir mentor o jurado destraba el formulario', async ({ page }) => {
+    for (const rol of ['mentor', 'juez']) {
+      await fijarCupo(page, CUPO_LLENO);
+      await page.goto('/registro');
+
+      await expect(page.locator('#campos-cuenta')).toBeHidden();
+
+      await page.locator(`#rol-${rol}`).check();
+
+      await expect(page.locator('#campos-cuenta')).toBeVisible();
+      await expect(page.locator('#registro-cerrado')).toBeHidden();
+      await expect(page.locator('#rol-aviso')).toContainText(rol);
+    }
+  });
+
+  /** Volver a participante no se puede: la opción está deshabilitada. */
+  test('no se puede volver a participante una vez cerrado', async ({ page }) => {
+    await fijarCupo(page, CUPO_LLENO);
+    await page.goto('/registro');
+
+    await page.locator('#rol-mentor').check();
+    await expect(page.locator('#campos-cuenta')).toBeVisible();
+
+    await expect(page.locator('#rol-usuario')).toBeDisabled();
+    await expect(page.locator('#rol-mentor')).toBeChecked();
+  });
+
+  /**
+   * Los links con `?rol=` ya se repartieron y no se pueden despublicar: siguen
+   * entrando derecho, ahora pretildando la opción.
+   */
+  test('el atajo ?rol= sigue funcionando y pretilda la opción', async ({ page }) => {
     for (const rol of ['mentor', 'juez']) {
       await fijarCupo(page, CUPO_LLENO);
       await page.goto(`/registro?rol=${rol}`);
 
-      await expect(page.locator('#register-form')).toBeVisible();
+      await expect(page.locator(`#rol-${rol}`)).toBeChecked();
+      await expect(page.locator('#campos-cuenta')).toBeVisible();
       await expect(page.locator('#registro-cerrado')).toBeHidden();
       await expect(page.locator('#rol-aviso')).toContainText(rol);
     }
@@ -71,19 +128,35 @@ test.describe('/registro con el cupo lleno', () => {
     await page.goto('/registro?rol=admin');
 
     await expect(page.locator('#registro-cerrado')).toBeVisible();
-    await expect(page.locator('#register-form')).toBeHidden();
+    await expect(page.locator('#campos-cuenta')).toBeHidden();
     await expect(page.locator('#rol-aviso')).toBeHidden();
   });
 });
 
 test.describe('/registro con lugar disponible', () => {
-  test('el formulario se muestra normal', async ({ page }) => {
+  test('el formulario se muestra normal y participante viene tildado', async ({ page }) => {
     await fijarCupo(page, CUPO_CON_LUGAR);
     await page.goto('/registro');
 
-    await expect(page.locator('#register-form')).toBeVisible();
+    await expect(page.locator('#campos-cuenta')).toBeVisible();
     await expect(page.locator('#registro-cerrado')).toBeHidden();
     await expect(page.locator('#rol-aviso')).toBeHidden();
+
+    // El camino de siempre no cambia: se entra a /registro y se completa.
+    await expect(page.locator('#rol-usuario')).toBeChecked();
+    await expect(page.locator('#rol-usuario')).toBeEnabled();
+    await expect(page.locator('#rol-badge-usuario')).toBeHidden();
+  });
+
+  /** Elegir mentor con lugar disponible también tiene que avisar el rol. */
+  test('elegir mentor muestra el aviso de aprobación pendiente', async ({ page }) => {
+    await fijarCupo(page, CUPO_CON_LUGAR);
+    await page.goto('/registro');
+
+    await page.locator('#rol-mentor').check();
+
+    await expect(page.locator('#rol-aviso')).toContainText('mentor');
+    await expect(page.locator('#campos-cuenta')).toBeVisible();
   });
 });
 
@@ -99,15 +172,17 @@ test.describe('/registro si /api/cupo se cae', () => {
     await page.route('**/api/cupo', route => route.fulfill({ status: 503, body: '{}' }));
     await page.goto('/registro');
 
-    await expect(page.locator('#register-form')).toBeVisible();
+    await expect(page.locator('#campos-cuenta')).toBeVisible();
     await expect(page.locator('#registro-cerrado')).toBeHidden();
+    await expect(page.locator('#rol-usuario')).toBeEnabled();
   });
 
   test('una respuesta ilegible deja el formulario abierto', async ({ page }) => {
     await page.route('**/api/cupo', route => route.abort());
     await page.goto('/registro');
 
-    await expect(page.locator('#register-form')).toBeVisible();
+    await expect(page.locator('#campos-cuenta')).toBeVisible();
     await expect(page.locator('#registro-cerrado')).toBeHidden();
+    await expect(page.locator('#rol-usuario')).toBeEnabled();
   });
 });
