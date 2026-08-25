@@ -140,6 +140,62 @@ const allies = [
     isDoubleLogo: true,
     height: "90px",
   },
+  {
+    /* Ya venía con canal alfa y pegado al contenido, así que no hubo que
+       recortar nada. Doble archivo porque el "radio POST" es negro puro: sobre
+       el fondo oscuro da 1,2:1 y en el hover —que devuelve los colores
+       originales— desaparecería del todo.
+       La variante clara toca solo ese negro; el cian de marca queda intacto
+       porque ya rinde 7,45:1 sobre oscuro, muy por encima del mínimo de 3:1. */
+    name: "Radio Post",
+    href: "https://www.radiopost.fm/",
+    logoLight: "/img/allies/RadioPost.webp",
+    logoDark: "/img/allies/RadioPost-blanco.webp",
+    isDoubleLogo: true,
+    height: "90px",
+  },
+  {
+    /* Programa aparte de Radio Post, con su propio vínculo: lo pidieron así.
+
+       Llegó en RGB, sin canal alfa, sobre un gris 247 con sombra difusa. El
+       fondo se sacó por inundación desde los bordes y no con un umbral global:
+       la sombra se desvanece hacia el fondo y un corte seco le dejaba un halo
+       gris alrededor del círculo.
+
+       No es un logotipo plano sino un render con degradés y una foto de estudio
+       adentro, así que la variante oscura NO recolorea por rangos —eso lo
+       arruinaría— sino que levanta la curva completa: mismo tono y misma
+       textura, de 2,11:1 a 4,46:1.
+
+       Va a 130px como El Cruce MDZ: es un sello circular con texto en el borde,
+       y a 90px el "RADIO POST FM 92.1" no se lee. */
+    name: "Radio Post Vínculos",
+    href: "https://www.radiopost.fm/vinculos/",
+    logoLight: "/img/allies/RadioPostVinculos.webp",
+    logoDark: "/img/allies/RadioPostVinculos-blanco.webp",
+    isDoubleLogo: true,
+    height: "130px",
+  },
+  {
+    /* Llegó en RGB sobre blanco puro y con casi la mitad del lienzo vacío
+       (591x591 para un contenido de 454x307): sin recortar, el marquee escala
+       por alto y el logo entraba bastante más chico que el resto.
+
+       ⚠️ El blanco se sacó por inundación desde los bordes. Un umbral global
+       sobre el blanco también vacía el brillo de la pupila, que es blanco y es
+       parte del dibujo: el ojo quedaba hueco sobre el tema oscuro.
+
+       Doble archivo porque las dos medialunas del ojo y el "LEAN VISION" son
+       negro puro. Y la variante no se limita al negro: el azul de marca da
+       2,89:1 sobre oscuro, abajo del mínimo de 3:1, así que también se le sube
+       la luminosidad conservando el tono (queda en 3,89:1). */
+    name: "Lean Vision",
+    href: "https://leanvision.ai/",
+    logoLight: "/img/allies/LeanVision.webp",
+    logoDark: "/img/allies/LeanVision-blanco.webp",
+    isDoubleLogo: true,
+    height: "120px",
+  },
 ];
 ---
 
