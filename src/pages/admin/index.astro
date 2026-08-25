@@ -392,6 +392,54 @@ const judgeGroupSummary = Array.from({ length: judgeGroupCount }, (_, i) => {
 /** Sin grupo: los evalúa todo el jurado. Es el estado por defecto y la salida de emergencia. */
 const judgesWithoutGroup = judges.filter((j) => !j.judge_group);
 const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
+
+// ──────────────────────────────────────────────────
+// Subranking por grupo (ranking de preclasificación)
+//
+// Con el jurado dividido, cada grupo puntúa con su propia vara. Medido en dev
+// con tres grupos calibrados distinto (duro / normal / generoso), el ranking
+// global dejaba al grupo exigente con 1 finalista de 10: su mejor proyecto
+// salía décimo con 64,6 y el peor del generoso salía cuarto con 89,5. El
+// cálculo no está mal —todos promedian con avg() en la misma escala—, el
+// problema es de equidad: un proyecto compite contra la severidad de su jurado
+// y no solo contra los otros proyectos.
+//
+// La posición dentro del grupo sí es limpia: ahí todos fueron medidos con la
+// misma vara. Por eso se muestra al lado de la global y por eso existe el
+// reparto por grupo.
+//
+// ⚠️ Esto NO reordena la tabla ni toca el puntaje. El ranking se sigue
+// ordenando por `final_score`, que es el resultado oficial. El subranking es
+// información y un criterio de reparto; los finalistas se marcan igual, a mano
+// o con los botones, y no se guarda nada hasta "Guardar Finalistas".
+// ──────────────────────────────────────────────────
+
+/** `judge_group` por proyecto. Sale de `projects`, que ya se trae más arriba:
+ *  la vista `project_leaderboard` no expone la columna y no hace falta tocarla. */
+const projectJudgeGroup = new Map<string, number | null>(
+  projects.map((p) => [p.id as string, (p.judge_group as number | null) ?? null]),
+);
+
+/**
+ * Posición dentro del grupo, contada sobre el mismo orden del ranking global
+ * (las filas ya vienen ordenadas por `final_score`). `null` = sin grupo, que
+ * significa "lo evaluó todo el jurado": son su propia bolsa, no un grupo más.
+ */
+const preSubrank = new Map<string, { grupo: number | null; posGrupo: number }>();
+{
+  const contador = new Map<string, number>();
+  for (const row of leaderboardPre) {
+    const grupo = projectJudgeGroup.get(row.project_id as string) ?? null;
+    const clave = grupo === null ? "todos" : String(grupo);
+    const posGrupo = (contador.get(clave) || 0) + 1;
+    contador.set(clave, posGrupo);
+    preSubrank.set(row.project_id as string, { grupo, posGrupo });
+  }
+}
+
+/** La columna de grupo solo tiene sentido si hay grupos armados. */
+const mostrarColumnaGrupo = judgeGroupCount > 0;
+const preTableCols = mostrarColumnaGrupo ? 9 : 8;
 ---
 
 <Layout title="Administración | HEM2026" noindex>
@@ -1459,6 +1507,13 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
           <button id="autoselect-finalists-btn" class="btn btn-outline">
             Marcar Top {finalistsCount}
           </button>
+          {
+            mostrarColumnaGrupo && (
+              <button id="autoselect-by-group-btn" class="btn btn-outline">
+                Marcar Top {finalistsCount} por grupo
+              </button>
+            )
+          }
           <button id="save-finalists-btn" class="btn btn-primary">
             Guardar Finalistas
           </button>
@@ -1471,6 +1526,7 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
               <th style="width: 60px;">Posición</th>
               <th>Proyecto</th>
               <th>Equipo</th>
+              {mostrarColumnaGrupo && <th>Grupo <span class="th-note">(pos. interna)</span></th>}
               <th>Evaluaciones</th>
               <th class="desktop-only">Desglose ({preCriteria.map((c) => c.short).join(" / ")})</th>
               <th>Suma directa <span class="th-note">(referencia)</span></th>
@@ -1482,7 +1538,7 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
             {
               leaderboardPre.length === 0 ? (
                 <tr>
-                  <td colspan="8" class="empty-state">
+                  <td colspan={preTableCols} class="empty-state">
                     Aún no hay proyectos para evaluar.
                   </td>
                 </tr>
@@ -1517,6 +1573,23 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
                           {row.team_name}
                         </span>
                       </td>
+                      {mostrarColumnaGrupo && (
+                        <td data-label="Grupo">
+                          {(() => {
+                            const sr = preSubrank.get(row.project_id);
+                            if (!sr) return <span style="color: var(--txt-m);">—</span>;
+                            return (
+                              <span style="font-size: 0.85rem; color: var(--txt-2); white-space: nowrap;">
+                                <strong style="color: var(--txt-1);">
+                                  {sr.grupo === null ? "Todos" : `G${sr.grupo}`}
+                                </strong>
+                                {" · "}
+                                {sr.posGrupo}º
+                              </span>
+                            );
+                          })()}
+                        </td>
+                      )}
                       <td data-label="Evaluaciones">{row.evaluations_count}</td>
                       <td data-label="Desglose" class="desktop-only">
                         <div style="font-size: 0.85rem; color: var(--txt-2);">
@@ -1538,6 +1611,12 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
                           type="checkbox"
                           class="finalist-checkbox"
                           data-project-id={row.project_id}
+                          data-judge-group={
+                            preSubrank.get(row.project_id)?.grupo === null || preSubrank.get(row.project_id) === undefined
+                              ? "todos"
+                              : String(preSubrank.get(row.project_id)!.grupo)
+                          }
+                          data-evaluations={row.evaluations_count}
                           checked={row.is_finalist}
                           style="width: 18px; height: 18px; accent-color: var(--c1); cursor: pointer;"
                         />
@@ -2105,7 +2184,22 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
               En la pestaña <strong>Resultados</strong> vas a ver dos rankings separados, uno por fase. En el de preclasificación se eligen los finalistas: el botón <strong>"Marcar Top N"</strong> tilda automáticamente a los mejores según el cupo configurado en <em>Cupo de Finalistas</em>, y podés ajustar las tildes a mano antes de presionar <strong>"Guardar Finalistas"</strong>. Sin ese paso, la ronda final queda vacía.
             </p>
             <p>
-              ⚠️ <strong>Antes de marcar finalistas, mirá la columna "Evaluaciones"</strong> de ese ranking. Un proyecto que todavía nadie votó aparece con puntaje 0 y se hunde al fondo: si cerrás la preclasificación con proyectos en cero, se pierde un finalista por falta de votos y no por mérito.
+              ⚠️ <strong>Antes de marcar finalistas, mirá la columna "Evaluaciones"</strong> de ese ranking. Un proyecto que todavía nadie votó aparece con puntaje 0 y se hunde al fondo: si cerrás la preclasificación con proyectos en cero, se pierde un finalista por falta de votos y no por mérito. Los dos botones te avisan en el cartelito si marcaron alguno sin evaluaciones.
+            </p>
+            <p>
+              <strong>Con el jurado dividido en grupos</strong> aparece un segundo botón, <strong>"Marcar Top N por grupo"</strong>, y una columna <em>Grupo</em> que muestra en qué puesto quedó cada proyecto <em>dentro de su grupo</em> (por ejemplo <em>G2 · 3º</em>).
+            </p>
+            <p>
+              ¿Por qué hace falta? Porque cada grupo puntúa con su propia vara. Probado con tres grupos calibrados distinto, el ranking global dejaba al grupo más exigente con <strong>1 finalista de 10</strong>: su mejor proyecto quedaba décimo y el peor del grupo más generoso quedaba cuarto. Los puntajes no están mal —todos se calculan igual—, pero un proyecto termina compitiendo contra la severidad de su jurado. Dentro de cada grupo, en cambio, todos fueron medidos con la misma vara.
+            </p>
+            <p>
+              El botón por grupo reparte el cupo <strong>en proporción a cuántos proyectos evaluó cada grupo</strong> y después marca a los mejores de cada uno. Con los grupos parejos y cupo 10 da 4/3/3; si un grupo quedó con más equipos, se lleva más lugares. El cartelito te dice el reparto exacto. Los proyectos <em>sin grupo</em> —los que evaluó el jurado completo— entran como una bolsa más.
+            </p>
+            <p>
+              ⚠️ <strong>Repartí los proyectos parejo antes de usarlo.</strong> Un grupo que quedó con muy pocos proyectos recibe pocos lugares, o ninguno, porque el reparto es proporcional. Para eso está "Repartir proyectos sin asignar" en la pestaña <em>Jurado</em>.
+            </p>
+            <p>
+              Los dos botones se pisan entre sí y <strong>ninguno guarda nada</strong>: podés apretar uno, mirar el resultado, apretar el otro y comparar las dos listas. Recién <strong>"Guardar Finalistas"</strong> escribe. Y la tabla no cambia de orden nunca: se sigue ordenando por el puntaje ponderado, que es el resultado oficial.
             </p>
           </div>
 
@@ -3695,6 +3789,7 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
 <script>
   import { createBrowserClient } from "@supabase/ssr";
   import { showConfirm } from "../../utils/alerts.js";
+  import { repartirPorGrupo, describirReparto } from "../../utils/reparto-finalistas.js";
 
   // --- Lógica de Tabs ---
   const tabBtns = document.querySelectorAll(".tab-btn");
@@ -4242,19 +4337,81 @@ const projectsWithoutGroup = projects.filter((p) => !p.judge_group).length;
   const finalistCheckboxes = () =>
     Array.from(document.querySelectorAll<HTMLInputElement>(".finalist-checkbox"));
 
-  // Marca los primeros N del ranking (las filas ya vienen ordenadas por puntaje)
-  autoselectBtn?.addEventListener("click", async () => {
+  /** El cupo de finalistas configurado. Se relee en cada click por si se cambió. */
+  async function leerCupoFinalistas(): Promise<number> {
     const { data: countData } = await supabase
       .from("event_config")
       .select("value")
       .eq("key", "finalists_count")
       .single();
-    const count = parseInt(countData?.value || "10", 10);
+    return parseInt(countData?.value || "10", 10);
+  }
 
-    finalistCheckboxes().forEach((cb, index) => {
+  /** Avisa si entre los marcados hay proyectos que nadie votó. */
+  function avisarSinEvaluar(marcados: HTMLInputElement[]): string {
+    const sinVotos = marcados.filter((cb) => Number(cb.dataset.evaluations || "0") === 0).length;
+    if (sinVotos === 0) return "";
+    return ` ⚠️ ${sinVotos} sin evaluaciones: revisá antes de guardar.`;
+  }
+
+  // Marca los primeros N del ranking (las filas ya vienen ordenadas por puntaje)
+  autoselectBtn?.addEventListener("click", async () => {
+    const count = await leerCupoFinalistas();
+    const cbs = finalistCheckboxes();
+
+    cbs.forEach((cb, index) => {
       cb.checked = index < count;
     });
-    showToast(`Top ${count} marcado. Ajustá si hace falta y guardá.`);
+
+    const marcados = cbs.filter((cb) => cb.checked);
+    showToast(
+      `Top ${count} global marcado. Ajustá si hace falta y guardá.` + avisarSinEvaluar(marcados),
+    );
+  });
+
+  /**
+   * Marca finalistas repartiendo el cupo entre los grupos de jurado.
+   *
+   * El porqué está en el comentario del frontmatter: con el jurado dividido
+   * cada grupo puntúa con su propia vara, y el ranking global termina premiando
+   * al grupo más generoso. Dentro de cada grupo, en cambio, todos fueron
+   * medidos igual. Así que se elige a los mejores DE CADA GRUPO.
+   *
+   * Los proyectos sin grupo ("Todos") los evaluó el jurado completo, así que no
+   * arrastran el sesgo de nadie. Van igual como una bolsa más del reparto: si no
+   * hay ninguno, la proporción les da cero y desaparecen solos.
+   */
+  const autoselectByGroupBtn = document.getElementById("autoselect-by-group-btn") as HTMLButtonElement;
+
+  autoselectByGroupBtn?.addEventListener("click", async () => {
+    const count = await leerCupoFinalistas();
+    const cbs = finalistCheckboxes();
+    if (cbs.length === 0) return;
+
+    // Las filas ya vienen ordenadas por puntaje, así que cada bolsa conserva ese
+    // orden y "los primeros" del grupo son los mejores del grupo.
+    const bolsas = new Map<string, HTMLInputElement[]>();
+    for (const cb of cbs) {
+      const clave = cb.dataset.judgeGroup || "todos";
+      const bolsa = bolsas.get(clave);
+      if (bolsa) bolsa.push(cb);
+      else bolsas.set(clave, [cb]);
+    }
+
+    const tamanos = new Map(Array.from(bolsas, ([clave, lista]) => [clave, lista.length]));
+    const cupos = repartirPorGrupo(tamanos, count);
+
+    cbs.forEach((cb) => { cb.checked = false; });
+    bolsas.forEach((lista, clave) => {
+      const cupo = cupos.get(clave) || 0;
+      lista.slice(0, cupo).forEach((cb) => { cb.checked = true; });
+    });
+
+    const marcados = cbs.filter((cb) => cb.checked);
+    showToast(
+      `Repartido por grupo — ${describirReparto(cupos)}. Ajustá si hace falta y guardá.` +
+        avisarSinEvaluar(marcados),
+    );
   });
 
   saveFinalistsBtn?.addEventListener("click", async () => {
