@@ -306,7 +306,17 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
         padding: 0.5rem 1.25rem;
     }
 
-    .nav-act-logged {
+    /* ⚠️ Estos botones terminan SIEMPRE reinyectados por checkAuth() con
+       `innerHTML`, tenga o no sesión el servidor: el script pisa el contenido de
+       `#nav-auth-buttons-mobile` en cuanto resuelve la sesión. Y el HTML que crea
+       `innerHTML` no lleva el `data-astro-cid-*` que Astro le agrega a los
+       selectores scopeados, así que un selector normal no lo alcanza.
+
+       Por eso el bloque va en `:global()`, anclado a `.nav-act`, que sí viene del
+       servidor y conserva el atributo: el anclaje mantiene el alcance limitado a
+       este componente y matchea las dos versiones del markup, la del servidor y
+       la inyectada. */
+    .nav-act :global(.nav-act-logged) {
         display: flex;
         gap: 0.5rem;
     }
@@ -422,7 +432,7 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
     .nav-logo:focus-visible,
     .nav-toggle:focus-visible,
     .nav-act .btn:focus-visible,
-    .nav-act-logged .btn:focus-visible,
+    .nav-act :global(.nav-act-logged .btn):focus-visible,
     .user-dropdown-trigger:focus-visible {
         outline: 2px solid var(--c1);
         outline-offset: 4px;
@@ -511,41 +521,32 @@ const panelInfo = user ? getPanelInfo(profile?.role) : null;
             font-size: 1rem;
             padding: 0.85rem 1.25rem;
         }
-        .nav-act-logged {
+        /* Mismo layout que los botones de deslogueado: columna a lo ancho de la
+           banda de 280px que fija `.nav-act`. Va en `:global()` por lo mismo que
+           el bloque de arriba: este HTML lo inyecta checkAuth().
+
+           ⚠️ Acá había un `all: unset` que buscaba que estos dos se vieran como
+           links de navegación en vez de botones. No se recuperó, por dos razones:
+
+           1. Sobre el markup inyectado **nunca llegó a aplicarse**, que es el que
+              ve todo el mundo: de ahí los botones corridos a la izquierda.
+           2. Sobre el markup del servidor sí aplicaba, y dejaba el link primario
+              **blanco sobre blanco**: `all: unset` borra el fondo degradado pero
+              NO le gana al `color: #ffffff !important` de `.btn-primary` en
+              global.css, que al ser `!important` sobrevive al reset.
+
+           O sea que el efecto que se buscaba estaba roto de los dos lados. Se usa
+           el mismo botón que ya se ve bien deslogueado. */
+        .nav-act :global(.nav-act-logged) {
             flex-direction: column;
-            align-items: center;
-            gap: 1.75rem;
-        }
-        .nav-act-logged .btn {
-            /* Resetear estilo de botón para que parezca un link de navegación */
-            all: unset;
-            cursor: pointer;
-            font-family: var(--font-heading);
-            font-size: 1.25rem;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            color: var(--c1);
-            text-align: center;
-            padding: 0.25rem 0;
-            position: relative;
-            transition: color var(--t-fast), opacity var(--t-fast);
-        }
-        .nav-act-logged .btn:hover {
-            opacity: 0.75;
-        }
-        /* Subrayado animado igual que los nav-links */
-        .nav-act-logged .btn::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--c1);
-            transition: width var(--t-base);
-        }
-        .nav-act-logged .btn:hover::after {
+            align-items: stretch;
+            gap: 0.75rem;
             width: 100%;
+        }
+        .nav-act :global(.nav-act-logged .btn) {
+            width: 100%;
+            font-size: 1rem;
+            padding: 0.85rem 1.25rem;
         }
         .desktop-only {
             display: none !important;
