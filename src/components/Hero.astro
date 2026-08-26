@@ -17,7 +17,7 @@
  * corregir el dato en las dos bases, después leerlo, y recién ahí borrar esta
  * constante. Nunca al revés.
  */
-const eventDate = '2026-08-26T19:00:00-03:00';
+const eventDate = "2026-08-26T19:00:00-03:00";
 
 /**
  * Sala de la charla virtual previa (Teams). El link lo pasó Martín.
@@ -27,10 +27,10 @@ const eventDate = '2026-08-26T19:00:00-03:00';
  * sala muerta en portada durante las dos jornadas presenciales. Pasado ese
  * horario el Hero vuelve al mensaje genérico de siempre.
  */
-const salaVirtual = 'https://teams.microsoft.com/meet/243992338283270?p=uSZoQynUj0bJr3WcPJ';
-const salaVirtualHasta = '2026-08-26T20:30:00-03:00';
+const salaVirtual = "https://www.youtube.com/live/v6irBdaa2GU";
+const salaVirtualHasta = "2026-08-26T20:30:00-03:00";
 
-import AvisoCupo from './AvisoCupo.astro';
+import AvisoCupo from "./AvisoCupo.astro";
 ---
 
 <section class="hero" id="inicio">
@@ -45,28 +45,38 @@ import AvisoCupo from './AvisoCupo.astro';
     </div>
     <p class="hero-desc">
       Un espacio intensivo de trabajo colaborativo donde equipos
-      interdisciplinarios del Nivel Superior diseñan soluciones tecnológicas innovadoras para los
-      desafíos actuales de la educación.
+      interdisciplinarios del Nivel Superior diseñan soluciones tecnológicas
+      innovadoras para los desafíos actuales de la educación.
     </p>
 
     <!-- Countdown -->
     <!-- Sin aria-live: se actualiza cada segundo y saturaría a los lectores de pantalla -->
-    <div class="countdown" id="countdown" data-target-date={eventDate} role="timer" aria-label="Cuenta regresiva para el inicio del evento">
+    <div
+      class="countdown"
+      id="countdown"
+      data-target-date={eventDate}
+      role="timer"
+      aria-label="Cuenta regresiva para el inicio del evento"
+    >
       <div class="countdown-item">
         <span class="countdown-val" id="cdD">---</span><span
-          class="countdown-label">Días</span>
+          class="countdown-label">Días</span
+        >
       </div>
       <div class="countdown-item">
         <span class="countdown-val" id="cdH">--</span><span
-          class="countdown-label">Horas</span>
+          class="countdown-label">Horas</span
+        >
       </div>
       <div class="countdown-item">
         <span class="countdown-val" id="cdM">--</span><span
-          class="countdown-label">Min</span>
+          class="countdown-label">Min</span
+        >
       </div>
       <div class="countdown-item">
         <span class="countdown-val" id="cdS">--</span><span
-          class="countdown-label">Seg</span>
+          class="countdown-label">Seg</span
+        >
       </div>
     </div>
     <div id="countdown-message" class="cd-message" style="display: none;">
@@ -80,7 +90,25 @@ import AvisoCupo from './AvisoCupo.astro';
         rel="noopener noreferrer"
         style="display: none;"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          ><path d="M23 7l-7 5 7 5V7z"></path><rect
+            x="1"
+            y="5"
+            width="15"
+            height="14"
+            rx="2"
+            ry="2"></rect></svg
+        >
         Entrar a la charla virtual
       </a>
     </div>
@@ -92,10 +120,12 @@ import AvisoCupo from './AvisoCupo.astro';
       </div>
     </div>
 
-    {/* Aviso de cupo. El chip se muestra acá, pegado al CTA; la barra fija que
+    {
+      /* Aviso de cupo. El chip se muestra acá, pegado al CTA; la barra fija que
         trae el mismo componente es `position: fixed`, así que se ancla al
         viewport y no a este lugar del DOM. Ambos quedan ocultos hasta que
-        `/api/cupo` responde. */}
+        `/api/cupo` responde. */
+    }
     <AvisoCupo conChip />
 
     <div class="hero-act">
@@ -125,8 +155,12 @@ import AvisoCupo from './AvisoCupo.astro';
     content: "";
     position: absolute;
     inset: 0;
-    background: 
-      radial-gradient(circle at 20% 0%, rgba(var(--c1r), 0.08), transparent 50%),
+    background:
+      radial-gradient(
+        circle at 20% 0%,
+        rgba(var(--c1r), 0.08),
+        transparent 50%
+      ),
       radial-gradient(circle at 80% 0%, rgba(var(--c2r), 0.08), transparent 50%);
     pointer-events: none;
     z-index: 0;
@@ -149,7 +183,11 @@ import AvisoCupo from './AvisoCupo.astro';
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--c1);
-    background: linear-gradient(135deg, rgba(var(--c1r), 0.08) 0%, rgba(var(--c2r), 0.08) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(var(--c1r), 0.08) 0%,
+      rgba(var(--c2r), 0.08) 100%
+    );
     border: 1px solid rgba(var(--c1r), 0.2);
     padding: 0.5rem 1rem;
     border-radius: var(--r-full);
@@ -209,7 +247,7 @@ import AvisoCupo from './AvisoCupo.astro';
     color: var(--c2);
     transition: color var(--t-theme);
   }
-  
+
   .t-edutech {
     font-family: var(--font-display);
     font-weight: 900;
@@ -217,8 +255,6 @@ import AvisoCupo from './AvisoCupo.astro';
     transition: color var(--t-theme);
     font-size: clamp(4rem, 11vw, 9rem);
   }
-
-
 
   .hero-desc {
     font-size: 1.1rem;
@@ -351,11 +387,14 @@ import AvisoCupo from './AvisoCupo.astro';
   }
 
   @keyframes btnGlow {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 4px 12px rgba(var(--c1r), 0.2);
     }
     50% {
-      box-shadow: 0 6px 32px rgba(var(--c1r), 0.4), 0 0 16px rgba(var(--c1r), 0.15);
+      box-shadow:
+        0 6px 32px rgba(var(--c1r), 0.4),
+        0 0 16px rgba(var(--c1r), 0.15);
     }
   }
 
@@ -408,7 +447,9 @@ import AvisoCupo from './AvisoCupo.astro';
 
   function updateCD() {
     const countdownEl = document.getElementById("countdown");
-    const targetDateStr = countdownEl?.getAttribute("data-target-date") || "2026-08-26T19:00:00-03:00";
+    const targetDateStr =
+      countdownEl?.getAttribute("data-target-date") ||
+      "2026-08-26T19:00:00-03:00";
     const target = new Date(targetDateStr).getTime();
     const now = new Date().getTime();
     const diff = target - now;
