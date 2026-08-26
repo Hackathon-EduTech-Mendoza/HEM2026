@@ -185,13 +185,47 @@ test.describe('cronómetro del Hero', () => {
     await expect(countdown).toHaveAttribute('data-target-date', '2026-08-26T19:00:00-03:00');
   });
 
-  test('la cuenta regresiva corre y el evento todavía no arrancó', async ({ page }) => {
+  /**
+   * Los tres tests que siguen fijan el reloj del navegador antes de cargar la
+   * página. Sin eso dependen de cuándo corre el CI: la versión anterior de
+   * este test exigía `días > 0` y empezó a fallar sola el 26 de agosto, el
+   * día del evento, cuando los días restantes pasaron a ser 0.
+   */
+  test('la cuenta regresiva corre mientras el evento no arrancó', async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-08-20T12:00:00-03:00'));
     await page.goto('/');
     // Si la fecha quedara en el pasado, el Hero mostraría el cartel de inicio
     // y los dígitos se irían a cero.
     await expect(page.locator('#countdown-message')).toBeHidden();
-    const dias = await page.locator('#cdD').textContent();
-    expect(Number(dias)).toBeGreaterThan(0);
+    await expect(page.locator('#cdD')).toHaveText('6');
+    await expect(page.locator('#cdH')).toHaveText('07');
+  });
+
+  test('arrancada la charla, el cartel ofrece la sala virtual', async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-08-26T19:05:00-03:00'));
+    await page.goto('/');
+    await expect(page.locator('#countdown')).toBeHidden();
+    await expect(page.locator('#countdown-message')).toBeVisible();
+    await expect(page.locator('#cd-message-txt')).toHaveText('¡La charla virtual ya empezó!');
+
+    // El link se abre en una pestaña nueva y sin pasarle el referrer a Teams.
+    const sala = page.locator('#cd-sala');
+    await expect(sala).toBeVisible();
+    await expect(sala).toHaveAttribute('target', '_blank');
+    await expect(sala).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(await sala.getAttribute('href')).toContain('teams.microsoft.com');
+  });
+
+  /**
+   * Terminada la charla, la sala no sirve más: dejarla en portada durante las
+   * dos jornadas presenciales mandaría gente a una reunión vacía.
+   */
+  test('terminada la charla, la sala se retira del Hero', async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-08-28T16:00:00-03:00'));
+    await page.goto('/');
+    await expect(page.locator('#countdown-message')).toBeVisible();
+    await expect(page.locator('#cd-message-txt')).toHaveText('¡El evento ha comenzado!');
+    await expect(page.locator('#cd-sala')).toBeHidden();
   });
 });
 

@@ -19,6 +19,17 @@
  */
 const eventDate = '2026-08-26T19:00:00-03:00';
 
+/**
+ * Sala de la charla virtual previa (Teams). El link lo pasó Martín.
+ *
+ * Aparece en el Hero recién cuando el cronómetro llega a cero — o sea a las
+ * 19:00 del 26 — y se retira solo cuando la charla termina, para no dejar una
+ * sala muerta en portada durante las dos jornadas presenciales. Pasado ese
+ * horario el Hero vuelve al mensaje genérico de siempre.
+ */
+const salaVirtual = 'https://teams.microsoft.com/meet/243992338283270?p=uSZoQynUj0bJr3WcPJ';
+const salaVirtualHasta = '2026-08-26T20:30:00-03:00';
+
 import AvisoCupo from './AvisoCupo.astro';
 ---
 
@@ -59,7 +70,19 @@ import AvisoCupo from './AvisoCupo.astro';
       </div>
     </div>
     <div id="countdown-message" class="cd-message" style="display: none;">
-      ¡El evento ha comenzado!
+      <span id="cd-message-txt">¡El evento ha comenzado!</span>
+      <a
+        id="cd-sala"
+        class="btn btn-primary cd-sala"
+        href={salaVirtual}
+        data-hasta={salaVirtualHasta}
+        target="_blank"
+        rel="noopener noreferrer"
+        style="display: none;"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Entrar a la charla virtual
+      </a>
     </div>
 
     <div class="hero-dates">
@@ -248,6 +271,11 @@ import AvisoCupo from './AvisoCupo.astro';
   }
 
   .cd-message {
+    /* `display` lo maneja el script: queda en `none` hasta que el cronómetro
+       llega a cero y ahí pasa a `flex`. */
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
     font-family: var(--font-heading);
     font-size: 1.5rem;
     color: var(--c1);
@@ -258,6 +286,16 @@ import AvisoCupo from './AvisoCupo.astro';
     opacity: 0;
     animation: fadeUp 0.7s var(--ease) forwards;
     animation-delay: 0.65s;
+  }
+
+  /* Botón de la sala virtual: hereda de .btn/.btn-primary, acá sólo se le saca
+     el text-shadow que arrastra de .cd-message y se le fija un tamaño propio. */
+  .cd-sala {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    text-shadow: none;
   }
 
   /* Claude-style Dates */
@@ -377,7 +415,22 @@ import AvisoCupo from './AvisoCupo.astro';
 
     if (diff <= 0) {
       if (cdContainer) cdContainer.style.display = "none";
-      if (cdMessage) cdMessage.style.display = "block";
+      if (cdMessage) cdMessage.style.display = "flex";
+
+      // La sala de la charla virtual sólo se ofrece mientras la charla dura:
+      // pasado `data-hasta` el botón se retira y queda el mensaje genérico.
+      const sala = document.getElementById("cd-sala");
+      const txt = document.getElementById("cd-message-txt");
+      if (sala) {
+        const hasta = new Date(sala.getAttribute("data-hasta") || 0).getTime();
+        const enVivo = now < hasta;
+        sala.style.display = enVivo ? "inline-flex" : "none";
+        if (txt) {
+          txt.textContent = enVivo
+            ? "¡La charla virtual ya empezó!"
+            : "¡El evento ha comenzado!";
+        }
+      }
       return;
     }
 
