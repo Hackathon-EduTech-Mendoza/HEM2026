@@ -208,12 +208,12 @@ test.describe('cronómetro del Hero', () => {
     await expect(page.locator('#countdown-message')).toBeVisible();
     await expect(page.locator('#cd-message-txt')).toHaveText('¡La charla virtual ya empezó!');
 
-    // El link se abre en una pestaña nueva y sin pasarle el referrer a Teams.
+    // El link se abre en una pestaña nueva y sin pasarle el referrer a YouTube.
     const sala = page.locator('#cd-sala');
     await expect(sala).toBeVisible();
     await expect(sala).toHaveAttribute('target', '_blank');
     await expect(sala).toHaveAttribute('rel', 'noopener noreferrer');
-    expect(await sala.getAttribute('href')).toContain('teams.microsoft.com');
+    expect(await sala.getAttribute('href')).toContain('youtube.com');
   });
 
   /**
