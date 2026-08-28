@@ -139,6 +139,15 @@ test('participante A: registro por UI → onboarding → dashboard confirmado', 
   await page.fill('#dni', `9${String(Date.now()).slice(-7)}`);
   await page.fill('#phone_whatsapp', '2611111111');
   await page.selectOption('#institution', 'ies_9023_maipu');
+  // Un participante no puede elegir perfil "Otro": ese perfil no lo cuenta
+  // ningún tope de composición de `join_team`, así que un equipo entero podía
+  // armarse con perfiles `otro` salteando el Art. 6º. Para jueces y mentores
+  // sigue disponible (ver el test de registro de juez más abajo).
+  const perfilesElegibles = await page.$$eval(
+    '#disciplinary_profile option:not([disabled])',
+    (opts) => opts.map((o) => (o as HTMLOptionElement).value),
+  );
+  expect(perfilesElegibles).toEqual(['docente', 'tecnico']);
   await page.selectOption('#disciplinary_profile', 'tecnico');
   await page.selectOption('#year_of_study', 'segundo');
   await page.click('#submit-btn');
