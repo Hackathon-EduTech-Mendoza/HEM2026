@@ -330,3 +330,90 @@ test.describe('bases y condiciones', () => {
     expect(texto).not.toContain('Le Parc');
   });
 });
+
+/**
+ * Página de recursos: es la URL que se difunde por WhatsApp, así que lo que
+ * importa es que las tarjetas se rendericen y que cada PDF baje de verdad. Los
+ * archivos en sí (que sean PDF válidos y tengan las páginas que anuncian) los
+ * cubre tests/unit/recursos.spec.ts, que no necesita servidor.
+ */
+test.describe('página de recursos', () => {
+  const NUEVOS = [
+    {
+      titulo: 'Charla metodológica: Design Sprint',
+      href: '/docs/hackathon-edutech-2026-charla-design-sprint.pdf',
+      formato: 'PDF · 21 diapositivas',
+    },
+    {
+      titulo: 'Taller de Pitch',
+      href: '/docs/hackathon-edutech-2026-capacitacion-pitch.pdf',
+      formato: 'PDF · 57 diapositivas',
+    },
+  ];
+
+  test('los tres grupos siguen en pie y ahora hay seis recursos', async ({ page }) => {
+    await page.goto('/recursos');
+
+    await expect(page.locator('.recursos-grupo')).toHaveCount(3);
+    await expect(page.locator('.recurso')).toHaveCount(6);
+
+    // El material nuevo es para los equipos, así que va en el primer grupo.
+    const participantes = page.locator('.recursos-grupo').first();
+    await expect(participantes.locator('.recursos-grupo-hdr h2')).toHaveText(
+      'Para participantes',
+    );
+    await expect(participantes.locator('.recurso')).toHaveCount(4);
+  });
+
+  test('el material de las charlas aparece con su título y su formato', async ({ page }) => {
+    await page.goto('/recursos');
+
+    for (const nuevo of NUEVOS) {
+      const tarjeta = page.locator('.recurso').filter({ hasText: nuevo.titulo });
+      await expect(tarjeta).toHaveCount(1);
+      await expect(tarjeta.locator('h3')).toHaveText(nuevo.titulo);
+
+      // El peso lo agrega el build leyendo public/: si el statSync falla, la
+      // línea queda con el formato pelado y nadie se entera.
+      const meta = (await tarjeta.locator('.recurso-meta').textContent()) ?? '';
+      expect(meta).toContain(nuevo.formato);
+      expect(meta).toMatch(/·\s*[\d.]+\s*(KB|MB)/);
+    }
+  });
+
+  test('los seis botones descargan un PDF que responde 200', async ({ page }) => {
+    await page.goto('/recursos');
+
+    const botones = page.locator('.recurso-acciones a.btn-primary');
+    await expect(botones).toHaveCount(6);
+
+    const hrefs = await botones.evaluateAll((as) =>
+      as.map((a) => (a as HTMLAnchorElement).getAttribute('href') ?? ''),
+    );
+
+    for (const nuevo of NUEVOS) {
+      expect(hrefs).toContain(nuevo.href);
+    }
+
+    for (let i = 0; i < hrefs.length; i++) {
+      const href = hrefs[i];
+      expect(href).toMatch(/^\/docs\/.+\.pdf$/);
+
+      // `download` para que baje el archivo en vez de abrir el visor: casi
+      // todo el tráfico es de celular y ahí el visor se come la pantalla.
+      await expect(botones.nth(i)).toHaveAttribute('download', /.*/);
+
+      const respuesta = await page.request.get(href);
+      expect(respuesta.status(), `descarga de ${href}`).toBe(200);
+    }
+  });
+
+  test('sigue llegando el link alterno de las bases', async ({ page }) => {
+    await page.goto('/recursos');
+    const bases = page.locator('.recurso').filter({ hasText: 'Bases y Condiciones' });
+    await expect(bases.locator('a.btn-outline')).toHaveAttribute(
+      'href',
+      '/bases-y-condiciones',
+    );
+  });
+});
