@@ -212,7 +212,15 @@ if (profile.team_id && helpEnabled) {
                   <option value="" disabled selected>Seleccioná tu perfil</option>
                   <option value="tecnico">Técnico / IT</option>
                   <option value="docente">Docente / Educación</option>
-                  <option value="otro">Otro</option>
+                  {/*
+                    "Otro" queda solo para mentores y jueces. Un participante con
+                    perfil `otro` no lo cuenta ningún tope de `join_team`, así que
+                    un equipo entero podía armarse con perfiles `otro` salteando
+                    la composición del Art. 6º. Sin esta opción, todo integrante
+                    cae en un contador con tope 3 y un equipo de 5 queda forzado
+                    a 3+2 o 2+3.
+                  */}
+                  {!isParticipant && <option value="otro">Otro</option>}
                 </select>
               </div>
             </div>

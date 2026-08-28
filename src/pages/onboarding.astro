@@ -166,7 +166,16 @@ const email = user.email || '';
                 <option value="" disabled selected>Seleccioná tu perfil disciplinar</option>
                 <option value="docente">Formación Docente</option>
                 <option value="tecnico">Formación Técnica</option>
-                <option value="otro">Otro</option>
+                <!--
+                  "Otro" queda solo para mentores y jueces: `updateFormFields` lo
+                  oculta y deshabilita cuando el rol elegido es participante.
+                  Motivo: un perfil `otro` no lo cuenta ningún tope de `join_team`
+                  (solo se cuentan 'tecnico' y 'docente'), así que un equipo entero
+                  podía armarse con perfiles `otro` salteando la composición del
+                  Art. 6º. Sin esta opción, todo integrante cae en un contador con
+                  tope 3 y un equipo de 5 queda forzado a 3+2 o 2+3.
+                -->
+                <option value="otro" id="perfil-opcion-otro">Otro</option>
               </select>
             </div>
 
@@ -713,6 +722,22 @@ const email = user.email || '';
         });
       }
     });
+
+    // "Otro" como perfil disciplinar no está disponible para participantes:
+    // `join_team` solo cuenta 'tecnico' y 'docente' contra los topes de
+    // composición, así que un perfil `otro` entra a cualquier equipo sin ocupar
+    // lugar. Mentores, jueces y admins lo conservan porque no forman equipo.
+    const perfilOtro = document.getElementById('perfil-opcion-otro') as HTMLOptionElement | null;
+    const perfilSelect = document.getElementById('disciplinary_profile') as HTMLSelectElement | null;
+    if (perfilOtro && perfilSelect) {
+      const permiteOtro = role !== 'usuario';
+      perfilOtro.hidden = !permiteOtro;
+      perfilOtro.disabled = !permiteOtro;
+      // Si venía elegido desde otro rol, se limpia para forzar una elección válida.
+      if (!permiteOtro && perfilSelect.value === 'otro') {
+        perfilSelect.value = '';
+      }
+    }
 
     handleYearOfStudyChange();
   }
