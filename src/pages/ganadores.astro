@@ -1,0 +1,395 @@
+---
+// src/pages/ganadores.astro
+//
+// El podio de la segunda edición, con URL propia para difundir.
+//
+// ⚠️ DE DÓNDE SALE EL ORDEN, Y POR QUÉ NO HAY PUNTAJES. El podio es el del
+// Acta N.º 2, firmada por el jurado el 29/08/2026 después del pitch. La base
+// NO lo tiene: `teams.final_position` sigue en NULL porque la deliberación
+// final se hizo en papel. Lo que sí está en la base son los 10 finalistas
+// (`projects.is_finalist`), que coinciden exactamente con el Acta N.º 1, y los
+// puntajes de la preclasificación —que NO reproducen este orden—. Por eso la
+// página no muestra ni un número: publicar los puntajes de la plataforma al
+// lado de este podio sería publicar dos rankings contradictorios.
+//
+// El tercer puesto es COMPARTIDO entre dos equipos. Está así en el acta, y por
+// eso el podio se dibuja en dos filas: los puestos únicos a ancho completo y
+// los dos terceros en un grid de dos columnas.
+//
+// ⚠️ QUÉ NO VA ACÁ. Los datos de contacto de los integrantes (DNI, correo,
+// teléfono) están en la base pero no se publican. El informe interno con esos
+// datos se genera aparte con `npm run docs:podio` y queda en /docs, ignorado
+// por git.
+export const prerender = true;
+
+import { statSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Layout from '../layouts/Layout.astro';
+import WinnerCard from '../components/WinnerCard.astro';
+
+const ACTA = '/docs/hackathon-edutech-2026-acta-ganadores.pdf';
+
+/** Igual que en /recursos: el peso lo lee el build, no se escribe a mano. */
+function peso(rutaPublica) {
+  try {
+    const bytes = statSync(resolve('public', rutaPublica.replace(/^\//, ''))).size;
+    const mb = bytes / 1024 / 1024;
+    return mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`;
+  } catch {
+    return null;
+  }
+}
+
+/** `puesto` se repite en el tercero a propósito: los dos equipos lo comparten. */
+const PODIO = [
+  {
+    puesto: 1,
+    etiqueta: 'Primer puesto',
+    proyecto: 'EduFrequency',
+    equipo: 'EduFrequency',
+    resumen:
+      'En carreras de alta demanda hay estudiantes que no entran al aula. EduFrequency permite al docente transmitir la clase en vivo desde un celular, con un chat de IA que resume, un aula virtual con pizarra compartida y acceso a las transmisiones anteriores. No reemplaza la presencialidad: extiende la clase.',
+    integrantes: [
+      { nombre: 'Rocco Zalazar', institucion: 'UTN — Facultad Regional Mendoza', lider: true },
+      { nombre: 'Mauricio Marcelo Britos', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Antonio Javier Cabrera Reynoso', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Luna Nicol Palacios', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Alejo Rivero Contreras', institucion: 'UTN' },
+    ],
+    mentores: ['Cristian Pietrobon', 'Julio Coronado'],
+    prototipo: 'https://radio-aula-v4.vercel.app/',
+  },
+  {
+    puesto: 2,
+    etiqueta: 'Segundo puesto',
+    proyecto: 'EduSeñas',
+    equipo: 'EduSeñas',
+    resumen:
+      'Los chicos sordos aprenden Lengua de Señas Argentina antes de leer y escribir. EduSeñas usa la LSA como lengua puente para enseñar lectoescritura en español, con videos en señas y actividades que se ajustan al dominio real que cada chico demuestra en cada palabra.',
+    integrantes: [
+      { nombre: 'Serena Milagros Vargas', institucion: 'IES 9-023 (Maipú)', lider: true },
+      { nombre: 'Florencia Rocío Beceda Braile', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Diego Caipe', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Danisa Antonella Fernandez', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Uriel Agustín Martinez', institucion: 'IES 9-023 (Maipú)' },
+    ],
+    mentores: ['Juan Aníbal Bisaguirre Livellara', 'Silvina Montivero'],
+  },
+  {
+    puesto: 3,
+    etiqueta: 'Tercer puesto',
+    compartido: true,
+    proyecto: 'HelpApp',
+    equipo: 'HelpApp',
+    resumen:
+      'Presenta las consignas escolares en varios formatos a la vez —visual, texto y audio— para contemplar la diversidad del aula y sostener el refuerzo de los contenidos fuera de ella.',
+    integrantes: [
+      { nombre: 'Bautista Leonel Naveda Cano', institucion: 'IES Tomás Alva Edison', lider: true },
+      { nombre: 'Juan Martín Bravo', institucion: 'IES Tomás Alva Edison' },
+      { nombre: 'Francisco Fornés', institucion: 'IES Tomás Alva Edison' },
+      { nombre: 'Lourdes Milagros Larrain', institucion: 'IES 9-029 de Luján' },
+      { nombre: 'Matías Agustín Peña Iriarte', institucion: 'IES 9-029 de Luján' },
+    ],
+    mentores: ['Cristian Gabriel Avila', 'Gustavo Fabián García'],
+  },
+  {
+    puesto: 3,
+    etiqueta: 'Tercer puesto',
+    compartido: true,
+    proyecto: 'Sign IA',
+    equipo: 'Code & Class',
+    resumen:
+      'Traduce en tiempo real, con inteligencia artificial, las señas hechas con las manos a texto o voz y a la inversa, para que un alumno con discapacidad auditiva pueda comunicarse en el aula cuando no hay un intérprete disponible.',
+    integrantes: [
+      { nombre: 'Cecilia Morales', institucion: 'IES 9-023 (Maipú)', lider: true },
+      { nombre: 'Jazmín Antonella Benitez', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Fernando Nicolás Robert', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Cynthia Anabel Nahir Rosi', institucion: 'IES 9-023 (Maipú)' },
+      { nombre: 'Matías Ezequiel Sosa Lucero', institucion: 'IES 9-023 (Maipú)' },
+    ],
+    mentores: ['Martina Castro de la Maza', 'Eva Marisa Addamo'],
+  },
+];
+
+/** Los 10 del Acta N.º 1, en el orden del acta. No es el orden del podio. */
+const FINALISTAS = [
+  'EduFrequency',
+  'Sign IA',
+  'Rastro',
+  'EduSeñas',
+  'TecnoVera',
+  'AuLab · Hilo',
+  'Le IA 360',
+  'TranScript',
+  'HelpApp',
+  'Sabikids',
+];
+
+const unicos = PODIO.filter((p) => !p.compartido);
+const compartidos = PODIO.filter((p) => p.compartido);
+const pesoActa = peso(ACTA);
+---
+
+<Layout
+  title="Ganadores | HEM2026"
+  description="Los equipos ganadores de la Hackathon EduTech Mendoza 2026: primer, segundo y tercer puesto según el acta firmada por el jurado, y los diez equipos finalistas."
+>
+  <section class="gan-page">
+    <div class="container">
+      <a href="/" class="gan-back">&larr; Volver al inicio</a>
+
+      <div class="gan-hdr reveal">
+        <span class="section-label">Segunda edición · 28 y 29 de agosto de 2026</span>
+        <h1 class="section-title text-gradient">Ganadores</h1>
+        <p class="section-desc">
+          Después de dos jornadas de trabajo y la ronda de pitch, el jurado
+          definió el podio de la Hackathon EduTech Mendoza 2026. Estos son los
+          equipos ganadores, tal como constan en el acta firmada.
+        </p>
+      </div>
+
+      <div class="gan-podio">
+        {unicos.map((p) => (
+          <div class="reveal">
+            <WinnerCard {...p} ancha />
+          </div>
+        ))}
+
+        <div class="gan-grid">
+          {compartidos.map((p, i) => (
+            <div class={`reveal rd${i + 1}`}>
+              <WinnerCard {...p} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p class="gan-nota-puntaje reveal">
+        El acta no consigna puntajes y esta página tampoco los publica: los que
+        registró la plataforma corresponden a la preclasificación que definió a
+        los diez finalistas, no a la ronda de pitch que definió el podio.
+      </p>
+
+      <section class="gan-finalistas reveal">
+        <h2>Los diez equipos finalistas</h2>
+        <p>
+          Equipos que pasaron a la ronda de pitch, en el orden en que figuran en
+          el Acta N.º 1. No es el orden del podio.
+        </p>
+        <ol class="gan-lista-fin">
+          {FINALISTAS.map((f) => (
+            <li>{f}</li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="card gan-acta reveal">
+        <div class="gan-acta-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h2>Acta del jurado</h2>
+        <p>
+          El documento firmado por el jurado el 29 de agosto de 2026 en Maipú,
+          Mendoza. Contiene las dos actas: la ronda final, con los diez equipos
+          que pasaron al pitch, y los ganadores, con el primer, segundo y tercer
+          puesto.
+        </p>
+        <p class="gan-acta-meta">
+          PDF · 2 páginas{pesoActa && <span> · {pesoActa}</span>}
+        </p>
+        <div class="gan-acta-acciones">
+          {/* `download` igual que en /recursos: en celular el visor del
+              navegador se come la pantalla. */}
+          <a class="btn btn-primary gan-btn" href={ACTA} download>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar el acta
+          </a>
+          <a class="btn btn-outline gan-btn" href="/recursos">Ver todos los recursos</a>
+        </div>
+      </section>
+
+      <p class="gan-cierre reveal">
+        Gracias a los 25 equipos que presentaron proyecto, a los mentores y al
+        jurado. Las novedades de la edición siguen en
+        <a href="/noticias" class="gan-link">Noticias</a>.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .gan-page {
+    padding: calc(var(--nav-h) + 3rem) 0 var(--section-pad-y);
+    min-height: calc(100vh - var(--nav-h));
+  }
+
+  .gan-back {
+    display: inline-block;
+    margin-bottom: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--txt-m);
+    text-decoration: none;
+    transition: color var(--t-fast);
+  }
+
+  .gan-back:hover {
+    color: var(--c1);
+  }
+
+  .gan-hdr {
+    margin-bottom: 3.5rem;
+  }
+
+  .gan-podio {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .gan-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Las tarjetas del tercer puesto tienen que quedar del mismo alto: el
+     .reveal envuelve a cada una, así que el estirón va en el wrapper. */
+  .gan-grid > * {
+    display: flex;
+  }
+
+  .gan-nota-puntaje {
+    max-width: 680px;
+    margin: 2.5rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--txt-m);
+  }
+
+  .gan-finalistas {
+    margin-top: 4rem;
+  }
+
+  .gan-finalistas h2 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--txt-1);
+    margin-bottom: 0.35rem;
+  }
+
+  .gan-finalistas > p {
+    font-size: 0.9rem;
+    color: var(--txt-m);
+    margin: 0 0 1.5rem;
+  }
+
+  .gan-lista-fin {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem 2rem;
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  .gan-lista-fin li {
+    font-size: 0.95rem;
+    color: var(--txt-2);
+  }
+
+  .gan-acta {
+    margin-top: 4rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gan-acta-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+    background: rgba(136, 0, 123, 0.1);
+    color: var(--c1);
+    border: 2px solid rgba(136, 0, 123, 0.3);
+  }
+
+  :global([data-theme='brand-dark']) .gan-acta-icon {
+    color: #e879d8;
+  }
+
+  .gan-acta h2 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    color: var(--txt-1);
+    margin: 0 0 0.75rem;
+  }
+
+  .gan-acta p {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--txt-2);
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  .gan-acta-meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--txt-m);
+    margin-top: 1rem !important;
+  }
+
+  .gan-acta-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+  }
+
+  .gan-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .gan-cierre {
+    max-width: 640px;
+    margin: 4rem auto 0;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--txt-m);
+  }
+
+  .gan-link {
+    color: var(--c1);
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity var(--t-fast);
+  }
+
+  .gan-link:hover {
+    opacity: 0.8;
+  }
+
+  @media (min-width: 768px) {
+    .gan-podio,
+    .gan-grid {
+      gap: 2rem;
+    }
+
+    .gan-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .gan-lista-fin {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

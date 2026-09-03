@@ -15,6 +15,8 @@
     "test:e2e:limpiar": "node scripts/limpiar-e2e.mjs",
     "docs:bases": "node scripts/generar-bases-pdf.mjs",
     "docs:qr": "node scripts/generar-qr.mjs",
+    "docs:certificados": "node scripts/generar-listas-certificados.mjs",
+    "docs:podio": "node scripts/generar-podio-pdf.mjs",
     "seed:dev": "node scripts/seed-dev.mjs"
   },
   "dependencies": {

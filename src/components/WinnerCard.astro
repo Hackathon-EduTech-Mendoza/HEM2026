@@ -1,0 +1,272 @@
+---
+// src/components/WinnerCard.astro
+//
+// Una tarjeta del podio de /ganadores: puesto, proyecto, equipo, integrantes
+// (con el líder marcado) y mentores.
+//
+// Está en un componente y no repetido en la página porque el podio se dibuja
+// en dos filas distintas —los puestos únicos a ancho completo, los dos que
+// comparten el tercero en un grid de dos columnas— y el markup es el mismo.
+//
+// ⚠️ No recibe ni muestra datos de contacto. El informe interno con DNI,
+// correo y teléfono se genera aparte (`npm run docs:podio`).
+
+interface Integrante {
+  nombre: string;
+  institucion: string;
+  lider?: boolean;
+}
+
+interface Props {
+  puesto: number;
+  etiqueta: string;
+  proyecto: string;
+  equipo: string;
+  resumen: string;
+  integrantes: Integrante[];
+  mentores: string[];
+  prototipo?: string | null;
+  /** El tercer puesto lo comparten dos equipos: se aclara en la etiqueta. */
+  compartido?: boolean;
+  /** Tarjeta a ancho completo, para el primer y el segundo puesto. */
+  ancha?: boolean;
+}
+
+const {
+  puesto,
+  etiqueta,
+  proyecto,
+  equipo,
+  resumen,
+  integrantes,
+  mentores,
+  prototipo = null,
+  compartido = false,
+  ancha = false,
+} = Astro.props;
+---
+
+<article class:list={['card', 'gan-eq', `gan-eq-p${puesto}`, { 'gan-eq-ancha': ancha }]}>
+  <div class="gan-eq-top">
+    <div class:list={['gan-medalla', `gan-m${puesto}`]} aria-hidden="true">{puesto}</div>
+    <div class="gan-eq-tit">
+      <p class="gan-etiqueta">
+        {etiqueta}
+        {compartido && <span class="gan-compartido">compartido</span>}
+      </p>
+      <h2>{proyecto}</h2>
+      <p class="gan-equipo">Equipo <strong>{equipo}</strong></p>
+    </div>
+  </div>
+
+  <p class="gan-resumen">{resumen}</p>
+
+  <ul class="gan-integrantes">
+    {integrantes.map((i) => (
+      <li>
+        <span class="gan-nombre">{i.nombre}</span>
+        {i.lider && <span class="gan-chip">Líder</span>}
+        <span class="gan-inst">{i.institucion}</span>
+      </li>
+    ))}
+  </ul>
+
+  <p class="gan-mentores">Mentores: {mentores.join(' y ')}</p>
+
+  {prototipo && (
+    <div class="gan-acciones">
+      <a class="btn btn-outline gan-btn" href={prototipo} target="_blank" rel="noopener noreferrer">
+        Ver el prototipo
+      </a>
+    </div>
+  )}
+</article>
+
+<style>
+  .gan-eq {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--ease) 0.3s, border-color var(--ease) 0.3s;
+  }
+
+  .gan-eq:hover {
+    transform: translateY(-4px);
+  }
+
+  .gan-eq-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  /* El número va en un círculo con color propio por puesto. El oro y la plata
+     necesitan texto oscuro; el bronce, texto claro. Los tres pares pasan
+     contraste en los dos temas. */
+  .gan-medalla {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .gan-m1 {
+    background: linear-gradient(140deg, #f5d372, #c69320);
+    color: #3d2c00;
+    border: 2px solid rgba(198, 147, 32, 0.55);
+  }
+
+  .gan-m2 {
+    background: linear-gradient(140deg, #e2e6ec, #a9b2bf);
+    color: #2b323c;
+    border: 2px solid rgba(140, 150, 165, 0.55);
+  }
+
+  .gan-m3 {
+    background: linear-gradient(140deg, #d79a6a, #a55f2f);
+    color: #fff;
+    border: 2px solid rgba(165, 95, 47, 0.55);
+  }
+
+  .gan-eq-tit {
+    min-width: 0;
+  }
+
+  .gan-etiqueta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 0.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--txt-m);
+  }
+
+  .gan-compartido {
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--txt-m);
+    border-radius: 999px;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+  }
+
+  .gan-eq h2 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    color: var(--txt-1);
+    margin: 0 0 0.25rem;
+  }
+
+  .gan-eq-p1 h2 {
+    font-size: 1.9rem;
+  }
+
+  .gan-equipo {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--txt-m);
+  }
+
+  .gan-equipo strong {
+    color: var(--txt-2);
+  }
+
+  .gan-resumen {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--txt-2);
+    margin: 0 0 1.5rem;
+    max-width: 68ch;
+  }
+
+  .gan-integrantes {
+    list-style: none;
+    margin: 0 0 1.25rem;
+    padding: 1.25rem 0 0;
+    border-top: 1px solid var(--brd);
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  /* En las tarjetas anchas los cinco integrantes en una columna dejan un hueco
+     enorme a la derecha; en las angostas del tercer puesto no entran en dos. */
+  .gan-eq-ancha .gan-integrantes {
+    gap: 0.6rem 2rem;
+  }
+
+  .gan-integrantes li {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.55rem;
+  }
+
+  .gan-nombre {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--txt-1);
+  }
+
+  .gan-chip {
+    padding: 0.05rem 0.4rem;
+    border: 1px solid var(--c1);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--c1);
+  }
+
+  :global([data-theme='brand-dark']) .gan-chip {
+    border-color: #e879d8;
+    color: #e879d8;
+  }
+
+  .gan-inst {
+    font-size: 0.8rem;
+    color: var(--txt-m);
+  }
+
+  .gan-mentores {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--txt-m);
+  }
+
+  /* `margin-top: auto` empuja los botones al pie, igual que en /recursos: en
+     una fila de tarjetas de alto distinto quedarían a alturas distintas. */
+  .gan-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+
+  .gan-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  @media (min-width: 768px) {
+    .gan-eq-ancha .gan-integrantes {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
