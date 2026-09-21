@@ -173,59 +173,67 @@ test.describe('feed RSS', () => {
   });
 });
 
-test.describe('cronómetro del Hero', () => {
+test.describe('Hero post-evento', () => {
   /**
-   * La fecha vive en `Hero.astro`, no en `event_config`. Hubo un fetch a esa
-   * tabla comentado que, de activarse, habría leído la fecha de la edición
-   * anterior y dejado el countdown en cero. Este test fija el valor bueno.
+   * Reemplaza a los tests del cronómetro (21/09/2026). Terminada la edición, el
+   * countdown se retiró del Hero: con la fecha cumplida mostraba "¡El evento ha
+   * comenzado!" de forma permanente. Estos tests fijan lo contrario de lo que
+   * fijaban aquellos: que NO vuelva un reloj ni una sala virtual muerta.
    */
-  test('apunta al 26 de agosto de 2026, 19:00', async ({ page }) => {
+  test('no queda cronómetro ni sala virtual en portada', async ({ page }) => {
     await page.goto('/');
-    const countdown = page.locator('#countdown');
-    await expect(countdown).toHaveAttribute('data-target-date', '2026-08-26T19:00:00-03:00');
+    await expect(page.locator('#countdown')).toHaveCount(0);
+    await expect(page.locator('#countdown-message')).toHaveCount(0);
+    await expect(page.locator('#cd-sala')).toHaveCount(0);
+  });
+
+  test('el Hero cuenta la edición en pasado y lleva a los ganadores', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero-badge')).toContainText('Finalizada');
+
+    const cta = page.locator('.hero-act a').first();
+    await expect(cta).toHaveAttribute('href', '/ganadores');
+    await cta.click();
+    await expect(page).toHaveURL(/\/ganadores/);
   });
 
   /**
-   * Los tres tests que siguen fijan el reloj del navegador antes de cargar la
-   * página. Sin eso dependen de cuándo corre el CI: la versión anterior de
-   * este test exigía `días > 0` y empezó a fallar sola el 26 de agosto, el
-   * día del evento, cuando los días restantes pasaron a ser 0.
+   * Los números son literales en `Hero.astro`. Si alguien los toca, que sea a
+   * conciencia: son los definitivos de la edición, verificados en producción.
    */
-  test('la cuenta regresiva corre mientras el evento no arrancó', async ({ page }) => {
-    await page.clock.setFixedTime(new Date('2026-08-20T12:00:00-03:00'));
+  test('el resumen muestra los números de la edición', async ({ page }) => {
     await page.goto('/');
-    // Si la fecha quedara en el pasado, el Hero mostraría el cartel de inicio
-    // y los dígitos se irían a cero.
-    await expect(page.locator('#countdown-message')).toBeHidden();
-    await expect(page.locator('#cdD')).toHaveText('6');
-    await expect(page.locator('#cdH')).toHaveText('07');
-  });
-
-  test('arrancada la charla, el cartel ofrece la sala virtual', async ({ page }) => {
-    await page.clock.setFixedTime(new Date('2026-08-26T19:05:00-03:00'));
-    await page.goto('/');
-    await expect(page.locator('#countdown')).toBeHidden();
-    await expect(page.locator('#countdown-message')).toBeVisible();
-    await expect(page.locator('#cd-message-txt')).toHaveText('¡La charla virtual ya empezó!');
-
-    // El link se abre en una pestaña nueva y sin pasarle el referrer a YouTube.
-    const sala = page.locator('#cd-sala');
-    await expect(sala).toBeVisible();
-    await expect(sala).toHaveAttribute('target', '_blank');
-    await expect(sala).toHaveAttribute('rel', 'noopener noreferrer');
-    expect(await sala.getAttribute('href')).toContain('youtube.com');
+    const stats = page.locator('.hero-stats .stat-val');
+    await expect(stats).toHaveText(['130', '25', '25']);
   });
 
   /**
-   * Terminada la charla, la sala no sirve más: dejarla en portada durante las
-   * dos jornadas presenciales mandaría gente a una reunión vacía.
+   * El aviso de cupo se desmontó junto con el cronómetro: `AvisoCupo.astro`
+   * sigue en el repo pero sin punto de montaje, así que ni el chip ni la barra
+   * fija deben aparecer. Un "Inscribirme" en portada mandaría a la gente a una
+   * inscripción que ya no corre.
    */
-  test('terminada la charla, la sala se retira del Hero', async ({ page }) => {
-    await page.clock.setFixedTime(new Date('2026-08-28T16:00:00-03:00'));
+  test('no queda el aviso de cupo en portada', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#countdown-message')).toBeVisible();
-    await expect(page.locator('#cd-message-txt')).toHaveText('¡El evento ha comenzado!');
-    await expect(page.locator('#cd-sala')).toBeHidden();
+    await expect(page.locator('#cupo-chip')).toHaveCount(0);
+    await expect(page.locator('#cupo-bar')).toHaveCount(0);
+  });
+});
+
+test.describe('/registro después del evento', () => {
+  test('avisa que la edición terminó y ofrece el podio', async ({ page }) => {
+    await page.goto('/registro');
+    const aviso = page.locator('.aviso-edicion');
+    await expect(aviso).toBeVisible();
+    await expect(aviso).toContainText('29 de agosto de 2026');
+    await expect(aviso.locator('a')).toHaveAttribute('href', '/ganadores');
+  });
+
+  /** El aviso no puede tapar el formulario: registrarse sigue siendo posible. */
+  test('el formulario sigue disponible', async ({ page }) => {
+    await page.goto('/registro');
+    await expect(page.locator('#register-form')).toBeVisible();
+    await expect(page.locator('#rol-mentor')).toBeVisible();
   });
 });
 
