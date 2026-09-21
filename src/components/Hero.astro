@@ -2,35 +2,30 @@
 // src/components/Hero.astro
 
 /**
- * Fecha de arranque del evento: la actividad virtual previa del miércoles 26 de
- * agosto, 19:00 (Art. 2º de las Bases). Alimenta el cronómetro del Hero.
+ * ESTADO POST-EVENTO (21/09/2026). La 2da edición terminó el 29 de agosto y el
+ * Hero pasó a contarla en pasado. Qué se fue de acá, y por qué:
  *
- * Formato: AAAA-MM-DDTHH:MM:SS-03:00 (el -03:00 es la zona horaria argentina).
+ * - El cronómetro y el botón de la sala virtual. Con la fecha ya cumplida, el
+ *   Hero venía anunciando "¡El evento ha comenzado!" tres semanas después del
+ *   cierre, que es peor que no decir nada. Ojo: `eventDate` NO se "arregló"
+ *   apuntándola a una fecha futura — la 3ra edición todavía no tiene fecha, y
+ *   un countdown hacia un dato que nadie confirmó es justo el error que
+ *   advertía el comentario anterior. Cuando haya fecha, el bloque vuelve.
  *
- * ⚠️ Vive acá a propósito, no en `event_config`. Hasta acá había un fetch a esa
- * tabla comentado, con un "opcional" que invitaba a activarlo — y activarlo
- * habría roto el sitio: `event_start_datetime` en producción todavía tenía la
- * fecha de la edición anterior (03/06), o sea una fecha pasada, así que el
- * countdown se habría ido a cero y el Hero mostraría "¡El evento ha comenzado!".
+ * - El aviso de cupo (`AvisoCupo.astro`). El componente queda en el repo pero
+ *   sin usar: este era su único punto de montaje, así que la barra fija también
+ *   se retiró del sitio. Se vuelve a importar cuando abra la próxima edición.
  *
- * Si algún día se quiere manejar la fecha desde el admin, el orden es: primero
- * corregir el dato en las dos bases, después leerlo, y recién ahí borrar esta
- * constante. Nunca al revés.
+ * Los números del resumen son literales a propósito. El sitio público se
+ * prerenderiza, así que leerlos de la base los congelaría igual en el build, y
+ * a esta altura ya son definitivos (verificados en producción el 21/09: 130
+ * participantes con equipo, 25 equipos, 25 proyectos entregados).
  */
-const eventDate = "2026-08-26T19:00:00-03:00";
-
-/**
- * Sala de la charla virtual previa (Teams). El link lo pasó Martín.
- *
- * Aparece en el Hero recién cuando el cronómetro llega a cero — o sea a las
- * 19:00 del 26 — y se retira solo cuando la charla termina, para no dejar una
- * sala muerta en portada durante las dos jornadas presenciales. Pasado ese
- * horario el Hero vuelve al mensaje genérico de siempre.
- */
-const salaVirtual = "https://www.youtube.com/live/v6irBdaa2GU";
-const salaVirtualHasta = "2026-08-26T20:30:00-03:00";
-
-import AvisoCupo from "./AvisoCupo.astro";
+const RESUMEN = [
+  { valor: "130", etiqueta: "Participantes" },
+  { valor: "25", etiqueta: "Equipos" },
+  { valor: "25", etiqueta: "Proyectos" },
+];
 ---
 
 <section class="hero" id="inicio">
@@ -41,98 +36,40 @@ import AvisoCupo from "./AvisoCupo.astro";
     </h1>
     <div class="hero-badge">
       <span class="badge-dot"></span>
-      2da Edición &mdash; Mendoza, Argentina
+      2da Edición &mdash; Finalizada
     </div>
     <p class="hero-desc">
-      Un espacio intensivo de trabajo colaborativo donde equipos
-      interdisciplinarios del Nivel Superior diseñan soluciones tecnológicas
-      innovadoras para los desafíos actuales de la educación.
+      Del 26 al 29 de agosto de 2026, equipos interdisciplinarios del Nivel
+      Superior de Mendoza trabajaron cuatro días para diseñar soluciones
+      tecnológicas a los desafíos actuales de la educación. Estos fueron los
+      resultados.
     </p>
 
-    <!-- Countdown -->
-    <!-- Sin aria-live: se actualiza cada segundo y saturaría a los lectores de pantalla -->
-    <div
-      class="countdown"
-      id="countdown"
-      data-target-date={eventDate}
-      role="timer"
-      aria-label="Cuenta regresiva para el inicio del evento"
-    >
-      <div class="countdown-item">
-        <span class="countdown-val" id="cdD">---</span><span
-          class="countdown-label">Días</span
-        >
-      </div>
-      <div class="countdown-item">
-        <span class="countdown-val" id="cdH">--</span><span
-          class="countdown-label">Horas</span
-        >
-      </div>
-      <div class="countdown-item">
-        <span class="countdown-val" id="cdM">--</span><span
-          class="countdown-label">Min</span
-        >
-      </div>
-      <div class="countdown-item">
-        <span class="countdown-val" id="cdS">--</span><span
-          class="countdown-label">Seg</span
-        >
-      </div>
-    </div>
-    <div id="countdown-message" class="cd-message" style="display: none;">
-      <span id="cd-message-txt">¡El evento ha comenzado!</span>
-      <a
-        id="cd-sala"
-        class="btn btn-primary cd-sala"
-        href={salaVirtual}
-        data-hasta={salaVirtualHasta}
-        target="_blank"
-        rel="noopener noreferrer"
-        style="display: none;"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-          ><path d="M23 7l-7 5 7 5V7z"></path><rect
-            x="1"
-            y="5"
-            width="15"
-            height="14"
-            rx="2"
-            ry="2"></rect></svg
-        >
-        Entrar a la charla virtual
-      </a>
+    {/* Resumen de la edición. Ocupa el lugar que tenía el cronómetro, con la
+       misma jerarquía visual: es lo primero que mira quien entra. */}
+    <div class="hero-stats">
+      {
+        RESUMEN.map((dato) => (
+          <div class="stat-item">
+            <span class="stat-val">{dato.valor}</span>
+            <span class="stat-label">{dato.etiqueta}</span>
+          </div>
+        ))
+      }
     </div>
 
     <div class="hero-dates">
-      <div class="date-chip"><strong>26 Ago</strong> &mdash; Virtual</div>
       <div class="date-chip">
-        <strong>28-29 Ago</strong> &mdash; Presencial
+        <strong>26-29 Ago 2026</strong> &mdash; Maipú, Mendoza
       </div>
+      <div class="date-chip"><strong>10</strong> &mdash; Finalistas</div>
     </div>
 
-    {
-      /* Aviso de cupo. El chip se muestra acá, pegado al CTA; la barra fija que
-        trae el mismo componente es `position: fixed`, así que se ancla al
-        viewport y no a este lugar del DOM. Ambos quedan ocultos hasta que
-        `/api/cupo` responde. */
-    }
-    <AvisoCupo conChip />
-
     <div class="hero-act">
-      <a href="/registro" class="btn btn-primary btn-lg glow-btn"
-        >Inscribirse ahora &rarr;</a
+      <a href="/ganadores" class="btn btn-primary btn-lg glow-btn"
+        >Ver los ganadores &rarr;</a
       >
-      <a href="#acerca" class="btn btn-outline btn-lg">Conocer más</a>
+      <a href="/noticias" class="btn btn-outline btn-lg">Cobertura y noticias</a>
     </div>
   </div>
 </section>
@@ -200,25 +137,14 @@ import AvisoCupo from "./AvisoCupo.astro";
     animation-delay: 0.2s;
   }
 
+  /* El punto ya no late: la pulsación decía "esto está pasando ahora" y la
+     edición está cerrada. Queda como viñeta del badge. */
   .badge-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: var(--c2);
-    animation: badgePulse 2s infinite;
     transition: background var(--t-theme);
-  }
-
-  @keyframes badgePulse {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.5;
-      transform: scale(1.5);
-    }
   }
 
   .hero-title {
@@ -268,8 +194,9 @@ import AvisoCupo from "./AvisoCupo.astro";
     animation-delay: 0.55s;
   }
 
-  /* Claude-style Countdown */
-  .countdown {
+  /* Resumen de la edición: hereda el tratamiento que tenía el cronómetro
+     (dígito grande con degradado + etiqueta en versalitas). */
+  .hero-stats {
     display: flex;
     justify-content: center;
     gap: 24px;
@@ -281,11 +208,11 @@ import AvisoCupo from "./AvisoCupo.astro";
     animation-delay: 0.65s;
   }
 
-  .countdown-item {
+  .stat-item {
     text-align: center;
   }
 
-  .countdown-val {
+  .stat-val {
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 5vw, 3.5rem);
     font-weight: 900;
@@ -297,41 +224,13 @@ import AvisoCupo from "./AvisoCupo.astro";
     margin-bottom: 0.25rem;
   }
 
-  .countdown-label {
+  .stat-label {
     font-family: var(--font-heading);
     font-weight: 400;
     font-size: 0.75rem;
     color: var(--txt-2);
     text-transform: uppercase;
     letter-spacing: 0.15em;
-  }
-
-  .cd-message {
-    /* `display` lo maneja el script: queda en `none` hasta que el cronómetro
-       llega a cero y ahí pasa a `flex`. */
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-    color: var(--c1);
-    margin-bottom: 2.5rem;
-    font-weight: bold;
-    text-shadow: 0 0 10px rgba(var(--c1r), 0.5);
-
-    opacity: 0;
-    animation: fadeUp 0.7s var(--ease) forwards;
-    animation-delay: 0.65s;
-  }
-
-  /* Botón de la sala virtual: hereda de .btn/.btn-primary, acá sólo se le saca
-     el text-shadow que arrastra de .cd-message y se le fija un tamaño propio. */
-  .cd-sala {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    text-shadow: none;
   }
 
   /* Claude-style Dates */
@@ -415,18 +314,18 @@ import AvisoCupo from "./AvisoCupo.astro";
     }
   }
   @media (max-width: 640px) {
-    .countdown {
+    .hero-stats {
       gap: 12px;
     }
   }
   @media (max-width: 360px) {
-    .countdown {
+    .hero-stats {
       gap: 8px;
     }
-    .countdown-val {
+    .stat-val {
       font-size: 1.75rem;
     }
-    .countdown-label {
+    .stat-label {
       font-size: 0.6rem;
       letter-spacing: 0.05em;
     }
@@ -439,58 +338,3 @@ import AvisoCupo from "./AvisoCupo.astro";
     }
   }
 </style>
-
-<script>
-  /* Countdown Timer Logic */
-  const cdContainer = document.getElementById("countdown");
-  const cdMessage = document.getElementById("countdown-message");
-
-  function updateCD() {
-    const countdownEl = document.getElementById("countdown");
-    const targetDateStr =
-      countdownEl?.getAttribute("data-target-date") ||
-      "2026-08-26T19:00:00-03:00";
-    const target = new Date(targetDateStr).getTime();
-    const now = new Date().getTime();
-    const diff = target - now;
-
-    if (diff <= 0) {
-      if (cdContainer) cdContainer.style.display = "none";
-      if (cdMessage) cdMessage.style.display = "flex";
-
-      // La sala de la charla virtual sólo se ofrece mientras la charla dura:
-      // pasado `data-hasta` el botón se retira y queda el mensaje genérico.
-      const sala = document.getElementById("cd-sala");
-      const txt = document.getElementById("cd-message-txt");
-      if (sala) {
-        const hasta = new Date(sala.getAttribute("data-hasta") || 0).getTime();
-        const enVivo = now < hasta;
-        sala.style.display = enVivo ? "inline-flex" : "none";
-        if (txt) {
-          txt.textContent = enVivo
-            ? "¡La charla virtual ya empezó!"
-            : "¡El evento ha comenzado!";
-        }
-      }
-      return;
-    }
-
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-
-    const cdD = document.getElementById("cdD");
-    const cdH = document.getElementById("cdH");
-    const cdM = document.getElementById("cdM");
-    const cdS = document.getElementById("cdS");
-
-    if (cdD) cdD.textContent = String(d); // Eliminado el padStart para los días
-    if (cdH) cdH.textContent = String(h).padStart(2, "0");
-    if (cdM) cdM.textContent = String(m).padStart(2, "0");
-    if (cdS) cdS.textContent = String(s).padStart(2, "0");
-  }
-
-  updateCD();
-  setInterval(updateCD, 1000);
-</script>
